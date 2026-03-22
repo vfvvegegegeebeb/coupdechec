@@ -225,6 +225,10 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
   .score-badge{ font-size:1.1rem; }
 }
 
+/* sélection tactile */
+.sq.touch-sel{box-shadow:inset 0 0 0 4px #f0c040 !important;background:rgba(240,192,64,.18) !important}
+.tray-piece.touch-sel{border-color:var(--gold)!important;background:#252540!important;transform:scale(1.08)}
+
 /* ══ très petit écran (≤ 360 px) ══ */
 @media (max-width:360px){
   .tray-piece{ width:36px; height:36px; }
@@ -406,6 +410,9 @@ let engineReady = false;
 let lastScore   = 0;
 let lastBestMove= null;
 
+let touchSelected = null;  // { piece, fromSq }  fromSq=null → vient du tray
+let _tStart       = null;  // {x,y} du dernier touchstart
+
 /* ══════════════════════════════════════════════
    INITIAL POSITION
 ══════════════════════════════════════════════ */
@@ -493,6 +500,34 @@ function renderBoard(){
         document.getElementById('btn-undo').disabled = false;
       });
 
+      // ── touch : tap-to-select / tap-to-place ──
+      div.addEventListener('touchstart', e=>{
+        _tStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
+      },{passive:true});
+      div.addEventListener('touchend', e=>{
+        if(!isTap(e)) return;
+        e.preventDefault();
+
+        // mode effacement
+        if(eraseMode){
+          if(!boardState[sq]) return;
+          pushUndo();
+          delete boardState[sq];
+          renderBoard(); syncFen(); clearArrow();
+          document.getElementById('btn-undo').disabled=false;
+          return;
+        }
+
+        if(touchSelected){
+          if(touchSelected.fromSq===sq){ clearTouchSel(); return; } // re-tap = désélectionne
+          applyTouchMove(sq);
+        } else if(boardState[sq]){
+          touchSelected={piece:boardState[sq],fromSq:sq};
+          div.classList.add('touch-sel');
+          document.getElementById('status-bar').textContent='Tapez la case destination.';
+        }
+      });
+
       boardEl.appendChild(div);
     });
   });
@@ -521,6 +556,22 @@ document.querySelectorAll('.tray-piece').forEach(el=>{
   el.addEventListener('dragstart', e=>{
     dragData = { piece: el.dataset.piece, fromSq: null };
     e.dataTransfer.effectAllowed='copy';
+  });
+  // ── touch ──
+  el.addEventListener('touchstart', e=>{
+    _tStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
+  },{passive:true});
+  el.addEventListener('touchend', e=>{
+    if(!isTap(e)) return;
+    e.preventDefault();
+    // re-tap sur la même pièce → désélectionne
+    const already=touchSelected&&!touchSelected.fromSq&&touchSelected.piece===el.dataset.piece;
+    clearTouchSel();
+    if(!already){
+      touchSelected={piece:el.dataset.piece,fromSq:null};
+      el.classList.add('touch-sel');
+      document.getElementById('status-bar').textContent='Tapez une case pour poser la pièce.';
+    }
   });
 });
 
@@ -1018,6 +1069,30 @@ document.getElementById('best-move').addEventListener('click',()=>{
   if(!lastBestMove) return;
   playMove(lastBestMove.from, lastBestMove.to, lastBestMove.promo);
 });
+
+/* ══════════════════════════════════════════════
+   TOUCH HELPERS
+══════════════════════════════════════════════ */
+function isTap(e){
+  if(!_tStart) return false;
+  const t=e.changedTouches[0];
+  return Math.abs(t.clientX-_tStart.x)<12 && Math.abs(t.clientY-_tStart.y)<12;
+}
+
+function clearTouchSel(){
+  document.querySelectorAll('.touch-sel').forEach(el=>el.classList.remove('touch-sel'));
+  touchSelected=null;
+}
+
+function applyTouchMove(toSq){
+  if(!touchSelected) return;
+  pushUndo();
+  if(touchSelected.fromSq) delete boardState[touchSelected.fromSq];
+  boardState[toSq]=touchSelected.piece;
+  touchSelected=null;   // vider avant renderBoard
+  renderBoard(); syncFen(); clearArrow();
+  document.getElementById('btn-undo').disabled=false;
+}
 
 /* ══════════════════════════════════════════════
    INIT
