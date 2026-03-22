@@ -225,9 +225,17 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
   .score-badge{ font-size:1.1rem; }
 }
 
-/* sélection tactile */
-.sq.touch-sel{box-shadow:inset 0 0 0 4px #f0c040 !important;background:rgba(240,192,64,.18) !important}
-.tray-piece.touch-sel{border-color:var(--gold)!important;background:#252540!important;transform:scale(1.08)}
+/* pièce fantôme (drag tactile) */
+.touch-ghost{
+  position:fixed;pointer-events:none;z-index:9999;
+  width:72px;height:72px;
+  transform:translate(-50%,-80%);
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.7));
+  opacity:.93;
+  will-change:left,top;
+}
+/* bloquer le scroll natif sur les zones de jeu */
+.sq,.tray-piece{touch-action:none}
 
 /* ══ très petit écran (≤ 360 px) ══ */
 @media (max-width:360px){
@@ -410,8 +418,7 @@ let engineReady = false;
 let lastScore   = 0;
 let lastBestMove= null;
 
-let touchSelected = null;  // { piece, fromSq }  fromSq=null → vient du tray
-let _tStart       = null;  // {x,y} du dernier touchstart
+let touchDrag = null; // { piece, fromSq, ghost, originEl }
 
 /* ══════════════════════════════════════════════
    INITIAL POSITION
@@ -500,33 +507,24 @@ function renderBoard(){
         document.getElementById('btn-undo').disabled = false;
       });
 
-      // ── touch : tap-to-select / tap-to-place ──
+      // ── touch drag ──
       div.addEventListener('touchstart', e=>{
-        _tStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
-      },{passive:true});
-      div.addEventListener('touchend', e=>{
-        if(!isTap(e)) return;
-        e.preventDefault();
-
-        // mode effacement
         if(eraseMode){
+          // en mode effacement : effacer au toucher
           if(!boardState[sq]) return;
+          e.preventDefault();
           pushUndo();
           delete boardState[sq];
           renderBoard(); syncFen(); clearArrow();
           document.getElementById('btn-undo').disabled=false;
           return;
         }
-
-        if(touchSelected){
-          if(touchSelected.fromSq===sq){ clearTouchSel(); return; } // re-tap = désélectionne
-          applyTouchMove(sq);
-        } else if(boardState[sq]){
-          touchSelected={piece:boardState[sq],fromSq:sq};
-          div.classList.add('touch-sel');
-          document.getElementById('status-bar').textContent='Tapez la case destination.';
-        }
-      });
+        if(!boardState[sq]) return; // case vide → pas de drag
+        e.preventDefault();
+        const touch=e.touches[0];
+        const img=div.querySelector('img');
+        startTouchDrag(boardState[sq], sq, img||div, touch.clientX, touch.clientY);
+      },{passive:false});
 
       boardEl.appendChild(div);
     });
@@ -557,22 +555,12 @@ document.querySelectorAll('.tray-piece').forEach(el=>{
     dragData = { piece: el.dataset.piece, fromSq: null };
     e.dataTransfer.effectAllowed='copy';
   });
-  // ── touch ──
+  // ── touch drag ──
   el.addEventListener('touchstart', e=>{
-    _tStart={x:e.touches[0].clientX,y:e.touches[0].clientY};
-  },{passive:true});
-  el.addEventListener('touchend', e=>{
-    if(!isTap(e)) return;
     e.preventDefault();
-    // re-tap sur la même pièce → désélectionne
-    const already=touchSelected&&!touchSelected.fromSq&&touchSelected.piece===el.dataset.piece;
-    clearTouchSel();
-    if(!already){
-      touchSelected={piece:el.dataset.piece,fromSq:null};
-      el.classList.add('touch-sel');
-      document.getElementById('status-bar').textContent='Tapez une case pour poser la pièce.';
-    }
-  });
+    const touch=e.touches[0];
+    startTouchDrag(el.dataset.piece, null, el, touch.clientX, touch.clientY);
+  },{passive:false});
 });
 
 // eraser drag
@@ -1071,28 +1059,69 @@ document.getElementById('best-move').addEventListener('click',()=>{
 });
 
 /* ══════════════════════════════════════════════
-   TOUCH HELPERS
+   TOUCH DRAG & DROP (mobile)
 ══════════════════════════════════════════════ */
-function isTap(e){
-  if(!_tStart) return false;
+function startTouchDrag(piece, fromSq, originEl, x, y){
+  const ghost=document.createElement('img');
+  ghost.src=PIECE_IMG(piece);
+  ghost.className='touch-ghost';
+  ghost.style.left=x+'px';
+  ghost.style.top=y+'px';
+  document.body.appendChild(ghost);
+  if(originEl) originEl.style.opacity='.2';
+  touchDrag={piece,fromSq,ghost,originEl};
+}
+
+// déplacer le ghost avec le doigt
+document.addEventListener('touchmove', e=>{
+  if(!touchDrag) return;
+  e.preventDefault();
+  const t=e.touches[0];
+  touchDrag.ghost.style.left=t.clientX+'px';
+  touchDrag.ghost.style.top=t.clientY+'px';
+},{passive:false});
+
+// déposer la pièce
+document.addEventListener('touchend', e=>{
+  if(!touchDrag) return;
+  const {piece,fromSq,ghost,originEl}=touchDrag;
+  touchDrag=null;
+
   const t=e.changedTouches[0];
-  return Math.abs(t.clientX-_tStart.x)<12 && Math.abs(t.clientY-_tStart.y)<12;
-}
+  // masquer ghost pour trouver l'élément dessous
+  ghost.style.visibility='hidden';
+  const under=document.elementFromPoint(t.clientX,t.clientY);
+  ghost.remove();
+  if(originEl) originEl.style.opacity='';
 
-function clearTouchSel(){
-  document.querySelectorAll('.touch-sel').forEach(el=>el.classList.remove('touch-sel'));
-  touchSelected=null;
-}
+  const sqEl=under?.closest('.sq');
+  const trayEl=under?.closest('#tray');
 
-function applyTouchMove(toSq){
-  if(!touchSelected) return;
-  pushUndo();
-  if(touchSelected.fromSq) delete boardState[touchSelected.fromSq];
-  boardState[toSq]=touchSelected.piece;
-  touchSelected=null;   // vider avant renderBoard
-  renderBoard(); syncFen(); clearArrow();
-  document.getElementById('btn-undo').disabled=false;
-}
+  if(sqEl){
+    const toSq=sqEl.dataset.sq;
+    if(toSq===fromSq) return; // même case → annuler
+    pushUndo();
+    if(fromSq) delete boardState[fromSq];
+    boardState[toSq]=piece;
+    renderBoard(); syncFen(); clearArrow();
+    document.getElementById('btn-undo').disabled=false;
+  } else if(trayEl && fromSq){
+    // glisser une pièce du plateau vers le tray = supprimer
+    pushUndo();
+    delete boardState[fromSq];
+    renderBoard(); syncFen(); clearArrow();
+    document.getElementById('btn-undo').disabled=false;
+  }
+  // sinon drop invalide → rien, la pièce reste
+},{passive:false});
+
+// interruption système (appel entrant, etc.)
+document.addEventListener('touchcancel',()=>{
+  if(!touchDrag) return;
+  touchDrag.ghost.remove();
+  if(touchDrag.originEl) touchDrag.originEl.style.opacity='';
+  touchDrag=null;
+});
 
 /* ══════════════════════════════════════════════
    INIT
