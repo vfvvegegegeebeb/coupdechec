@@ -138,6 +138,101 @@ textarea#fen-input:focus{outline:none;border-color:var(--gold)}
 .eval-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .6s}
 
 footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border)}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE MOBILE  (≤ 700 px)
+══════════════════════════════════════════════ */
+@media (max-width:700px){
+
+  /* ── layout column ── */
+  .layout{
+    flex-direction:column;
+    align-items:center;
+    padding:8px;
+    gap:8px;
+    max-width:100%;
+  }
+
+  /* ── order: board → tray → controls ── */
+  .center  { order:1; width:100%; }
+  .tray    { order:2; width:100%; }
+  .controls{ order:3; width:100%; }
+
+  /* ── board pleine largeur ── */
+  .board-outer{ width:100%; }
+  .board-col  { width:100%; }
+  #board{
+    width:calc(100vw - 44px) !important; /* 8px pad×2 + rank-labels 20px + 8px marge */
+  }
+  .file-labels,
+  .status-bar{
+    width:calc(100vw - 44px) !important;
+  }
+  .rank-labels{ width:14px; padding-right:3px; }
+  .rank-labels span{ font-size:.55rem; }
+  .file-labels span{ font-size:.55rem; }
+
+  /* ── tray horizontal compact ── */
+  .tray{
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:4px;
+    padding:8px 6px;
+    background:var(--card);
+    border-radius:10px;
+    border:1px solid var(--border);
+  }
+
+  /* petits séparateurs de section → deviennent des sauts de ligne */
+  .tray-section{
+    width:100%;
+    font-size:.55rem;
+    margin:2px 0 0;
+    padding-bottom:2px;
+    border-bottom:1px solid var(--border);
+  }
+  /* premier .tray-section n'a pas besoin de marge haute */
+  .tray-section:first-child{ margin-top:0; }
+
+  .tray-sep{ display:none; }
+
+  .tray-piece{
+    width:42px; height:42px;
+    border-radius:6px;
+  }
+  .tray-piece img{ width:32px; height:32px; }
+
+  .tray-eraser{
+    width:42px; height:42px;
+    font-size:.6rem;
+    flex-direction:column;
+    gap:1px;
+    margin-top:0;
+    border-radius:6px;
+  }
+
+  /* ── controls pleine largeur ── */
+  .controls{ width:100%; }
+  .panel{ padding:11px; }
+
+  /* bouton analyse plus accessible */
+  #analyse-btn{ padding:14px; font-size:.9rem; }
+
+  /* result panel : best move plus lisible sur petit écran */
+  .best-move{ font-size:2rem; }
+  .score-badge{ font-size:1.1rem; }
+}
+
+/* ══ très petit écran (≤ 360 px) ══ */
+@media (max-width:360px){
+  .tray-piece{ width:36px; height:36px; }
+  .tray-piece img{ width:28px; height:28px; }
+  .tray-eraser{ width:36px; height:36px; }
+  #board{ width:calc(100vw - 36px) !important; }
+  .file-labels,.status-bar{ width:calc(100vw - 36px) !important; }
+}
 </style>
 </head>
 <body>
