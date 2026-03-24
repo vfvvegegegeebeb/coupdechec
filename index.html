@@ -711,7 +711,17 @@ function parseFen(fen){
   return true;
 }
 
+function syncCastling(){
+  // Mettre à jour les cases à cocher selon les pièces présentes
+  // (settin .checked en JS ne déclenche pas l'événement 'change' → pas de boucle infinie)
+  document.getElementById('c-wK').checked = boardState['e1']==='wK' && boardState['h1']==='wR';
+  document.getElementById('c-wQ').checked = boardState['e1']==='wK' && boardState['a1']==='wR';
+  document.getElementById('c-bK').checked = boardState['e8']==='bK' && boardState['h8']==='bR';
+  document.getElementById('c-bQ').checked = boardState['e8']==='bK' && boardState['a8']==='bR';
+}
+
 function syncFen(){
+  syncCastling();
   document.getElementById('fen-input').value = buildFen();
 }
 
