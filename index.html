@@ -170,6 +170,24 @@ textarea#fen-input:focus{outline:none;border-color:var(--gold)}
 
 footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border)}
 
+#btn-share{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:min(512px,calc(100vw - 230px));
+  padding:10px 16px;
+  background:var(--card);border:1.5px solid var(--border);border-radius:9px;
+  color:var(--text);font-size:.84rem;font-weight:700;cursor:pointer;
+  transition:border-color .15s,background .15s;
+  white-space:nowrap;
+}
+#btn-share:hover{border-color:var(--gold);background:#1e1e10;color:var(--gold)}
+#btn-share.copied{border-color:var(--green);color:var(--green);background:#0a2a15}
+@media (max-width:700px){
+  #btn-share{width:calc(100vw - 44px)}
+}
+@media (max-width:360px){
+  #btn-share{width:calc(100vw - 36px)}
+}
+
 /* ══════════════════════════════════════════════
    RESPONSIVE MOBILE  (≤ 700 px)
 ══════════════════════════════════════════════ */
@@ -323,6 +341,7 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
       </div>
     </div>
     <div class="status-bar" id="status-bar">Chargement du moteur…</div>
+    <button id="btn-share">🔗 Partager cette position</button>
   </div>
 
   <!-- ══ CONTROLS ══ -->
@@ -1155,9 +1174,31 @@ document.addEventListener('touchcancel',()=>{
 });
 
 /* ══════════════════════════════════════════════
+   PARTAGE DE POSITION
+══════════════════════════════════════════════ */
+document.getElementById('btn-share').addEventListener('click', function(){
+  const fen  = buildFen();
+  const url  = location.origin + location.pathname + '?fen=' + encodeURIComponent(fen);
+  navigator.clipboard.writeText(url).then(()=>{
+    this.textContent = '✓ Lien copié !';
+    this.classList.add('copied');
+    setTimeout(()=>{
+      this.textContent = '🔗 Partager cette position';
+      this.classList.remove('copied');
+    }, 2000);
+  });
+});
+
+/* ══════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════ */
-boardState = startPosition();
+// Charger la position depuis l'URL si ?fen= présent
+const _urlFen = new URLSearchParams(location.search).get('fen');
+if(_urlFen && parseFen(decodeURIComponent(_urlFen))){
+  // position chargée depuis le lien partagé
+} else {
+  boardState = startPosition();
+}
 renderBoard();
 syncFen();
 initEngine();
