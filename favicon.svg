@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="6" fill="#0f0f1a"/>
+  <!-- Pion doré -->
+  <circle cx="16" cy="8" r="5" fill="#f0c040"/>
+  <rect x="13.5" y="12" width="5" height="3.5" rx="0.8" fill="#f0c040"/>
+  <path d="M10.5 15.5 C10 18.5 11 21 14 22 L18 22 C21 21 22 18.5 21.5 15.5 Z" fill="#f0c040"/>
+  <rect x="9" y="22" width="14" height="3.5" rx="1.5" fill="#f0c040"/>
+  <rect x="7" y="25" width="18" height="3.5" rx="1.5" fill="#c8a020"/>
+</svg>
