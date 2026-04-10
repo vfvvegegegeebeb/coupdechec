@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Comment analyser une position aux échecs — Guide complet | CoupDéchec</title>
+<meta name="description" content="Apprenez à analyser une position aux échecs comme un pro. Méthodes d'analyse, utilisation de Stockfish, erreurs fréquentes et outils gratuits en ligne."/>
+<meta name="keywords" content="analyser position échecs, analyse échecs débutant, Stockfish analyse, comment analyser aux échecs, analyse position échecs en ligne"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://coupdechec.vercel.app/analyse-echecs"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://coupdechec.vercel.app/analyse-echecs"/>
+<meta property="og:title" content="Comment analyser une position aux échecs — Guide complet"/>
+<meta property="og:description" content="Méthodes d'analyse, Stockfish, erreurs fréquentes. Tout ce qu'il faut savoir pour progresser aux échecs."/>
+<meta property="og:locale" content="fr_FR"/>
+<meta property="og:site_name" content="CoupDéchec"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GSCXNSLW1N"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GSCXNSLW1N');</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f1a;--surface:#16162a;--card:#1e1e35;--border:#2a2a48;
+  --gold:#f0c040;--gold2:#c8a020;--text:#dde0f0;--muted:#7070a0;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);text-decoration:none}
+.logo em{color:var(--gold);font-style:normal}
+.nav-back{color:var(--muted);font-size:.83rem;text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s}
+.nav-back:hover{color:var(--text);text-decoration:none}
+
+.container{max-width:760px;margin:0 auto;padding:48px 24px 80px;width:100%}
+
+.breadcrumb{font-size:.75rem;color:var(--muted);margin-bottom:28px}
+.breadcrumb a{color:var(--muted)}
+.breadcrumb a:hover{color:var(--text)}
+
+h1{font-family:'Syne',sans-serif;font-size:clamp(1.7rem,4vw,2.6rem);font-weight:800;line-height:1.15;margin-bottom:16px;color:var(--text)}
+.intro{font-size:1.05rem;color:var(--muted);margin-bottom:40px;max-width:620px}
+
+h2{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:var(--text);margin:40px 0 14px;padding-top:8px;border-top:1px solid var(--border)}
+h3{font-size:1rem;font-weight:700;color:var(--gold);margin:24px 0 8px}
+p{margin-bottom:14px;color:var(--text);font-size:.95rem}
+ul,ol{padding-left:20px;margin-bottom:14px}
+li{margin-bottom:6px;font-size:.95rem;color:var(--text)}
+strong{color:var(--text);font-weight:700}
+
+.tip-box{
+  background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);
+  border-radius:10px;padding:16px 20px;margin:24px 0;
+}
+.tip-box p{margin:0;font-size:.88rem}
+
+.cta-box{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:28px 24px;margin:48px 0 0;text-align:center;
+}
+.cta-box h3{color:var(--text);margin:0 0 8px;font-family:'Syne',sans-serif;font-size:1.1rem}
+.cta-box p{color:var(--muted);font-size:.88rem;margin:0 0 18px}
+.btn-gold{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;background:var(--gold);color:#111;
+  border-radius:8px;font-weight:800;font-size:.92rem;
+  font-family:'Syne',sans-serif;text-decoration:none;transition:.15s;
+}
+.btn-gold:hover{background:var(--gold2);text-decoration:none}
+
+footer{margin-top:auto;text-align:center;padding:28px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">Coup<em>Déchec</em></a>
+  <a class="nav-back" href="/">← Retour à l'analyseur</a>
+</nav>
+
+<div class="container">
+
+  <div class="breadcrumb">
+    <a href="/">Accueil</a> › Analyse aux échecs
+  </div>
+
+  <h1>Comment analyser une position aux échecs</h1>
+  <p class="intro">L'analyse de position est la compétence la plus importante aux échecs. Que vous soyez débutant ou joueur intermédiaire, apprendre à lire un échiquier correctement fait toute la différence.</p>
+
+  <h2>Pourquoi analyser ses parties ?</h2>
+  <p>La plupart des joueurs se contentent de jouer sans jamais revenir sur leurs erreurs. Pourtant, <strong>analyser une partie après coup</strong> est le moyen le plus rapide de progresser. C'est ce que font tous les grands maîtres : chaque partie est un cours.</p>
+  <p>Analyser permet de :</p>
+  <ul>
+    <li>Identifier les coups faibles et comprendre pourquoi ils sont mauvais</li>
+    <li>Repérer les tactiques manquées (fourchettes, clouages, enfilades)</li>
+    <li>Comprendre les plans stratégiques à long terme</li>
+    <li>Mémoriser les erreurs pour ne plus les reproduire</li>
+  </ul>
+
+  <h2>Les 4 étapes d'une analyse de position</h2>
+
+  <h3>1. Évaluer le matériel</h3>
+  <p>La première chose à regarder : le compte des pièces. Qui a l'avantage matériel ? Un pion vaut 1 point, un cavalier ou fou 3, une tour 5, une dame 9. Une avance matérielle ne garantit pas la victoire, mais elle donne une base solide.</p>
+
+  <h3>2. Évaluer la structure de pions</h3>
+  <p>Les pions ne reculent jamais. Une <strong>structure de pions saine</strong> (sans pions doublés, isolés ou arriérés) est un avantage durable. À l'inverse, des pions faibles sont des cibles permanentes pour l'adversaire.</p>
+
+  <h3>3. Évaluer la sécurité du roi</h3>
+  <p>Un roi non roqué ou mal défendu est une faiblesse critique. Avant de lancer une attaque, demandez-vous toujours : <em>mon roi est-il en sécurité ?</em> Un roi exposé peut renverser n'importe quel avantage matériel.</p>
+
+  <h3>4. Identifier les cases et pièces actives</h3>
+  <p>Une pièce active est une pièce qui contrôle beaucoup de cases importantes. Un cavalier en e5 est souvent bien meilleur qu'un cavalier en a3. <strong>L'activité des pièces</strong> est souvent plus importante que la valeur brute du matériel.</p>
+
+  <div class="tip-box">
+    <p>💡 <strong>Astuce :</strong> Avant chaque coup, posez-vous ces 3 questions : Quelle est la menace de l'adversaire ? Quel est mon plan ? Mon coup améliore-t-il la position de mes pièces ?</p>
+  </div>
+
+  <h2>Utiliser un moteur d'analyse : Stockfish</h2>
+  <p><strong>Stockfish</strong> est le moteur d'échecs open source le plus puissant au monde. Il analyse des millions de coups par seconde et donne une évaluation numérique de chaque position (en centipions, où +1.0 = avantage d'un pion pour les Blancs).</p>
+  <p>Comment lire l'évaluation Stockfish :</p>
+  <ul>
+    <li><strong>0.0</strong> : position équilibrée</li>
+    <li><strong>+1.0 à +2.0</strong> : léger avantage pour les Blancs</li>
+    <li><strong>+3.0 et plus</strong> : avantage décisif pour les Blancs</li>
+    <li><strong>#3</strong> : mat en 3 coups</li>
+    <li>Les valeurs négatives indiquent un avantage pour les Noirs</li>
+  </ul>
+  <p>Attention : Stockfish joue à un niveau surhumain. Pour progresser, ne regardez pas uniquement le meilleur coup — essayez de <strong>comprendre pourquoi</strong> ce coup est le meilleur.</p>
+
+  <h2>Les erreurs d'analyse les plus fréquentes</h2>
+  <ul>
+    <li><strong>Analyser trop vite :</strong> prendre le premier coup suggéré sans chercher à comprendre</li>
+    <li><strong>Ignorer l'adversaire :</strong> oublier de chercher les menaces de l'adversaire avant de jouer</li>
+    <li><strong>Ne pas calculer les variantes :</strong> se fier uniquement à l'intuition sans calculer concrètement</li>
+    <li><strong>Négliger la finale :</strong> beaucoup de parties se gagnent ou se perdent en finale, pas en ouverture</li>
+  </ul>
+
+  <h2>Analyser avec CoupDéchec</h2>
+  <p>CoupDéchec vous permet d'analyser n'importe quelle position gratuitement, directement dans votre navigateur, sans inscription. Glissez-déposez les pièces sur l'échiquier, ajustez le niveau de Stockfish de 1 à 20, et obtenez instantanément le meilleur coup avec son évaluation.</p>
+
+  <div class="cta-box">
+    <h3>Analysez une position maintenant</h3>
+    <p>Éditeur de position gratuit · Stockfish local · Aucune inscription</p>
+    <a class="btn-gold" href="/">♟ Ouvrir l'analyseur</a>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/">CoupDéchec</a> · Analyse aux échecs gratuite · Stockfish en ligne
+</footer>
+
+</body>
+</html>

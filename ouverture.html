@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ouverture d'échecs | CoupDEchec</title>
+<meta name="description" content="Découvrez cette ouverture d'échecs : coups principaux, stratégie, variantes et analyse Stockfish."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" id="canonical-url" href="https://coupdechec.vercel.app/ouvertures"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--surface:#16162a;--card:#1e1e35;--border:#2a2a48;--gold:#f0c040;--gold2:#c8a020;--text:#dde0f0;--muted:#7070a0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,26,.95);backdrop-filter:blur(12px);z-index:100}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);text-decoration:none}
+.nav-logo em{color:var(--gold);font-style:normal}
+.nav-back{display:flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:.82rem;transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.nav-back svg{width:14px;height:14px}
+
+/* HERO */
+.hero{padding:52px 40px 34px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(240,192,64,.07) 0%,transparent 70%)}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.badge{font-size:.7rem;padding:4px 12px;border-radius:999px;font-weight:600;letter-spacing:.3px}
+.badge-eco{color:var(--muted);background:var(--surface);border:1px solid var(--border);font-family:monospace}
+.badge-cat{color:var(--gold);background:rgba(240,192,64,.09);border:1px solid rgba(240,192,64,.25)}
+.badge-color{color:#9dd;background:rgba(153,221,221,.07);border:1px solid rgba(153,221,221,.2)}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.9rem,4vw,2.9rem);font-weight:800;line-height:1.1;margin-bottom:10px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-sub{font-size:.95rem;color:var(--muted);margin-bottom:20px;max-width:600px}
+.moves-badge{display:inline-block;font-family:monospace;font-size:.85rem;font-weight:700;color:var(--gold);background:rgba(240,192,64,.09);border:1.5px solid rgba(240,192,64,.28);border-radius:8px;padding:5px 14px}
+
+/* MAIN GRID */
+.main{flex:1;max-width:1060px;margin:0 auto;width:100%;padding:44px 24px 0}
+.content-grid{display:grid;grid-template-columns:1fr 340px;gap:48px;align-items:start}
+@media(max-width:860px){.content-grid{grid-template-columns:1fr}.board-side{order:-1}}
+
+/* LEFT: intro */
+.section-label{font-size:.67rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;margin-bottom:10px}
+.desc-paras p{color:var(--text);font-size:.95rem;line-height:1.75;margin-bottom:14px}
+
+/* RIGHT: board + navigator */
+.board-side{display:flex;flex-direction:column;gap:12px;position:sticky;top:88px}
+#mini-board{width:100%;display:grid;grid-template-columns:repeat(8,1fr);border:2px solid #555;border-radius:4px;overflow:hidden;user-select:none}
+#mini-board>div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#mini-board img{width:86%;height:86%;object-fit:contain;pointer-events:none;display:block}
+
+.move-nav{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.move-nav-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.move-label{font-family:monospace;font-size:.82rem;font-weight:700;color:var(--gold)}
+.move-counter{font-size:.67rem;color:var(--muted)}
+.move-comment{font-size:.78rem;color:var(--muted);line-height:1.5;min-height:34px;margin-bottom:10px}
+.move-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.move-btns button{padding:6px 4px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:.95rem;font-weight:800;cursor:pointer;transition:.15s}
+.move-btns button:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.move-btns button:disabled{opacity:.28;cursor:default}
+
+.analyse-btn{display:flex;align-items:center;justify-content:center;gap:9px;padding:14px 18px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;text-decoration:none;letter-spacing:.2px;transition:opacity .15s,transform .1s;box-shadow:0 4px 22px rgba(240,192,64,.25)}
+.analyse-btn:hover{opacity:.88;transform:translateY(-1px)}
+.analyse-btn svg{width:17px;height:17px;flex-shrink:0}
+.fen-box-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px}
+.fen-label-sm{font-size:.58rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:3px;font-weight:700}
+.fen-box{font-family:monospace;font-size:.64rem;color:var(--muted);word-break:break-all;line-height:1.55}
+
+/* FULL-WIDTH SECTIONS */
+.sections{max-width:1060px;margin:0 auto;width:100%;padding:56px 24px 72px}
+.section{margin-top:56px}
+.section:first-child{margin-top:0}
+.section-title{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;margin-bottom:6px}
+.section-title em{color:var(--gold);font-style:normal}
+.section-intro{font-size:.85rem;color:var(--muted);margin-bottom:22px;max-width:680px}
+
+/* Idées grid */
+.idees-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:600px){.idees-grid{grid-template-columns:1fr}}
+.idee-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.idee-card h4{font-family:'Syne',sans-serif;font-size:.87rem;font-weight:800;color:var(--gold);margin-bottom:6px}
+.idee-card p{font-size:.81rem;color:var(--muted);line-height:1.6}
+
+/* Variantes */
+.variantes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.variantes-grid{grid-template-columns:1fr}}
+.var-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.var-card h4{font-family:'Syne',sans-serif;font-size:.87rem;font-weight:800;margin-bottom:6px}
+.var-coups{display:inline-block;font-family:monospace;font-size:.67rem;color:var(--gold);background:rgba(240,192,64,.07);border:1px solid rgba(240,192,64,.18);border-radius:4px;padding:3px 8px;margin-bottom:8px}
+.var-card p{font-size:.8rem;color:var(--muted);line-height:1.55}
+
+/* Pourquoi */
+.pourquoi-list{display:flex;flex-direction:column;gap:14px}
+.pourquoi-list p{font-size:.93rem;color:var(--text);line-height:1.8;padding-left:18px;border-left:3px solid rgba(240,192,64,.5)}
+
+/* Nav openings */
+.nav-openings{margin-top:56px;padding-top:32px;border-top:1px solid var(--border)}
+.nav-openings h3{font-family:'Syne',sans-serif;font-size:.76rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.nav-list{display:flex;flex-wrap:wrap;gap:7px}
+.nav-list a{padding:5px 13px;border:1px solid var(--border);border-radius:6px;font-size:.76rem;color:var(--muted);text-decoration:none;background:var(--surface);transition:.15s}
+.nav-list a:hover,.nav-list a.active{border-color:var(--gold);color:var(--gold);background:rgba(240,192,64,.07)}
+.nav-list a.active{font-weight:700}
+
+footer{text-align:center;padding:22px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+@media(max-width:500px){nav{padding:12px 16px}.hero{padding:34px 16px 24px}.main{padding:28px 14px 0}.sections{padding:40px 14px 56px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Coup<em>Déchec</em></a>
+  <a class="nav-back" href="/ouvertures">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    Toutes les ouvertures
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="hero-badges" id="hero-badges"></div>
+  <h1 id="hero-title">Chargement…</h1>
+  <p class="hero-sub" id="hero-sub"></p>
+  <span class="moves-badge" id="moves-badge"></span>
+</section>
+
+<main class="main">
+  <div class="content-grid">
+    <!-- LEFT: intro paragraphs -->
+    <div class="desc-side">
+      <p class="section-label">Présentation</p>
+      <div class="desc-paras" id="desc-paras"></div>
+    </div>
+    <!-- RIGHT: board + navigator -->
+    <div class="board-side">
+      <div id="mini-board"></div>
+      <div class="move-nav">
+        <div class="move-nav-header">
+          <span class="move-label" id="move-label">Départ</span>
+          <span class="move-counter" id="move-counter">1/12</span>
+        </div>
+        <p class="move-comment" id="move-comment"></p>
+        <div class="move-btns">
+          <button id="btn-first" title="Départ" disabled>⏮</button>
+          <button id="btn-prev"  title="Précédent" disabled>◀</button>
+          <button id="btn-next"  title="Suivant">▶</button>
+          <button id="btn-last"  title="Dernier">⏭</button>
+        </div>
+      </div>
+      <a class="analyse-btn" id="analyse-btn" href="/">
+        <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Analyser cette position
+      </a>
+      <div class="fen-box-wrap">
+        <div class="fen-label-sm">FEN</div>
+        <div class="fen-box" id="fen-display"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- FULL-WIDTH SECTIONS -->
+<div class="sections" id="sections">
+  <!-- injected by JS -->
+</div>
+
+<footer>
+  <a href="/">CoupDéchec</a> · <a href="/ouvertures">Ouvertures</a> · <a href="/analyse-echecs">Analyse</a> · <a href="/extension">Extension Chrome</a>
+</footer>
+
+<script>
+/* ── DATA ─────────────────────────────────────────────────────── */
+const START = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
+const OPENINGS = {
+  sicilienne:{
+    name:'Défense Sicilienne', sub:'Le choix des champions face à 1.e4',
+    moves:'1. e4 c5 2. Cf3 d6 3. d4', color:'Noirs', cat:'Semi-ouverte', eco:'B20–B99',
+    fen:'rnbqkbnr/pp2pppp/3p4/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3',
+    paras:[
+      'La Défense Sicilienne est l\'ouverture la plus populaire au monde. En répondant 1...c5, les Noirs refusent toute symétrie et créent immédiatement des déséquilibres richement contre-jouables.',
+      'Le pion c5 contrôle d4 sans ouvrir de colonne centrale pour les Blancs. La partie évolue alors vers deux plans distincts : attaque blanche à droite, contre-attaque noire à gauche.',
+    ],
+    steps:[
+      {label:'Départ',      fen:START, comment:'Position initiale. Les deux armées se font face.'},
+      {label:'1. e4',       fen:'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', comment:'Les Blancs occupent le centre — contrôle de d5 et f5, ouverture des diagonales.'},
+      {label:'1... c5',     fen:'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2', comment:'La Sicilienne ! Le pion c5 contrôle d4 sans créer d\'ouverture centrale pour les Blancs. Déséquilibre immédiat.'},
+      {label:'2. Cf3',      fen:'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', comment:'Développement naturel. Prépare l\'ouverture du centre avec d4.'},
+      {label:'2... d6',     fen:'rnbqkbnr/pp2pppp/3p4/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3', comment:'Soutient e5 futur, ouvre la diagonale du fou de cases noires. Point de départ des variantes Najdorf et Dragon.'},
+      {label:'3. d4',       fen:'rnbqkbnr/pp2pppp/3p4/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3', comment:'Le coup thématique. Les Blancs ouvrent le centre. Les Noirs prennent et la partie entre dans sa phase critique.'},
+      {label:'3... cxd4',   fen:'rnbqkbnr/pp2pppp/3p4/8/3pP3/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 4', comment:'La prise décisive. Les Noirs acceptent l\'ouverture du centre. Le cavalier blanc va reprendre en d4.'},
+      {label:'4. Cxd4',     fen:'rnbqkbnr/pp2pppp/3p4/8/3NP3/8/PPP2PPP/RNBQKB1R b KQkq - 0 4', comment:'Le cavalier s\'installe en d4 — position dominante au centre. Les Noirs choisissent maintenant leur système.'},
+      {label:'4... Cf6',    fen:'rnbqkb1r/pp2pppp/3p1n2/8/3NP3/8/PPP2PPP/RNBQKB1R w KQkq - 1 5', comment:'Développement actif. Le cavalier attaque e4. Les Blancs jouent Cc3 pour défendre et compléter le développement.'},
+      {label:'5. Cc3',      fen:'rnbqkb1r/pp2pppp/3p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R b KQkq - 2 5', comment:'La Sicilienne Ouverte est en place. Deux cavaliers blancs dominent le centre. Les Noirs choisissent leur variante.'},
+      {label:'5... a6 (Najdorf)', fen:'rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6', comment:'La variante Najdorf — la plus jouée au monde ! 5...a6 prépare b5 et garde toutes les options tactiques ouvertes.'},
+      {label:'6. Fg5',      fen:'rnbqkb1r/1p2pppp/p2p1n2/6B1/3NP3/2N5/PPP2PPP/R2QKB1R b KQkq - 1 6', comment:'6.Fg5 — réponse classique au Najdorf. Les Blancs épinglent le cavalier f6. Position ultra-tendue, batailles épiques en perspective.'},
+    ],
+    idees:[
+      {titre:'Asymétrie volontaire', desc:'1...c5 crée un déséquilibre dès le départ. Contrairement à 1...e5, les Noirs n\'imitent pas les Blancs — chaque camp a un plan distinct dès les premiers coups.'},
+      {titre:'Contrôle de d4', desc:'Le pion c5 exerce une pression permanente sur d4, forçant les Blancs à défendre ce point ou à ouvrir le centre, ce qui libère le contre-jeu des Noirs.'},
+      {titre:'Deux plans parallèles', desc:'Les Noirs contre-attaquent sur l\'aile dame (b5, b4, a5) tandis que les Blancs attaquent à droite (f5, g5, h5). Deux mondes qui se croisent au centre.'},
+      {titre:'Statistiques favorables', desc:'Parmi toutes les réponses à 1.e4, la Sicilienne donne aux Noirs le meilleur taux de victoire. Elle est indétrônable depuis plus de 60 ans au plus haut niveau mondial.'},
+    ],
+    variantes:[
+      {nom:'Najdorf — 5...a6', coups:'5.Cc3 a6', desc:'La variante la plus jouée au monde. Fischer et Kasparov en ont fait leur signature. 5...a6 prépare b5 et garde toutes les options. Ultra-flexible et combative.'},
+      {nom:'Dragon — 5...g6', coups:'5.Cc3 g6', desc:'Les Noirs fianchettent leur fou pour une pression diagonale longue durée. L\'Attaque Yougoslave (Fc4, Fe3, f3, g4) est la réponse la plus violente des Blancs.'},
+      {nom:'Scheveningen — 5...e6', coups:'5.Cc3 e6', desc:'Structure "petite" solide (e6-d6). Attendre le plan adverse pour s\'adapter. Utilisée par Kasparov, Short et Polgar dans de grandes parties.'},
+    ],
+    pourquoi:[
+      'La Défense Sicilienne est le choix idéal si vous voulez jouer pour la victoire avec les Noirs. Sa structure asymétrique vous assure des chances réelles d\'initiative et de contre-jeu, contrairement aux ouvertures symétriques.',
+      'Son immense richesse théorique est aussi un avantage : vous choisissez votre variante selon votre style — tactique (Dragon), positionnelle (Scheveningen), ou psychologique (Najdorf).',
+      'Fischer disait : "Jouez la Sicilienne si vous voulez gagner." Soixante ans plus tard, elle domine encore les parties au plus haut niveau mondial.',
+    ]
+  },
+  francaise:{
+    name:'Défense Française', sub:'Solidité et contre-jeu pour les Noirs',
+    moves:'1. e4 e6 2. d4 d5 3. Cc3', color:'Noirs', cat:'Semi-ouverte', eco:'C00–C19',
+    fen:'rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 1 3',
+    paras:[
+      'La Défense Française est une réponse classique et solide à 1.e4. Après 1...e6, les Noirs préparent d5 pour attaquer le centre blanc, menant à des positions stratégiques profondes.',
+      'La structure de pions noire est robuste, mais le fou de case blanche est souvent problématique, enfermé derrière la chaîne e6-d5. Résoudre ce "problème du mauvais fou" est l\'un des grands défis stratégiques de la Française.',
+    ],
+    steps:[
+      {label:'Départ',          fen:START, comment:'Position initiale.'},
+      {label:'1. e4',           fen:'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', comment:'Les Blancs occupent le centre.'},
+      {label:'1... e6',         fen:'rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2', comment:'Défense Française. Les Noirs préparent d5. Le fou de case blanche est momentanément fermé.'},
+      {label:'2. d4',           fen:'rnbqkbnr/pppp1ppp/4p3/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq d3 0 2', comment:'Les Blancs construisent un centre puissant. La tension va augmenter avec d5.'},
+      {label:'2... d5',         fen:'rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq d6 0 3', comment:'Les Noirs attaquent le centre blanc. Les Blancs choisissent : exd5, e5 ou Cc3.'},
+      {label:'3. Cc3',          fen:'rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 1 3', comment:'Défend e4 et développe une pièce. Position centrale de la Française classique. Les Noirs répondent Fb4 (Winawer) ou Cf6.'},
+      {label:'3... Fb4 (Winawer)', fen:'rnbqk1nr/ppp2ppp/4p3/3p4/1b1PP3/2N5/PPP2PPP/R1BQKBNR w KQkq - 2 4', comment:'La variante Winawer ! Le fou cloue le cavalier c3, créant une tension immédiate. Position complexe et très tactique.'},
+      {label:'4. e5',           fen:'rnbqk1nr/ppp2ppp/4p3/3pP3/1b1P4/2N5/PPP2PPP/R1BQKBNR b KQkq - 0 4', comment:'Les Blancs avancent e5, restreignant les pièces noires. La chaîne e5-d4 est puissante mais vulnérable à c5.'},
+      {label:'4... c5',         fen:'rnbqk1nr/pp3ppp/4p3/2ppP3/1b1P4/2N5/PPP2PPP/R1BQKBNR w KQkq c6 0 5', comment:'L\'attaque thématique de la Française ! c5 brise la chaîne centrale blanche. Contre-jeu immédiat et concret.'},
+      {label:'5. a3',           fen:'rnbqk1nr/pp3ppp/4p3/2ppP3/1b1P4/P1N5/1PP2PPP/R1BQKBNR b KQkq - 0 5', comment:'Ligne Winawer principale. Les Blancs forcent l\'échange du fou, acceptant les pions doublés mais gagnant la paire de fous.'},
+      {label:'5... Fxc3+',      fen:'rnbqk1nr/pp3ppp/4p3/2ppP3/3P4/P1b5/1PP2PPP/R1BQKBNR w KQkq - 0 6', comment:'Les Noirs échangent le fou contre le cavalier avec échec. Les Blancs doivent reprendre bxc3 — pions doublés acceptés.'},
+      {label:'6. bxc3',         fen:'rnbqk1nr/pp3ppp/4p3/2ppP3/3P4/P1P5/2P2PPP/R1BQKBNR b KQkq - 0 6', comment:'Pions doublés en c pour les Blancs, mais paire de fous puissante. Position asymétrique — deux plans radicalement différents.'},
+    ],
+    idees:[
+      {titre:'La chaîne de pions e6-d5', desc:'Cette chaîne solide délimite le terrain. Les Noirs jouent à gauche (c5, b6), les Blancs souvent à droite avec f4-f5-g5. Deux armées qui s\'ignorent avant de se rencontrer.'},
+      {titre:'Le "mauvais fou"', desc:'Le fou de case blanche (Fc8) est enfermé derrière les pions e6-d5. L\'activer via b6-Fb7 ou l\'échanger via Fd7-Fe6 est un plan récurrent et indispensable.'},
+      {titre:'Contre-attaque avec c5', desc:'Le coup c5 est l\'attaque thématique des Noirs dans la Française. Il casse la chaîne de pions blancs et libère le jeu des pièces noires en un seul coup.'},
+      {titre:'Solidité en finale', desc:'La structure de pions saine rend les finales souvent favorables aux Noirs. Accepter une position serrée au milieu de jeu pour obtenir un meilleur endgame est un plan valide.'},
+    ],
+    variantes:[
+      {nom:'Winawer — 3...Fb4', coups:'3...Fb4', desc:'La variante la plus complexe. Les Noirs clouent Cc3, créant des complications immédiates. Mène souvent à des positions très déséquilibrées et tactiques.'},
+      {nom:'Classique — 3...Cf6', coups:'3...Cf6', desc:'Développement naturel. Les Noirs défient e4. Après 4.e5 Cfd7, ils préparent c5. Variante solide et bien étudiée, idéale pour apprendre l\'ouverture.'},
+      {nom:'Avance — 3.e5 c5', coups:'3.e5 c5 4.c3', desc:'Les Blancs avancent e5 pour restreindre les pièces noires. Les Noirs attaquent la chaîne avec c5. Position fermée, stratégique et pleine de tension.'},
+    ],
+    pourquoi:[
+      'La Défense Française est parfaite pour les joueurs qui aiment les positions solides et stratégiques. Elle offre une structure fiable qui résiste à la pression, idéale si vous préférez les plans clairs aux tactiques sauvages.',
+      'C\'est aussi une excellente ouverture pour apprendre la stratégie : le problème du "mauvais fou", les chaînes de pions et les contre-attaques thématiques sont des concepts fondamentaux.',
+      'Des champions comme Korchnoi, Nimzowitsch et Kortchnoi ont porté la Française à son sommet. C\'est une défense respectée à tous les niveaux.',
+    ]
+  },
+  gambit_dame:{
+    name:'Gambit Dame', sub:'L\'ouverture stratégique classique par excellence',
+    moves:'1. d4 d5 2. c4 e6 3. Cc3', color:'Blancs', cat:'Jeu fermé', eco:'D06–D69',
+    fen:'rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR b KQkq - 1 3',
+    paras:[
+      'Le Gambit Dame est l\'une des ouvertures les plus anciennes et respectées des échecs. Après 1.d4 d5 2.c4, les Blancs offrent apparemment un pion pour obtenir une domination centrale.',
+      'Si les Noirs prennent avec 2...dxc4, les Blancs récupèrent facilement ce pion (3.e3 ou Dc2). Il s\'agit plus d\'une invitation stratégique que d\'un vrai sacrifice.',
+    ],
+    steps:[
+      {label:'Départ',   fen:START, comment:'Position initiale.'},
+      {label:'1. d4',    fen:'rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq d3 0 1', comment:'Les Blancs contrôlent le centre avec le pion dame. Ouverture des diagonales c1-h6 et d1-h5.'},
+      {label:'1... d5',  fen:'rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq d6 0 2', comment:'Les Noirs répondent symétriquement, contrôlent aussi le centre. Classique et solide.'},
+      {label:'2. c4',    fen:'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 2', comment:'Le Gambit Dame est posé ! Offre de pion pour dominer le centre et accélérer le développement blanc.'},
+      {label:'2... e6',  fen:'rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/8/PP2PPPP/RNBQKBNR w KQkq - 0 3', comment:'Gambit Dame Refusé (GDR). Les Noirs déclinent et construisent solidement. Position orthodoxe et bien connue.'},
+      {label:'3. Cc3',   fen:'rnbqkbnr/ppp2ppp/4p3/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR b KQkq - 1 3', comment:'Développement naturel, pression sur d5. Les Noirs jouent souvent Cf6 pour la ligne orthodoxe principale.'},
+      {label:'3... Cf6', fen:'rnbqkb1r/ppp2ppp/4pn2/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 2 4', comment:'Développement naturel. Le cavalier défend d5 et prépare le roque. Les Blancs jouent Fg5, la ligne principale.'},
+      {label:'4. Fg5',   fen:'rnbqkb1r/ppp2ppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR b KQkq - 3 4', comment:'4.Fg5 épingle le cavalier f6 — pression maximale sur d5. Position orthodoxe classique du Gambit Dame Refusé.'},
+      {label:'4... Fe7', fen:'rnbqk1nr/ppp1bppp/4pn2/3p2B1/2PP4/2N5/PP2PPPP/R2QKBNR w KQkq - 4 5', comment:'4...Fe7 casse l\'épingle et prépare le roque. Position GDR orthodoxe — jeu positionnel profond pour les deux camps.'},
+      {label:'5. e3',    fen:'rnbqk1nr/ppp1bppp/4pn2/3p2B1/2PP4/2N1P3/PP3PPP/R2QKBNR b KQkq - 0 5', comment:'Les Blancs consolident leur centre avec e3. Prépare le développement du fou f1 en d3 — plan classique.'},
+      {label:'5... 0-0', fen:'rnbq1rk1/ppp1bppp/4pn2/3p2B1/2PP4/2N1P3/PP3PPP/R2QKBNR w KQ - 1 6', comment:'Les Noirs roquent, mettant le roi en sécurité. Position GDR orthodoxe — deux plans stratégiques s\'affrontent.'},
+      {label:'6. Cf3',   fen:'rnbq1rk1/ppp1bppp/4pn2/3p2B1/2PP4/2N1PN2/PP3PPP/R2QKB1R b KQ - 2 6', comment:'Développement du dernier cavalier. Les Blancs ont une position harmonieuse et bien développée — légère pression durable.'},
+    ],
+    idees:[
+      {titre:'Domination centrale', desc:'Le but est d\'établir un centre fort avec d4 + e4. Le pion c4 sert de levier pour ouvrir le centre au moment optimal et activer les pièces blanches.'},
+      {titre:'Développement harmonieux', desc:'Les Blancs développent naturellement : Cf3, Cc3, Fg5, e3, Fd3. Chaque pièce trouve une bonne case rapidement, créant une pression coordonnée.'},
+      {titre:'La structure d\'isolani', desc:'Après dxc4 et e4, les Noirs peuvent se retrouver avec un pion isolé en d5. Les Blancs cherchent à l\'exploiter; les Noirs s\'en servent comme force dynamique.'},
+      {titre:'Avantage de fou contre cavalier', desc:'En finale, les Blancs ont souvent un avantage de fou actif contre un cavalier moins mobile. Comprendre ces échanges est une clé de l\'ouverture.'},
+    ],
+    variantes:[
+      {nom:'GDA — Gambit Accepté (2...dxc4)', coups:'2...dxc4 3.e3', desc:'Les Noirs prennent le pion. Les Blancs le récupèrent facilement puis ont un centre libre. Dynamique : les Noirs cherchent à conserver leur avantage matériel temporaire.'},
+      {nom:'GDR Orthodoxe (3...Cf6 4.Fg5)', coups:'3...Cf6 4.Fg5', desc:'La ligne principale. Développement naturel des deux camps. Structure symétrique menant à un jeu positionnel profond. La variante la plus étudiée du Gambit Dame.'},
+      {nom:'Défense Slave (2...c6)', coups:'2...c6', desc:'Les Noirs défendent d5 avec c6, gardant le pion en place mais préparant le développement du fou de case blanche. Très solide et très populaire aujourd\'hui.'},
+    ],
+    pourquoi:[
+      'Le Gambit Dame est le choix idéal pour les joueurs Blancs qui préfèrent un jeu positionnel harmonieux à des attaques tactiques déséquilibrées. La structure est solide, les plans sont clairs et logiques.',
+      'C\'est une ouverture intemporelle jouée par tous les grands champions : Capablanca, Fischer, Karpov, Kasparov. Elle enseigne les fondamentaux de la stratégie aux échecs de façon naturelle.',
+      'En tant que joueur de Blancs, vous contrôlez la partie dès le départ. Les positions qui en résultent sont légèrement favorables sur le long terme, sans risque de contre-attaque soudaine.',
+    ]
+  },
+  espagnole:{
+    name:'Ouverture Espagnole', sub:'Ruy Lopez — La référence absolue depuis 500 ans',
+    moves:'1. e4 e5 2. Cf3 Cc6 3. Fb5', color:'Blancs', cat:'Jeu ouvert', eco:'C60–C99',
+    fen:'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+    paras:[
+      'L\'Ouverture Espagnole, nommée d\'après Ruy Lopez de Segura (XVIe siècle), est le test suprême de la réponse 1...e5. Après 3.Fb5, les Blancs exercent une pression subtile et durable sur e5.',
+      'Le fou b5 n\'attaque pas directement e5, mais menace de prendre Cc6 pour supprimer son défenseur. Cette pression indirecte à long terme est l\'essence même de la stratégie aux échecs.',
+    ],
+    steps:[
+      {label:'Départ',          fen:START, comment:'Position initiale.'},
+      {label:'1. e4',           fen:'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', comment:'Contrôle central classique. Ouverture des diagonales pour le fou et la dame.'},
+      {label:'1... e5',         fen:'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2', comment:'Les Noirs répondent symétriquement. Partie ouverte, jeu tactique et positionnel équilibré.'},
+      {label:'2. Cf3',          fen:'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', comment:'Développement naturel, attaque e5. Le meilleur coup selon la théorie — actif et logique.'},
+      {label:'2... Cc6',        fen:'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', comment:'Défense naturelle de e5. Maintenant 3.Fb5 (Espagnole), 3.Fc4 (Italienne) ou 3.d4 (Écossaise).'},
+      {label:'3. Fb5',          fen:'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3', comment:'La Ruy Lopez ! Pression indirecte via Fxc6 + Cxe5. Les Blancs entament une stratégie à long terme.'},
+      {label:'3... a6 (Fermée)', fen:'r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4', comment:'La Variante Fermée — la plus populaire ! 3...a6 demande l\'intention du fou b5. Les Blancs peuvent capturer ou reculer.'},
+      {label:'4. Fa4',          fen:'r1bqkbnr/1ppp1ppp/p1n5/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 4', comment:'Retrait stratégique — le fou maintient la pression sans se laisser échanger. Plan à long terme.'},
+      {label:'4... Cf6',        fen:'r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 5', comment:'Développement actif. Le cavalier attaque e4 et prépare le roque. Les Blancs doivent roquer pour sécuriser le roi.'},
+      {label:'5. 0-0',          fen:'r1bqkb1r/1ppp1ppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 3 5', comment:'Roque thématique de l\'Espagnole ! Le roi en sécurité, la tour s\'active. Les Blancs préparent d4 via Re1.'},
+      {label:'5... Fe7',        fen:'r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQ1RK1 w kq - 4 6', comment:'Préparation du roque noir. 5...Fe7 mène à la Variante Fermée principale — position tendue et très étudiée.'},
+      {label:'6. Re1',          fen:'r1bqk2r/1pppbppp/p1n2n2/4p3/B3P3/5N2/PPPP1PPP/RNBQR1K1 b kq - 5 6', comment:'6.Re1 prépare d4 — plan thématique de la Ruy Lopez. La tour surveille e4 et e5. L\'Espagnole entre dans sa phase classique.'},
+    ],
+    idees:[
+      {titre:'Pression indirecte sur e5', desc:'3.Fb5 menace Fxc6 + Cxe5. Les Noirs doivent défendre e5 (a6, Cf6, d6). Cette pression subtile permet aux Blancs de dicter l\'agenda stratégique pendant de nombreux coups.'},
+      {titre:'Plan à long terme', desc:'Les Blancs visent d4 pour ouvrir le centre au moment optimal. La préparation (0-0, Re1, d3 puis d4) est patiente et systématique — hallmark de la grande stratégie.'},
+      {titre:'Structure de pions supérieure', desc:'Dans de nombreuses variantes, les Blancs obtiennent une légère supériorité structurelle : paire de fous, pions centraux actifs, aile roi sécurisée après le roque.'},
+      {titre:'Profondeur inépuisable', desc:'La Ruy Lopez possède des décennies de théorie approfondie. C\'est l\'ouverture parfaite pour développer sa compréhension stratégique — chaque coup a une raison profonde.'},
+    ],
+    variantes:[
+      {nom:'Berlinoise — 3...Cf6', coups:'3...Cf6 4.0-0 Cxe4', desc:'L\'arme anti-Ruy de Magnus Carlsen. Échanges rapides menant à une finale légèrement favorable aux Blancs, mais extrêmement difficile à concrétiser. "Tortura Berlinoise".'},
+      {nom:'Variante Fermée — 3...a6', coups:'3...a6 4.Fa4 Cf6 5.0-0', desc:'La ligne principale au plus haut niveau. Les deux camps développent leurs pièces dans une position tendue. Des centaines de sous-variantes mènent à des batailles épiques.'},
+      {nom:'Contre-Gambit Marshall', coups:'8...d5!?', desc:'Sacrifice révolutionnaire de pion par Frank Marshall (1918). Les Noirs obtiennent une attaque de mat dangereuse. Arme surprise redoutable encore aujourd\'hui.'},
+    ],
+    pourquoi:[
+      'L\'Ouverture Espagnole est celle qui vous apprendra le plus sur les échecs. Ses plans stratégiques profonds, sa richesse théorique et sa présence dans toutes les grandes parties de l\'histoire en font une étude obligatoire.',
+      'Pour les Blancs, c\'est l\'arme la plus respectée face à 1...e5. Elle donne un avantage durable qui nécessite une défense précise et longue de la part des Noirs. L\'asymétrie est légère mais persistante.',
+      'De Morphy à Carlsen, tous les grands champions ont joué la Ruy Lopez. Maîtriser cette ouverture, c\'est rejoindre une tradition échiquéenne vieille de cinq siècles.',
+    ]
+  },
+  caro_kann:{
+    name:'Défense Caro-Kann', sub:'La solidité sans compromis face à 1.e4',
+    moves:'1. e4 c6 2. d4 d5 3. Cc3', color:'Noirs', cat:'Semi-ouverte', eco:'B10–B19',
+    fen:'rnbqkbnr/pp2pppp/2p5/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 1 3',
+    paras:[
+      'La Défense Caro-Kann est réputée pour sa robustesse. Après 1...c6, les Noirs préparent d5 sans bloquer le fou de case blanche — la principale différence avec la Défense Française.',
+      'Les Noirs obtiennent une structure de pions saine, idéale pour les finales. En échange, leur développement est légèrement plus lent, acceptant une position légèrement plus serrée à court terme.',
+    ],
+    steps:[
+      {label:'Départ',    fen:START, comment:'Position initiale.'},
+      {label:'1. e4',     fen:'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', comment:'Les Blancs contrôlent le centre.'},
+      {label:'1... c6',   fen:'rnbqkbnr/pp1ppppp/2p5/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2', comment:'Caro-Kann ! Prépare d5 sans bloquer le fou de case blanche. La différence clé avec la Française.'},
+      {label:'2. d4',     fen:'rnbqkbnr/pp1ppppp/2p5/8/3PP3/8/PPP2PPP/RNBQKBNR b KQkq d3 0 2', comment:'Centre puissant. Les Noirs répondent immédiatement avec d5.'},
+      {label:'2... d5',   fen:'rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq d6 0 3', comment:'La structure classique de la Caro-Kann est en place. c6 soutient d5 solidement.'},
+      {label:'3. Cc3',    fen:'rnbqkbnr/pp2pppp/2p5/3p4/3PP3/2N5/PPP2PPP/R1BQKBNR b KQkq - 1 3', comment:'Défend e4. Les Noirs répondent dxe4 (Classique) ou laissent les Blancs jouer e5 (Avance).'},
+      {label:'3... dxe4', fen:'rnbqkbnr/pp2pppp/2p5/8/3Pp3/2N5/PPP2PPP/R1BQKBNR w KQkq - 0 4', comment:'Échange central — la voie Classique. Les Noirs simplifient le centre et libèrent leur jeu. Le cavalier blanc reprend.'},
+      {label:'4. Cxe4',   fen:'rnbqkbnr/pp2pppp/2p5/8/3PN3/8/PPP2PPP/R1BQKBNR b KQkq - 0 4', comment:'Le cavalier s\'installe en e4 — position active. Les Noirs jouent Ff5 (Classique) pour développer leur fou activement.'},
+      {label:'4... Ff5',  fen:'rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR w KQkq - 1 5', comment:'4...Ff5 — développement classique et actif ! Le fou s\'active avant de jouer e6. Position solide et bien coordonnée.'},
+      {label:'5. Cg3',    fen:'rn1qkbnr/pp2pppp/2p5/5b2/3P4/6N1/PPP2PPP/R1BQKBNR b KQkq - 2 5', comment:'Le cavalier se retire en g3 pour ne pas être échangé. Les Noirs doivent trouver une bonne case pour leur fou.'},
+      {label:'5... Fg6',  fen:'rn1qkbnr/pp2pppp/2p3b1/8/3P4/6N1/PPP2PPP/R1BQKBNR w KQkq - 3 6', comment:'Le fou recule en g6 — case solide. Les Noirs préparent e6, le développement des pièces et le roque côté roi.'},
+      {label:'6. h4',     fen:'rn1qkbnr/pp2pppp/2p3b1/8/3P3P/6N1/PPP2PP1/R1BQKBNR b KQkq h3 0 6', comment:'L\'agressive poussée h4 ! Les Blancs attaquent le fou en g6. h5 menace de gagner le fou. Position très dynamique.'},
+    ],
+    idees:[
+      {titre:'Le "bon" fou de case blanche', desc:'Contrairement à la Française, le fou de case blanche n\'est pas bloqué par les propres pions noirs. Il peut s\'activer via Fd7-Fe6 ou Fh3 selon les besoins tactiques.'},
+      {titre:'Structure saine sans faiblesse', desc:'La structure de pions noire est compacte et sans pion faible évident. Les Noirs peuvent viser des finales où leur structure compacte est un atout décisif.'},
+      {titre:'Patience stratégique', desc:'Les Noirs développent plus lentement mais sans défaut. C\'est un trade-off conscient : solidité structurelle contre rapidité de développement. À long terme, c\'est souvent gagnant.'},
+      {titre:'Endgame supérieur', desc:'La Caro-Kann produit statistiquement de meilleures finales pour les Noirs que la Sicilienne. Karpov, champion du monde, en a fait sa défense principale précisément pour cette raison.'},
+    ],
+    variantes:[
+      {nom:'Classique — 3...dxe4', coups:'3...dxe4 4.Cxe4', desc:'Les Noirs simplifient le centre. Après Cxe4, ils jouent Fd7 puis Cc6, Cf6 ou Fd6. Position solide avec de bonnes perspectives d\'égalité active.'},
+      {nom:'Avance — 3.e5 Ff5', coups:'3.e5 Ff5', desc:'Les Blancs avancent e5 pour restreindre les Noirs. Ceux-ci développent leur fou (Ff5!) avant de jouer e6. Variante très populaire aujourd\'hui, dynamique et déséquilibrée.'},
+      {nom:'Panov — 4.c4 Cf6', coups:'4.c4 Cf6 5.Cc3', desc:'Les Blancs transposent vers des positions de type Gambit Dame. Position plus ouverte et dynamique que les lignes classiques. Idéale pour les Blancs qui aiment 1.d4.'},
+    ],
+    pourquoi:[
+      'La Défense Caro-Kann est idéale pour les joueurs qui veulent une défense solide à 1.e4 sans les complications de la Sicilienne. Elle offre une structure saine et des plans clairs, parfaite pour le jeu positionnel.',
+      'C\'est l\'ouverture favorite des joueurs légendaires axés sur la solidité : Anatoly Karpov l\'a utilisée dans ses matchs de championnat du monde, tout comme Petrosian. Leur style en dit long sur les qualités de cette défense.',
+      'Malgré sa réputation "solide", la Caro-Kann est pleine de vie. La variante d\'Avance crée des positions dynamiques, et les Noirs ont toujours des chances réelles de victoire.',
+    ]
+  },
+  italienne:{
+    name:'Ouverture Italienne', sub:'L\'une des plus anciennes — directe et tactique',
+    moves:'1. e4 e5 2. Cf3 Cc6 3. Fc4 Fc5', color:'Blancs', cat:'Jeu ouvert', eco:'C50–C59',
+    fen:'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+    paras:[
+      'L\'Ouverture Italienne est l\'une des plus anciennes aux échecs, documentée depuis le XVIe siècle. Après 1.e4 e5 2.Cf3 Cc6 3.Fc4, les Blancs pointent leur fou vers f7, la case naturellement faible du camp noir.',
+      'Populaire à tous les niveaux, son renouveau au plus haut niveau — Carlsen, Anand, Caruana l\'ont tous adoptée — prouve que sa profondeur stratégique n\'a pas été épuisée.',
+    ],
+    steps:[
+      {label:'Départ',      fen:START, comment:'Position initiale.'},
+      {label:'1. e4',       fen:'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', comment:'Les Blancs occupent le centre.'},
+      {label:'1... e5',     fen:'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2', comment:'Les Noirs contrôlent aussi le centre. Partie ouverte classique.'},
+      {label:'2. Cf3',      fen:'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', comment:'Développement naturel, attaque e5, prépare le roque côté roi.'},
+      {label:'2... Cc6',    fen:'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', comment:'Défense naturelle de e5. Les deux camps se développent harmonieusement.'},
+      {label:'3. Fc4',      fen:'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3', comment:'L\'Ouverture Italienne ! Le fou pointe vers f7, la case la plus faible du camp noir (gardée seulement par le roi).'},
+      {label:'3... Fc5 (Giuoco)', fen:'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4', comment:'Le Giuoco Piano — jeu tranquille. Les deux camps développent leur fou. Tension symétrique, centre à ouvrir.'},
+      {label:'4. c3',       fen:'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R b KQkq - 0 4', comment:'4.c3 prépare d4 — le plan thématique de l\'Italienne Moderne. Simple et solide, toujours d\'actualité au plus haut niveau.'},
+      {label:'4... Cf6',    fen:'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2P2N2/PP1P1PPP/RNBQK2R w KQkq - 1 5', comment:'Développement actif qui attaque e4. Position harmonieuse pour les deux camps. Le centre va bientôt exploser.'},
+      {label:'5. d4',       fen:'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2BPP3/2P2N2/PP3PPP/RNBQK2R b KQkq d3 0 5', comment:'L\'ouverture centrale décisive ! Les Blancs libèrent leur position. La tension est maximale, les Noirs doivent répondre.'},
+      {label:'5... exd4',   fen:'r1bqk2r/pppp1ppp/2n2n2/2b5/2BpP3/2P2N2/PP3PPP/RNBQK2R w KQkq - 0 6', comment:'Les Noirs prennent en d4. Le centre s\'ouvre. Les Blancs reprennent avec cxd4 pour un centre actif d4-e4.'},
+      {label:'6. cxd4',     fen:'r1bqk2r/pppp1ppp/2n2n2/2b5/2BPP3/5N2/PP3PPP/RNBQK2R b KQkq - 0 6', comment:'Les Blancs reprennent avec le pion. Centre fort d4-e4. La partie entre dans sa phase critique avec un jeu dynamique.'},
+    ],
+    idees:[
+      {titre:'Pression sur f7', desc:'Le fou en c4 vise f7 — case naturellement faible gardée seulement par le roi noir. C\'est une pression permanente et difficile à neutraliser sans affaiblir la structure.'},
+      {titre:'Développement rapide', desc:'Les deux camps développent naturellement leurs pièces. Les Blancs rocquent vite et préparent l\'attaque centrale avec d3 puis d4. Développement harmonieux et naturel.'},
+      {titre:'Le plan moderne c3 + d4', desc:'L\'Italienne moderne (c3 puis d4) crée des tensions centrales immédiates. Cette ligne est redevenue populaire à haut niveau grâce aux analyses contemporaines de la nouvelle génération.'},
+      {titre:'Richesse tactique', desc:'L\'Italienne produit souvent des positions très tactiques. La paire de fous combinée à la pression sur f7 mène régulièrement à des attaques directes et spectaculaires sur le roi adverse.'},
+    ],
+    variantes:[
+      {nom:'Giuoco Piano — 4.c3', coups:'4.c3 Cf6 5.d4', desc:'Plan classique : consolider avec c3, puis pousser d4 pour un centre actif. Simple, efficace, et toujours d\'actualité au plus haut niveau.'},
+      {nom:'Gambit Evans — 4.b4!?', coups:'4.b4 Fxb4 5.c3', desc:'Sacrifice romantique inventé par le capitaine William Evans (1824). Les Blancs sacrifient un pion pour un développement ultra-rapide. Dangereux et créatif.'},
+      {nom:'Deux Cavaliers — 3...Cf6', coups:'3...Cf6 4.Cg5 d5', desc:'Les Noirs répondent Cf6 au lieu de Fc5. Après 4.Cg5 d5, la position devient très tactique et déséquilibrée. Souvent choisie pour compliquer le jeu.'},
+    ],
+    pourquoi:[
+      'L\'Ouverture Italienne est parfaite pour les joueurs de tous niveaux. Facile à comprendre pour les débutants (développer, roquer, attaquer f7), mais assez profonde pour les joueurs avancés.',
+      'Son renouveau au plus haut niveau prouve que ses secrets ne sont pas épuisés. Carlsen, Anand et Caruana l\'ont tous adoptée dans leur répertoire principal. C\'est une ouverture vivante.',
+      'Si vous aimez les positions actives, le développement harmonieux et les attaques directes, l\'Italienne est faite pour vous. Elle vous permettra de marquer des points tactiques régulièrement.',
+    ]
+  },
+  scandinave:{
+    name:'Défense Scandinave', sub:'Attaquer le centre blanc dès la première réponse',
+    moves:'1. e4 d5 2. exd5 Dxd5 3. Cc3', color:'Noirs', cat:'Semi-ouverte', eco:'B01',
+    fen:'rnb1kbnr/ppp1pppp/8/3q4/8/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 3',
+    paras:[
+      'La Défense Scandinave est la réponse la plus directe à 1.e4. En jouant 1...d5, les Noirs attaquent le pion e4 immédiatement, sans la moindre préparation. Une ouverture de conviction.',
+      'Après 2.exd5 Dxd5 3.Cc3, la dame noire est repoussée avec un tempo. Les Noirs perdent un coup mais obtiennent une structure claire et des plans précis.',
+    ],
+    steps:[
+      {label:'Départ',    fen:START, comment:'Position initiale.'},
+      {label:'1. e4',     fen:'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', comment:'Les Blancs occupent le centre.'},
+      {label:'1... d5',   fen:'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2', comment:'La Scandinave ! Attaque directe sur e4 dès le premier coup. Surprise garantie.'},
+      {label:'2. exd5',   fen:'rnbqkbnr/ppp1pppp/8/3P4/8/8/PPPP1PPP/RNBQKBNR b KQkq - 0 2', comment:'Les Blancs prennent. Les Noirs récupèrent avec 2...Dxd5 (Mieses) ou 2...Cf6 (Islandaise).'},
+      {label:'2... Dxd5', fen:'rnb1kbnr/ppp1pppp/8/3q4/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 3', comment:'La dame récupère le pion. Elle sera repoussée avec Cc3, mais les Noirs gagnent du terrain central.'},
+      {label:'3. Cc3',    fen:'rnb1kbnr/ppp1pppp/8/3q4/8/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 3', comment:'Développement + attaque la dame. Les Noirs jouent Da5 — case active qui surveille d5 et e5.'},
+      {label:'3... Da5',  fen:'rnb1kbnr/ppp1pppp/8/q7/8/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 4', comment:'La Dame s\'active en a5 — case idéale ! Elle surveille d5, contrôle e5 et ne peut pas être attaquée facilement.'},
+      {label:'4. d4',     fen:'rnb1kbnr/ppp1pppp/8/q7/3P4/2N5/PPP2PPP/R1BQKBNR b KQkq d3 0 4', comment:'Les Blancs renforcent leur centre. d4 complète le contrôle central e4(disparu)-d4. Les Noirs développent leurs pièces.'},
+      {label:'4... Cf6',  fen:'rnb1kb1r/ppp1pppp/5n2/q7/3P4/2N5/PPP2PPP/R1BQKBNR w KQkq - 1 5', comment:'Développement actif qui attaque le centre. Le cavalier est bien placé en f6. Les Noirs préparent Fg4 ou e6.'},
+      {label:'5. Cf3',    fen:'rnb1kb1r/ppp1pppp/5n2/q7/3P4/2N2N2/PPP2PPP/R1BQKB1R b KQkq - 2 5', comment:'Développement harmonieux des Blancs. Les deux cavaliers soutiennent le centre. Préparation du roque côté roi.'},
+      {label:'5... Fg4',  fen:'rn2kb1r/ppp1pppp/5n2/q7/3P2b1/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 3 6', comment:'Le fou noir s\'active en g4, épinglant le cavalier f3 sur la dame. Pression psychologique — les Blancs doivent réagir.'},
+      {label:'6. h3',     fen:'rn2kb1r/ppp1pppp/5n2/q7/3P2b1/2N2N1P/PPP2PP1/R1BQKB1R b KQkq - 0 6', comment:'6.h3 demande l\'intention du fou. Les Noirs choisissent : Fh5 (maintenir la pression) ou Fxf3 (simplifier). Position complexe.'},
+    ],
+    idees:[
+      {titre:'Attaque immédiate du centre', desc:'1...d5 est la réponse la plus combative à 1.e4. Les Noirs prennent l\'initiative dès le premier coup, au risque d\'un léger retard de développement de la dame.'},
+      {titre:'La dame active en a5', desc:'Après 3...Da5, la dame noire est bien placée : surveille d5, contrôle e5, participe à la défense. Sa mobilité compense son exposition temporaire.'},
+      {titre:'Développement concret', desc:'Les Noirs développent rapidement Fg4, Cf6, e6 ou e5. Leur plan est concret et précis. Une fois bien exécuté, la position est difficile à déstabiliser.'},
+      {titre:'Surprise psychologique', desc:'La plupart des joueurs 1.e4 ne préparent pas spécifiquement la Scandinave. Son excentricité apparente est un vrai avantage psychologique en tournoi.'},
+    ],
+    variantes:[
+      {nom:'Mieses — 2...Dxd5 Da5', coups:'3...Da5', desc:'Ligne principale. La dame est active en a5, surveille d5 et e5. Plan typique : Fg4, Cf6, e6, 0-0-0. Position tendue avec contre-jeu réel.'},
+      {nom:'Islandaise — 2...Cf6', coups:'2...Cf6 3.d4 Cxd5', desc:'Développement du cavalier au lieu de la dame. Positions plus complexes. Les Noirs gardent leurs options ouvertes sur l\'aile dame.'},
+      {nom:'Contre-Gambit Islandais', coups:'3.c4 e6!?', desc:'Sacrifice audacieux : les Noirs offrent un pion pour une initiative rapide. Très déséquilibré, efficace comme arme surprise. Objectivement douteux mais redoutable en pratique.'},
+    ],
+    pourquoi:[
+      'La Défense Scandinave est idéale si vous voulez surprendre des adversaires préparés sur la Sicilienne ou la Française. Sa rareté relative en fait une arme redoutable dans les tournois locaux et les parties en ligne.',
+      'Elle offre des plans clairs dès le départ. Pas besoin de mémoriser des dizaines de coups : comprendre les idées (Da5, Fg4, développement rapide) suffit pour jouer correctement.',
+      'Sa simplicité apparente cache une vraie profondeur. Des Grands Maîtres comme Sergei Tiviakov l\'ont défendue pendant des années au niveau international. Elle peut surprendre jusqu\'au plus haut niveau.',
+    ]
+  }
+};
+
+const ALL = [
+  {slug:'sicilienne', name:'Sicilienne'},
+  {slug:'francaise',  name:'Française'},
+  {slug:'gambit-dame',name:'Gambit Dame'},
+  {slug:'espagnole',  name:'Espagnole'},
+  {slug:'caro-kann',  name:'Caro-Kann'},
+  {slug:'italienne',  name:'Italienne'},
+  {slug:'scandinave', name:'Scandinave'},
+];
+
+/* ── INIT ─────────────────────────────────────────────────────── */
+const rawSlug = window.location.pathname.split('/').filter(s=>s).pop() || '';
+const slug = rawSlug.replace(/-/g,'_');
+const o = OPENINGS[slug];
+
+if(!o){
+  document.getElementById('hero-title').textContent = 'Ouverture introuvable';
+  document.getElementById('hero-sub').innerHTML = '<a href="/ouvertures" style="color:var(--gold)">← Retour à la liste</a>';
+} else {
+  /* Meta */
+  document.title = `${o.name} — Stratégie, coups et variantes | CoupDEchec`;
+  document.querySelector('meta[name="description"]').content =
+    `${o.name} : ${o.sub}. Coups principaux, idées stratégiques, variantes connues et analyse Stockfish en français.`;
+  document.getElementById('canonical-url').href = `https://coupdechec.vercel.app/ouvertures/${rawSlug}`;
+
+  /* Hero */
+  document.getElementById('hero-badges').innerHTML =
+    `<span class="badge badge-eco">${o.eco}</span>
+     <span class="badge badge-cat">${o.cat}</span>
+     <span class="badge badge-color">Camp : ${o.color}</span>`;
+  const parts = o.name.split(' ');
+  document.getElementById('hero-title').innerHTML =
+    parts.length >= 2
+      ? parts.slice(0,-1).join(' ') + ' <em>' + parts[parts.length-1] + '</em>'
+      : o.name;
+  document.getElementById('hero-sub').textContent = o.sub;
+  document.getElementById('moves-badge').textContent = o.moves;
+
+  /* Intro paragraphs */
+  const paras = document.getElementById('desc-paras');
+  o.paras.forEach(p => { const el=document.createElement('p'); el.textContent=p; paras.appendChild(el); });
+
+  /* Analyse CTA → last step FEN */
+  document.getElementById('analyse-btn').href = `/?fen=${encodeURIComponent(o.fen)}`;
+
+  /* Move navigator */
+  let stepIdx = 0;
+  function setStep(idx){
+    if(idx < 0 || idx >= o.steps.length) return;
+    stepIdx = idx;
+    const s = o.steps[idx];
+    // re-render board
+    const brd = document.getElementById('mini-board');
+    brd.innerHTML = '';
+    renderBoard(s.fen, 'mini-board');
+    document.getElementById('move-label').textContent = s.label;
+    document.getElementById('move-counter').textContent = `${idx+1} / ${o.steps.length}`;
+    document.getElementById('move-comment').textContent = s.comment;
+    document.getElementById('btn-first').disabled = idx === 0;
+    document.getElementById('btn-prev').disabled  = idx === 0;
+    document.getElementById('btn-next').disabled  = idx === o.steps.length-1;
+    document.getElementById('btn-last').disabled  = idx === o.steps.length-1;
+    // update FEN box to current step's FEN
+    document.getElementById('fen-display').textContent = s.fen;
+  }
+  document.getElementById('btn-first').onclick = () => setStep(0);
+  document.getElementById('btn-prev').onclick  = () => setStep(stepIdx-1);
+  document.getElementById('btn-next').onclick  = () => setStep(stepIdx+1);
+  document.getElementById('btn-last').onclick  = () => setStep(o.steps.length-1);
+  document.addEventListener('keydown', e => {
+    if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
+    if(e.key==='ArrowRight'||e.key==='ArrowDown') setStep(stepIdx+1);
+    if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   setStep(stepIdx-1);
+  });
+  setStep(0); // show start position initially
+
+  /* ── SECTIONS ───────────────────────────────────────────────── */
+  const sec = document.getElementById('sections');
+
+  /* Idées principales */
+  const s1 = document.createElement('div'); s1.className='section';
+  s1.innerHTML = `<h2 class="section-title">Idées <em>stratégiques</em></h2>
+    <p class="section-intro">Les concepts fondamentaux à comprendre pour jouer cette ouverture avec efficacité.</p>
+    <div class="idees-grid" id="idees-grid"></div>`;
+  sec.appendChild(s1);
+  const ig = document.getElementById('idees-grid');
+  o.idees.forEach(id => {
+    const d=document.createElement('div'); d.className='idee-card';
+    d.innerHTML=`<h4>${id.titre}</h4><p>${id.desc}</p>`;
+    ig.appendChild(d);
+  });
+
+  /* Variantes */
+  const s2 = document.createElement('div'); s2.className='section';
+  s2.innerHTML = `<h2 class="section-title">Variantes <em>connues</em></h2>
+    <p class="section-intro">Les principales sous-variantes de cette ouverture et leurs caractéristiques.</p>
+    <div class="variantes-grid" id="var-grid"></div>`;
+  sec.appendChild(s2);
+  const vg = document.getElementById('var-grid');
+  o.variantes.forEach(v => {
+    const d=document.createElement('div'); d.className='var-card';
+    d.innerHTML=`<h4>${v.nom}</h4><span class="var-coups">${v.coups}</span><p>${v.desc}</p>`;
+    vg.appendChild(d);
+  });
+
+  /* Pourquoi jouer */
+  const s3 = document.createElement('div'); s3.className='section';
+  s3.innerHTML = `<h2 class="section-title">Pourquoi jouer <em>${o.name.split(' ').pop()}</em> ?</h2>
+    <p class="section-intro">Arguments pour intégrer cette ouverture dans votre répertoire.</p>
+    <div class="pourquoi-list" id="pourquoi-list"></div>`;
+  sec.appendChild(s3);
+  const pl = document.getElementById('pourquoi-list');
+  o.pourquoi.forEach(p => { const el=document.createElement('p'); el.textContent=p; pl.appendChild(el); });
+
+  /* Nav to other openings */
+  const s4 = document.createElement('div'); s4.className='section nav-openings';
+  s4.innerHTML = `<h3>Autres ouvertures</h3><div class="nav-list" id="nav-list"></div>`;
+  sec.appendChild(s4);
+  const nl = document.getElementById('nav-list');
+  ALL.forEach(item => {
+    const a=document.createElement('a');
+    a.href=`/ouvertures/${item.slug}`;
+    a.textContent=item.name;
+    if(item.slug.replace(/-/g,'_')===slug) a.className='active';
+    nl.appendChild(a);
+  });
+}
+
+/* ── BOARD RENDERER ─────────────────────────────────────────── */
+function renderBoard(fen, id){
+  const FILES='abcdefgh';
+  const F={K:'wK',Q:'wQ',R:'wR',B:'wB',N:'wN',P:'wP',k:'bK',q:'bQ',r:'bR',b:'bB',n:'bN',p:'bP'};
+  const board={};
+  const rows=fen.split(' ')[0].split('/');
+  for(let r=0;r<8;r++){
+    let fi=0;
+    for(const ch of rows[r]){
+      if(/\d/.test(ch)) fi+=+ch;
+      else{board[FILES[fi]+(8-r)]=F[ch];fi++;}
+    }
+  }
+  const c=document.getElementById(id);
+  for(let rank=8;rank>=1;rank--){
+    for(let fi=0;fi<8;fi++){
+      const sq=FILES[fi]+rank;
+      const isLight=(fi+rank)%2===0;
+      const cell=document.createElement('div');
+      cell.style.background=isLight?'#f0d9b5':'#b58863';
+      const piece=board[sq];
+      if(piece){
+        const img=document.createElement('img');
+        img.src=`https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
+        img.alt=piece; img.draggable=false;
+        cell.appendChild(img);
+      }
+      c.appendChild(cell);
+    }
+  }
+}
+</script>
+</body>
+</html>

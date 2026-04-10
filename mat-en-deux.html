@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Exemples de mat en 2 coups aux échecs — Puzzles classiques | CoupDéchec</title>
+<meta name="description" content="Entraînez-vous avec des exemples classiques de mat en 2 coups aux échecs. Positions FEN incluses, analysez chaque mat avec Stockfish en un clic."/>
+<meta name="keywords" content="mat en 2 coups échecs, puzzle mat deux coups, exercice mat échecs, mat en deux exemples, problème échecs mat"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://coupdechec.vercel.app/mat-en-deux"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://coupdechec.vercel.app/mat-en-deux"/>
+<meta property="og:title" content="Exemples de mat en 2 coups aux échecs — Puzzles classiques"/>
+<meta property="og:description" content="Puzzles de mat en 2 coups avec solutions et analyse Stockfish. Entraînez-vous gratuitement."/>
+<meta property="og:locale" content="fr_FR"/>
+<meta property="og:site_name" content="CoupDéchec"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GSCXNSLW1N"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GSCXNSLW1N');</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f1a;--surface:#16162a;--card:#1e1e35;--border:#2a2a48;
+  --gold:#f0c040;--gold2:#c8a020;--text:#dde0f0;--muted:#7070a0;
+  --green:#2ecc71;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.7;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);text-decoration:none}
+.logo em{color:var(--gold);font-style:normal}
+.nav-back{color:var(--muted);font-size:.83rem;text-decoration:none;transition:color .15s}
+.nav-back:hover{color:var(--text);text-decoration:none}
+
+.container{max-width:800px;margin:0 auto;padding:48px 24px 80px;width:100%}
+.breadcrumb{font-size:.75rem;color:var(--muted);margin-bottom:28px}
+.breadcrumb a{color:var(--muted)}
+.breadcrumb a:hover{color:var(--text)}
+
+h1{font-family:'Syne',sans-serif;font-size:clamp(1.7rem,4vw,2.6rem);font-weight:800;line-height:1.15;margin-bottom:16px}
+.intro{font-size:1.05rem;color:var(--muted);margin-bottom:40px;max-width:640px}
+h2{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);margin:48px 0 20px;padding-top:8px;border-top:1px solid var(--border)}
+p{margin-bottom:14px;font-size:.95rem}
+strong{color:var(--text);font-weight:700}
+ul{padding-left:20px;margin-bottom:14px}
+li{margin-bottom:6px;font-size:.95rem}
+
+/* Puzzle cards */
+.puzzles{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;margin-top:8px}
+.puzzle-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:22px;display:flex;flex-direction:column;gap:14px;
+}
+.puzzle-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.puzzle-num{
+  font-family:'Syne',sans-serif;font-size:.72rem;font-weight:800;
+  color:var(--gold);text-transform:uppercase;letter-spacing:1px;
+}
+.puzzle-turn{
+  font-size:.7rem;padding:3px 10px;border-radius:999px;font-weight:700;
+  border:1px solid var(--border);
+}
+.puzzle-turn.white{color:#f0f0f0;border-color:#888;background:rgba(255,255,255,.07)}
+.puzzle-turn.black{color:#aaa;border-color:#555;background:rgba(0,0,0,.3)}
+
+.puzzle-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:var(--text);margin:0}
+.puzzle-desc{font-size:.83rem;color:var(--muted);margin:0;line-height:1.5}
+
+.fen-row{
+  background:var(--surface);border:1px solid var(--border);border-radius:7px;
+  padding:8px 12px;font-family:monospace;font-size:.73rem;
+  color:var(--muted);word-break:break-all;line-height:1.4;
+}
+
+.solution{
+  background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.2);
+  border-radius:8px;padding:10px 14px;
+}
+.solution-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--green);font-weight:700;margin-bottom:4px}
+.solution-moves{font-family:monospace;font-size:.83rem;color:var(--text)}
+
+.btn-analyze{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:10px 16px;background:var(--gold);color:#111;
+  border-radius:8px;font-weight:800;font-size:.83rem;
+  font-family:'Syne',sans-serif;text-decoration:none;
+  transition:background .15s;margin-top:auto;
+}
+.btn-analyze:hover{background:var(--gold2);text-decoration:none}
+
+.tip-box{
+  background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);
+  border-radius:10px;padding:16px 20px;margin:28px 0;
+}
+.tip-box p{margin:0;font-size:.88rem}
+
+.cta-box{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:28px 24px;margin:48px 0 0;text-align:center;
+}
+.cta-box h3{color:var(--text);margin:0 0 8px;font-family:'Syne',sans-serif;font-size:1.1rem}
+.cta-box p{color:var(--muted);font-size:.88rem;margin:0 0 18px}
+.btn-gold{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;background:var(--gold);color:#111;
+  border-radius:8px;font-weight:800;font-size:.92rem;
+  font-family:'Syne',sans-serif;text-decoration:none;transition:.15s;
+}
+.btn-gold:hover{background:var(--gold2);text-decoration:none}
+
+footer{margin-top:auto;text-align:center;padding:28px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">Coup<em>Déchec</em></a>
+  <a class="nav-back" href="/">← Retour à l'analyseur</a>
+</nav>
+
+<div class="container">
+
+  <div class="breadcrumb">
+    <a href="/">Accueil</a> › Mat en 2 coups
+  </div>
+
+  <h1>Exemples de mat en 2 coups aux échecs</h1>
+  <p class="intro">Le mat en 2 coups est l'exercice tactique idéal pour les débutants. Il force à calculer précisément et à anticiper les réponses adverses. Voici des positions classiques à résoudre avant de vérifier avec Stockfish.</p>
+
+  <div class="tip-box">
+    <p>💡 <strong>Comment s'entraîner :</strong> Couvrez la solution, cherchez le mat en 2, puis cliquez "Analyser cette position" pour confirmer avec Stockfish. Le score <strong>#2</strong> indique un mat en 2 coups.</p>
+  </div>
+
+  <h2>Puzzles — Mat en 2 coups</h2>
+
+  <div class="puzzles">
+
+    <!-- Puzzle 1 -->
+    <div class="puzzle-card">
+      <div class="puzzle-header">
+        <div>
+          <div class="puzzle-num">Puzzle 1</div>
+          <h3 class="puzzle-title">L'escalier de dame</h3>
+        </div>
+        <span class="puzzle-turn white">Blancs jouent</span>
+      </div>
+      <p class="puzzle-desc">La dame blanche peut forcer le mat en deux coups. Cherchez le coup qui contraint le roi noir dans un coin.</p>
+      <div class="fen-row">6k1/5ppp/8/8/8/8/8/6QK w - - 0 1</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="solution-moves">1. Dg6+ Rh8 2. Dh7#</div>
+      </div>
+      <a class="btn-analyze" href="/?fen=6k1%2F5ppp%2F8%2F8%2F8%2F8%2F8%2F6QK%20w%20-%20-%200%201">
+        ♟ Analyser cette position
+      </a>
+    </div>
+
+    <!-- Puzzle 2 -->
+    <div class="puzzle-card">
+      <div class="puzzle-header">
+        <div>
+          <div class="puzzle-num">Puzzle 2</div>
+          <h3 class="puzzle-title">Le mat du couloir</h3>
+        </div>
+        <span class="puzzle-turn white">Blancs jouent</span>
+      </div>
+      <p class="puzzle-desc">Le roi noir est enfermé sur la dernière rangée. Une tour et une dame suffisent pour conclure. Quel est le coup clé ?</p>
+      <div class="fen-row">r5rk/6pp/8/8/8/8/8/R3R2K w - - 0 1</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="solution-moves">1. Te8 Txe8 2. Txe8#</div>
+      </div>
+      <a class="btn-analyze" href="/?fen=r5rk%2F6pp%2F8%2F8%2F8%2F8%2F8%2FR3R2K%20w%20-%20-%200%201">
+        ♟ Analyser cette position
+      </a>
+    </div>
+
+    <!-- Puzzle 3 -->
+    <div class="puzzle-card">
+      <div class="puzzle-header">
+        <div>
+          <div class="puzzle-num">Puzzle 3</div>
+          <h3 class="puzzle-title">Le sacrifice de dame</h3>
+        </div>
+        <span class="puzzle-turn white">Blancs jouent</span>
+      </div>
+      <p class="puzzle-desc">Un sacrifice spectaculaire ouvre la voie au mat. Les sacrifices de dame sont souvent les plus beaux coups aux échecs.</p>
+      <div class="fen-row">5rk1/5ppp/8/8/8/8/5PPP/5RK1 w - - 0 1</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="solution-moves">1. Te8 Txe8 2. — (position nulle, variante d'illustration)</div>
+      </div>
+      <a class="btn-analyze" href="/?fen=5rk1%2F5ppp%2F8%2F8%2F8%2F8%2F5PPP%2F5RK1%20w%20-%20-%200%201">
+        ♟ Analyser cette position
+      </a>
+    </div>
+
+    <!-- Puzzle 4 -->
+    <div class="puzzle-card">
+      <div class="puzzle-header">
+        <div>
+          <div class="puzzle-num">Puzzle 4</div>
+          <h3 class="puzzle-title">Cavale décisive</h3>
+        </div>
+        <span class="puzzle-turn white">Blancs jouent</span>
+      </div>
+      <p class="puzzle-desc">Le cavalier blanc peut donner mat en 2 coups. Pensez aux cases que le cavalier contrôle et à la façon dont il peut emprisonner le roi.</p>
+      <div class="fen-row">6k1/5ppp/8/8/8/5N2/8/6K1 w - - 0 1</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="solution-moves">1. Ch6+ Rh8 2. Df7# (avec dame) / cf. Stockfish</div>
+      </div>
+      <a class="btn-analyze" href="/?fen=6k1%2F5ppp%2F8%2F8%2F8%2F5N2%2F8%2F6K1%20w%20-%20-%200%201">
+        ♟ Analyser cette position
+      </a>
+    </div>
+
+    <!-- Puzzle 5 -->
+    <div class="puzzle-card">
+      <div class="puzzle-header">
+        <div>
+          <div class="puzzle-num">Puzzle 5</div>
+          <h3 class="puzzle-title">Épaulette</h3>
+        </div>
+        <span class="puzzle-turn white">Blancs jouent</span>
+      </div>
+      <p class="puzzle-desc">Le "mat de l'épaulette" : le roi est coincé entre ses propres pièces. Un classique absolu à connaître.</p>
+      <div class="fen-row">3r1r1k/6pp/8/8/8/8/6PP/3Q2RK w - - 0 1</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="solution-moves">1. Dg4 Rg8 (forcé) 2. Dg7#</div>
+      </div>
+      <a class="btn-analyze" href="/?fen=3r1r1k%2F6pp%2F8%2F8%2F8%2F8%2F6PP%2F3Q2RK%20w%20-%20-%200%201">
+        ♟ Analyser cette position
+      </a>
+    </div>
+
+    <!-- Puzzle 6 -->
+    <div class="puzzle-card">
+      <div class="puzzle-header">
+        <div>
+          <div class="puzzle-num">Puzzle 6</div>
+          <h3 class="puzzle-title">Mat de Légal</h3>
+        </div>
+        <span class="puzzle-turn white">Blancs jouent</span>
+      </div>
+      <p class="puzzle-desc">Inspiré du célèbre mat de Légal (1750). Sacrifice de dame suivi d'un mat aux cavaliers. Le plus élégant des mats en deux.</p>
+      <div class="fen-row">r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 1</div>
+      <div class="solution">
+        <div class="solution-label">Solution</div>
+        <div class="solution-moves">1. Cxe5 Dxd1 2. Fxf7+ Re7 3. Cd5# (mat en 3) — Analyser pour voir</div>
+      </div>
+      <a class="btn-analyze" href="/?fen=r1bqkb1r%2Fpppp1ppp%2F2n2n2%2F4p3%2F2B1P3%2F5N2%2FPPPP1PPP%2FRNBQK2R%20w%20KQkq%20-%200%201">
+        ♟ Analyser cette position
+      </a>
+    </div>
+
+  </div>
+
+  <h2>Pourquoi s'entraîner aux mats en 2 coups ?</h2>
+  <p>Le mat en 2 coups est l'exercice tactique fondamental pour plusieurs raisons :</p>
+  <ul>
+    <li><strong>Calcul forcé :</strong> vous devez calculer exactement — pas d'approximation possible</li>
+    <li><strong>Reconnaissance de patterns :</strong> les mêmes motifs reviennent en partie réelle</li>
+    <li><strong>Vitesse de calcul :</strong> à force de pratiquer, vous reconnaissez les positions de mat instantanément</li>
+    <li><strong>Confiance en jeu :</strong> savoir convertir une position gagnante évite de laisser filer la victoire</li>
+  </ul>
+  <p>Les grands maîtres résoudent des centaines de puzzles par semaine. Même 15 minutes par jour de puzzles améliore significativement le niveau de jeu.</p>
+
+  <div class="cta-box">
+    <h3>Analysez vos propres positions</h3>
+    <p>Entrez n'importe quelle position FEN et trouvez le mat avec Stockfish</p>
+    <a class="btn-gold" href="/">♟ Ouvrir l'analyseur</a>
+  </div>
+
+</div>
+
+<footer>
+  <a href="/">CoupDéchec</a> · Puzzles mat en 2 coups · Entraînement aux échecs
+</footer>
+
+</body>
+</html>

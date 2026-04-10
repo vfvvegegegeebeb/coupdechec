@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/extension",          "destination": "/extension.html" },
+    { "source": "/analyse-echecs",     "destination": "/analyse-echecs.html" },
+    { "source": "/ouvertures-echecs",  "destination": "/ouvertures-echecs.html" },
+    { "source": "/mat-en-deux",        "destination": "/mat-en-deux.html" },
+    { "source": "/position-du-jour",   "destination": "/position-du-jour.html" },
+    { "source": "/ouvertures",         "destination": "/ouvertures.html" },
+    { "source": "/ouvertures/:slug",   "destination": "/ouverture.html" }
+  ]
+}

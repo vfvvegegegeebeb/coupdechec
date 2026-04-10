@@ -11,6 +11,8 @@
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://coupdechec.vercel.app/"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
@@ -21,6 +23,8 @@
 <meta property="og:title" content="CoupDEchec — Analyse de position & meilleur coup Stockfish"/>
 <meta property="og:description" content="Trouvez le meilleur coup aux échecs grâce à Stockfish. Éditeur de position drag & drop, analyse en français, de débutant à Stockfish max."/>
 <meta property="og:image" content="https://coupdechec.vercel.app/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
 <meta property="og:locale" content="fr_FR"/>
 <meta property="og:site_name" content="CoupDEchec"/>
 
@@ -49,7 +53,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
 
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.ext-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border:2px solid var(--gold);border-radius:8px;color:var(--gold);font-size:.8rem;font-weight:700;text-decoration:none;transition:.15s;white-space:nowrap;letter-spacing:.2px}
+.ext-btn:hover{background:var(--gold);color:#111}
+@media(max-width:600px){
+  header{flex-direction:column;align-items:flex-start;gap:10px}
+  .ext-btn{width:100%;justify-content:center}
+}
 .logo{font-size:1.4rem;font-weight:900;letter-spacing:.5px}
 .logo em{color:var(--gold);font-style:normal}
 .logo-sub{color:var(--muted);font-size:.8rem;margin-top:1px}
@@ -79,6 +89,12 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 /* ── CENTER BOARD ── */
 .center{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:8px}
 .board-outer{display:flex;gap:0}
+
+/* ── VERTICAL EVAL BAR ── */
+#veval-wrap{display:flex;flex-direction:column;align-items:center;width:14px;margin-right:6px;padding-bottom:18px;flex-shrink:0}
+#veval-bar{flex:1;width:12px;background:#1a2e50;border-radius:6px;position:relative;overflow:hidden;min-height:60px}
+#veval-fill-v{position:absolute;top:0;left:0;width:100%;height:50%;background:#F5C518;transition:height .5s ease;border-radius:6px 6px 0 0}
+#veval-score{margin-top:3px;font-size:.58rem;font-family:monospace;font-weight:700;color:var(--muted);white-space:nowrap;line-height:1}
 .rank-labels{display:flex;flex-direction:column;justify-content:space-around;padding:2px 4px 18px 0;width:16px}
 .rank-labels span{font-size:.65rem;color:var(--muted);text-align:right;line-height:1}
 .board-col{display:flex;flex-direction:column}
@@ -143,7 +159,7 @@ textarea#fen-input:focus{outline:none;border-color:var(--gold)}
 .diff-val{font-weight:800;color:var(--gold);min-width:22px;font-size:.9rem;text-align:right}
 .diff-desc{font-size:.71rem;color:var(--muted);margin-top:3px}
 
-#analyse-btn{width:100%;padding:15px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;font-size:.95rem;font-weight:900;cursor:pointer;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s,transform .1s;box-shadow:0 4px 20px #f0c04030}
+#analyse-btn{width:100%;padding:15px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;font-size:.95rem;font-weight:900;cursor:pointer;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s,transform .1s;box-shadow:0 4px 20px #f0c04030;position:sticky;bottom:16px;z-index:20}
 #analyse-btn:hover{opacity:.9;transform:translateY(-1px)}
 #analyse-btn:active{transform:scale(.98)}
 #analyse-btn:disabled{opacity:.35;cursor:default;transform:none;box-shadow:none}
@@ -173,6 +189,19 @@ textarea#fen-input:focus{outline:none;border-color:var(--gold)}
 .eval-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .6s}
 
 footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border)}
+
+/* ── PGN IMPORT ── */
+textarea#pgn-input{width:100%;padding:7px 9px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:monospace;font-size:.68rem;resize:none;line-height:1.4;min-height:68px}
+textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
+.pgn-actions{display:flex;gap:6px;margin-top:6px}
+.pgn-actions .btn{flex:1;font-size:.74rem;cursor:pointer}
+#pgn-nav{margin-top:8px}
+#pgn-move-info{font-size:.74rem;color:var(--gold);text-align:center;font-weight:700;padding:4px 8px;background:var(--surface);border-radius:5px;border:1px solid var(--border);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pgn-nav-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:5px}
+.pgn-nav-btns .btn{font-size:1.05rem;padding:7px 4px;font-weight:900}
+.pgn-nav-btns .btn:disabled{opacity:.28;cursor:default}
+#pgn-close{width:100%;font-size:.72rem;color:var(--muted)}
+#pgn-close:hover{color:var(--red);border-color:var(--red)}
 
 #btn-share{
   display:flex;align-items:center;justify-content:center;gap:8px;
@@ -215,13 +244,15 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
   .board-outer{ width:100%; }
   .board-col  { width:100%; }
   #board{
-    width:calc(100vw - 44px) !important; /* 8px pad×2 + rank-labels 20px + 8px marge */
+    width:calc(100vw - 64px) !important; /* 8px pad×2 + veval 20px + rank-labels 17px + 11px marge */
   }
   .file-labels,
   .status-bar{
-    width:calc(100vw - 44px) !important;
+    width:calc(100vw - 64px) !important;
   }
   .rank-labels{ width:14px; padding-right:3px; }
+  #veval-wrap{ width:12px; margin-right:4px; padding-bottom:18px; }
+  #veval-bar{ width:10px; }
   .rank-labels span{ font-size:.55rem; }
   .file-labels span{ font-size:.55rem; }
 
@@ -322,6 +353,20 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
     </a>
     <div class="logo-sub">Éditeur de position · Analyse Stockfish</div>
   </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <a class="ext-btn" href="/ouvertures">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Ouvertures
+    </a>
+    <a class="ext-btn" href="/position-du-jour">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Position du jour
+    </a>
+    <a class="ext-btn" href="/extension">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Extension Chrome
+    </a>
+  </div>
 </header>
 
 <div class="layout">
@@ -350,6 +395,10 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
   <!-- ══ BOARD ══ -->
   <div class="center">
     <div class="board-outer">
+      <div id="veval-wrap">
+        <div id="veval-bar"><div id="veval-fill-v"></div></div>
+        <span id="veval-score">0.0</span>
+      </div>
       <div class="rank-labels" id="rank-labels"></div>
       <div class="board-col">
         <div class="board-wrap">
@@ -391,6 +440,26 @@ footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border
         <button class="btn" id="btn-clear">⬜ Vider</button>
         <button class="btn" id="btn-flip">⇅ Retourner</button>
         <button class="btn" id="btn-undo" disabled>↩ Annuler</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Import PGN</div>
+      <textarea id="pgn-input" rows="4" placeholder="Collez un PGN ici…&#10;&#10;1. e4 e5 2. Nf3 Nc6 3. Bb5 a6"></textarea>
+      <div class="pgn-actions">
+        <label class="btn" for="pgn-file">📂 Fichier .pgn</label>
+        <input type="file" id="pgn-file" accept=".pgn" style="display:none"/>
+        <button class="btn" id="btn-load-pgn">⤓ Charger</button>
+      </div>
+      <div id="pgn-nav" style="display:none">
+        <div id="pgn-move-info">Départ</div>
+        <div class="pgn-nav-btns">
+          <button class="btn" id="pgn-first" title="Premier coup" disabled>⏮</button>
+          <button class="btn" id="pgn-prev"  title="Coup précédent" disabled>◀</button>
+          <button class="btn" id="pgn-next"  title="Coup suivant">▶</button>
+          <button class="btn" id="pgn-last"  title="Dernier coup">⏭</button>
+        </div>
+        <button class="btn" id="pgn-close">✕ Quitter le mode PGN</button>
       </div>
     </div>
 
@@ -966,6 +1035,12 @@ function showResult(from,to,promo,score){
     ?(score>0?'Mat (Blancs)':'Mat (Noirs)')
     :(cp>0?'+':'')+(cp/100).toFixed(1);
   document.getElementById('eval-text').textContent=etxt;
+
+  // vertical eval bar
+  document.getElementById('veval-fill-v').style.height=pct+'%';
+  document.getElementById('veval-score').textContent=Math.abs(score)>=29000
+    ?(score>0?'#W':'#B')
+    :(cp>=0?'+':'')+(cp/100).toFixed(1);
 }
 
 function buildExplanation(from,to,promo,movingPiece,captured,turn,score){
@@ -1254,6 +1329,212 @@ document.getElementById('btn-share').addEventListener('click', function(){
       this.classList.remove('copied');
     }, 2000);
   });
+});
+
+/* ══════════════════════════════════════════════
+   PGN IMPORT & NAVIGATION
+══════════════════════════════════════════════ */
+let pgnPositions = []; // [{board,castle,turn,move,moveLabel}]
+let pgnIdx = -1;       // -1 = PGN mode inactive
+
+/* Path-clear check for sliding pieces */
+function isPathClear(brd,from,to){
+  const fi0=FILES.indexOf(from[0]),ri0=+from[1];
+  const fi1=FILES.indexOf(to[0]),  ri1=+to[1];
+  const df=fi1-fi0, dr=ri1-ri0;
+  const steps=Math.max(Math.abs(df),Math.abs(dr));
+  if(steps<=1) return true;
+  const sf=Math.sign(df),sr=Math.sign(dr);
+  for(let i=1;i<steps;i++){
+    if(brd[FILES[fi0+sf*i]+(ri0+sr*i)]) return false;
+  }
+  return true;
+}
+
+/* Can piece at `from` reach `to` given board `brd`? (for PGN disambiguation) */
+function canPieceReach(brd,pieceCode,from,to,turn){
+  const target=brd[to];
+  if(target&&target[0]===turn) return false;
+  const fi0=FILES.indexOf(from[0]),ri0=+from[1];
+  const fi1=FILES.indexOf(to[0]),  ri1=+to[1];
+  const df=fi1-fi0,dr=ri1-ri0;
+  switch(pieceCode[1]){
+    case 'P':{
+      const dir=turn==='w'?1:-1;
+      if(df===0){
+        if(target) return false;
+        if(dr===dir) return true;
+        if(dr===2*dir&&ri0===(turn==='w'?2:7)&&!brd[from[0]+(ri0+dir)]) return true;
+      } else if(Math.abs(df)===1&&dr===dir){
+        return true; // capture or en passant
+      }
+      return false;
+    }
+    case 'N': return (Math.abs(df)===1&&Math.abs(dr)===2)||(Math.abs(df)===2&&Math.abs(dr)===1);
+    case 'B': return Math.abs(df)===Math.abs(dr)&&df!==0&&isPathClear(brd,from,to);
+    case 'R': return (df===0||dr===0)&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
+    case 'Q': return (df===0||dr===0||Math.abs(df)===Math.abs(dr))&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
+    case 'K': return Math.abs(df)<=1&&Math.abs(dr)<=1&&(df!==0||dr!==0);
+  }
+  return false;
+}
+
+/* Apply one SAN move to board state, return new state or null on error */
+function pgnApplyMove(brd,castle,turn,san){
+  const nb={...brd}, nc={...castle};
+  let s=san.replace(/[+#!?]/g,'').replace(/\$\d+/g,'').trim();
+
+  // promotion
+  let promo=null;
+  const pm=s.match(/=([QRBN])$/i);
+  if(pm){promo=pm[1].toUpperCase();s=s.slice(0,-2);}
+
+  // castling
+  if(s==='O-O'||s==='0-0'){
+    if(turn==='w'){nb['g1']='wK';nb['f1']='wR';delete nb['e1'];delete nb['h1'];nc.wK=nc.wQ=false;}
+    else          {nb['g8']='bK';nb['f8']='bR';delete nb['e8'];delete nb['h8'];nc.bK=nc.bQ=false;}
+    return{board:nb,castle:nc,turn:turn==='w'?'b':'w'};
+  }
+  if(s==='O-O-O'||s==='0-0-0'){
+    if(turn==='w'){nb['c1']='wK';nb['d1']='wR';delete nb['e1'];delete nb['a1'];nc.wK=nc.wQ=false;}
+    else          {nb['c8']='bK';nb['d8']='bR';delete nb['e8'];delete nb['a8'];nc.bK=nc.bQ=false;}
+    return{board:nb,castle:nc,turn:turn==='w'?'b':'w'};
+  }
+
+  const to=s.slice(-2); s=s.slice(0,-2);
+  let pieceType='P';
+  if(s.length>0&&/[KQRBN]/.test(s[0])){pieceType=s[0];s=s.slice(1);}
+  s=s.replace('x','');
+  const disambig=s; // remaining = file, rank, or both
+
+  const pieceCode=turn+pieceType;
+  let from=null;
+  for(const[sq,pc]of Object.entries(brd)){
+    if(pc!==pieceCode) continue;
+    if(disambig.length===1){
+      if(/[a-h]/.test(disambig)&&sq[0]!==disambig) continue;
+      if(/[1-8]/.test(disambig)&&sq[1]!==disambig) continue;
+    } else if(disambig.length===2&&sq!==disambig) continue;
+    if(canPieceReach(brd,pieceCode,sq,to,turn)){from=sq;break;}
+  }
+  if(!from) return null;
+
+  // en passant: pawn diagonal capture to empty square
+  if(pieceType==='P'&&from[0]!==to[0]&&!brd[to]) delete nb[to[0]+from[1]];
+
+  nb[to]=promo?(turn+promo):pieceCode;
+  delete nb[from];
+
+  // update castling rights
+  if(pieceCode==='wK') nc.wK=nc.wQ=false;
+  if(pieceCode==='bK') nc.bK=nc.bQ=false;
+  if(from==='a1'||to==='a1') nc.wQ=false;
+  if(from==='h1'||to==='h1') nc.wK=false;
+  if(from==='a8'||to==='a8') nc.bQ=false;
+  if(from==='h8'||to==='h8') nc.bK=false;
+
+  return{board:nb,castle:nc,turn:turn==='w'?'b':'w'};
+}
+
+/* Parse PGN text → array of SAN move strings */
+function parsePgnText(text){
+  text=text.replace(/\[[^\]]*\]/g,'');        // strip headers
+  text=text.replace(/\{[^}]*\}/g,'');          // strip { comments }
+  text=text.replace(/;[^\n]*/g,'');             // strip ; line comments
+  while(/\([^()]*\)/.test(text)) text=text.replace(/\([^()]*\)/g,''); // strip variations
+  text=text.replace(/1-0|0-1|1\/2-1\/2|\*/g,'');
+  text=text.replace(/\d+\.+/g,' ');
+  return text.trim().split(/\s+/).filter(m=>m&&!/^\$/.test(m)&&m.length>0);
+}
+
+/* Load PGN and build position list */
+function loadPgn(text){
+  const moves=parsePgnText(text);
+  if(!moves.length){alert('PGN vide ou invalide.');return;}
+
+  const positions=[{
+    board:startPosition(),
+    castle:{wK:true,wQ:true,bK:true,bQ:true},
+    turn:'w',
+    move:null,
+    moveLabel:'Départ'
+  }];
+
+  let cur=positions[0];
+  for(let i=0;i<moves.length;i++){
+    const res=pgnApplyMove(cur.board,cur.castle,cur.turn,moves[i]);
+    if(!res){
+      if(i>0) break; // use what we have
+      alert(`Impossible de charger le coup "${moves[i]}". Vérifiez le PGN.`);
+      return;
+    }
+    const n=Math.floor(i/2)+1;
+    const lbl=cur.turn==='w'?`${n}. ${moves[i]}`:`${n}… ${moves[i]}`;
+    positions.push({...res,move:moves[i],moveLabel:lbl});
+    cur=res;
+  }
+
+  if(positions.length<2){alert('Aucun coup chargé.');return;}
+  pgnPositions=positions;
+  pgnGoto(0);
+  document.getElementById('pgn-nav').style.display='block';
+}
+
+/* Navigate to position index */
+function pgnGoto(idx){
+  if(idx<0||idx>=pgnPositions.length) return;
+  pgnIdx=idx;
+  const pos=pgnPositions[idx];
+  boardState={...pos.board};
+  renderBoard();
+  document.querySelector(`input[name="turn"][value="${pos.turn}"]`).checked=true;
+  document.getElementById('c-wK').checked=pos.castle.wK;
+  document.getElementById('c-wQ').checked=pos.castle.wQ;
+  document.getElementById('c-bK').checked=pos.castle.bK;
+  document.getElementById('c-bQ').checked=pos.castle.bQ;
+  syncFen(); clearArrow();
+  document.getElementById('result-panel').style.display='none';
+  const total=pgnPositions.length-1;
+  document.getElementById('pgn-move-info').textContent=
+    idx===0?`Départ  (0 / ${total})`:`${pos.moveLabel}  (${idx} / ${total})`;
+  document.getElementById('pgn-first').disabled=idx===0;
+  document.getElementById('pgn-prev').disabled=idx===0;
+  document.getElementById('pgn-next').disabled=idx===total;
+  document.getElementById('pgn-last').disabled=idx===total;
+}
+
+function pgnExit(){
+  pgnIdx=-1; pgnPositions=[];
+  document.getElementById('pgn-nav').style.display='none';
+}
+
+/* PGN UI bindings */
+document.getElementById('btn-load-pgn').onclick=()=>{
+  const v=document.getElementById('pgn-input').value.trim();
+  if(v) loadPgn(v);
+};
+document.getElementById('pgn-file').onchange=function(){
+  const f=this.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    document.getElementById('pgn-input').value=e.target.result;
+    loadPgn(e.target.result);
+  };
+  r.readAsText(f);
+  this.value='';
+};
+document.getElementById('pgn-first').onclick=()=>pgnGoto(0);
+document.getElementById('pgn-prev').onclick=()=>pgnGoto(pgnIdx-1);
+document.getElementById('pgn-next').onclick=()=>pgnGoto(pgnIdx+1);
+document.getElementById('pgn-last').onclick=()=>pgnGoto(pgnPositions.length-1);
+document.getElementById('pgn-close').onclick=pgnExit;
+
+/* Keyboard navigation ← / → */
+document.addEventListener('keydown',e=>{
+  if(pgnIdx===-1) return;
+  if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();pgnGoto(pgnIdx+1);}
+  if(e.key==='ArrowLeft' ||e.key==='ArrowUp')  {e.preventDefault();pgnGoto(pgnIdx-1);}
 });
 
 /* ══════════════════════════════════════════════

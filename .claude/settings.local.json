@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "mcp__claude_ai_Vercel__deploy_to_vercel",
+      "Bash(npx vercel:*)",
+      "Bash(node:*)",
+      "mcp__claude_ai_Vercel__list_teams",
+      "mcp__claude_ai_Vercel__list_projects",
+      "Read(//c/Users/Farida/**)",
+      "Read(//c/Users/Farida/AppData/Roaming/**)",
+      "Read(//c/Users/Farida/AppData/Local/**)",
+      "Bash(winget:*)",
+      "Bash(export:*)",
+      "Bash(sleep:*)",
+      "Bash(echo:*)",
+      "WebFetch(domain:nextchessmove.com)",
+      "Bash(curl:*)",
+      "Bash(/tmp/analysis.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(npm install:*)",
+      "Bash(cp node_modules/stockfish/src/stockfish.js ./stockfish.js)",
+      "Bash(du -sh \"C:\\\\Users\\\\Farida\\\\Desktop\\\\coupdechec-extension\\\\node_modules\\\\stockfish\\\\bin\"/*)",
+      "Bash(git -C \"C:\\\\Users\\\\Farida\\\\Desktop\\\\coupdechec\" checkout -- index.html)"
+    ]
+  }
+}

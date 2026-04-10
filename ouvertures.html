@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ouvertures d'échecs — Les incontournables | CoupDEchec</title>
+<meta name="description" content="Apprenez les principales ouvertures d'échecs : Défense Sicilienne, Française, Gambit Dame, Ruy Lopez, Caro-Kann, Italienne, Scandinave. Stratégie, FEN et analyse Stockfish en français."/>
+<meta name="keywords" content="ouvertures échecs, Sicilienne, Française, Gambit Dame, Ruy Lopez, Caro-Kann, Italienne, Scandinave, apprendre échecs"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://coupdechec.vercel.app/ouvertures"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f1a;--surface:#16162a;--card:#1e1e35;--border:#2a2a48;--gold:#f0c040;--gold2:#c8a020;--text:#dde0f0;--muted:#7070a0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:14px 40px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(15,15,26,.95);backdrop-filter:blur(12px);z-index:100}
+.nav-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);text-decoration:none}
+.nav-logo em{color:var(--gold);font-style:normal}
+.nav-back{display:flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:.82rem;transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.nav-back svg{width:14px;height:14px}
+
+.hero{text-align:center;padding:72px 24px 52px;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(240,192,64,.07) 0%,transparent 70%)}
+.hero-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;margin-bottom:14px}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1.1;margin-bottom:16px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{font-size:1rem;color:var(--muted);max-width:520px;margin:0 auto}
+
+.grid-section{padding:60px 24px 80px;max-width:1060px;margin:0 auto;width:100%}
+.openings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:860px){.openings-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.openings-grid{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:0;display:flex;flex-direction:column;text-decoration:none;color:var(--text);transition:border-color .15s,transform .1s,box-shadow .15s;overflow:hidden}
+.card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 32px rgba(240,192,64,.09)}
+.card-board-wrap{width:100%;display:block;line-height:0}
+.card-board{display:grid;grid-template-columns:repeat(8,1fr);width:100%}
+.card-board div{aspect-ratio:1;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card-board img{width:84%;height:84%;object-fit:contain;display:block;flex-shrink:0}
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.card-eco{font-size:.63rem;font-family:monospace;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 7px}
+.card-cat{font-size:.63rem;color:var(--gold);background:rgba(240,192,64,.09);border:1px solid rgba(240,192,64,.2);border-radius:4px;padding:2px 7px;font-weight:600}
+.card h2{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;line-height:1.2}
+.card-desc{font-size:.8rem;color:var(--muted);line-height:1.5;flex:1}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.card-moves{font-family:monospace;font-size:.72rem;color:var(--gold);background:rgba(240,192,64,.07);border:1px solid rgba(240,192,64,.14);border-radius:5px;padding:3px 9px}
+.card-arrow{font-size:.78rem;font-weight:700;color:var(--gold);opacity:.7}
+.card:hover .card-arrow{opacity:1}
+
+footer{margin-top:auto;text-align:center;padding:24px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+@media(max-width:500px){nav{padding:12px 16px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Coup<em>Déchec</em></a>
+  <a class="nav-back" href="/">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+    Retour à l'échiquier
+  </a>
+</nav>
+
+<section class="hero">
+  <p class="hero-label">Bibliothèque d'ouvertures</p>
+  <h1>Les <em>ouvertures d'échecs</em><br/>incontournables</h1>
+  <p>Maîtrisez les débuts de partie les plus joués au monde. Chaque ouverture avec sa position, ses idées clés et une analyse Stockfish directe.</p>
+</section>
+
+<section class="grid-section">
+  <div class="openings-grid" id="grid"></div>
+</section>
+
+<footer>
+  <a href="/">CoupDéchec</a> · <a href="/analyse-echecs">Analyse Stockfish</a> · <a href="/extension">Extension Chrome</a>
+</footer>
+
+<script>
+const FILES='abcdefgh';
+const FROM_FEN={K:'wK',Q:'wQ',R:'wR',B:'wB',N:'wN',P:'wP',k:'bK',q:'bQ',r:'bR',b:'bB',n:'bN',p:'bP'};
+
+const OPENINGS=[
+  {slug:'sicilienne',  name:'Défense Sicilienne', eco:'B20–B99',cat:'Semi-ouverte',moves:'1. e4 c5',
+   fen:'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2',
+   desc:'La défense la plus populaire face à 1.e4. Jeu asymétrique et dynamique pour les Noirs.'},
+  {slug:'francaise',   name:'Défense Française',  eco:'C00–C19',cat:'Semi-ouverte',moves:'1. e4 e6',
+   fen:'rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
+   desc:'Réponse solide à 1.e4. Les Noirs construisent une forteresse avant de contre-attaquer.'},
+  {slug:'gambit-dame', name:'Gambit Dame',         eco:'D06–D69',cat:'Jeu fermé',   moves:'1. d4 d5 2. c4',
+   fen:'rnbqkbnr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 2',
+   desc:'L\'ouverture classique 1.d4. Les Blancs offrent un pion pour dominer le centre.'},
+  {slug:'espagnole',   name:'Ouverture Espagnole', eco:'C60–C99',cat:'Jeu ouvert',  moves:'1. e4 e5 2. Cf3 Cc6 3. Fb5',
+   fen:'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+   desc:'La Ruy Lopez — l\'une des ouvertures les plus jouées au plus haut niveau depuis 500 ans.'},
+  {slug:'caro-kann',   name:'Défense Caro-Kann',   eco:'B10–B19',cat:'Semi-ouverte',moves:'1. e4 c6 2. d4 d5',
+   fen:'rnbqkbnr/pp2pppp/2p5/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq d6 0 3',
+   desc:'Défense solide et fiable face à 1.e4, sans les faiblesses structurelles de la Française.'},
+  {slug:'italienne',   name:'Ouverture Italienne', eco:'C50–C59',cat:'Jeu ouvert',  moves:'1. e4 e5 2. Cf3 Cc6 3. Fc4',
+   fen:'r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+   desc:'L\'une des plus anciennes ouvertures. Directe, tactique, idéale pour apprendre à attaquer.'},
+  {slug:'scandinave',  name:'Défense Scandinave',  eco:'B01',    cat:'Semi-ouverte',moves:'1. e4 d5',
+   fen:'rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 2',
+   desc:'Les Noirs challengent directement le centre blanc dès le premier coup. Arme surprise redoutable.'},
+];
+
+function parseFen(fen){
+  const board={};
+  const rows=fen.split(' ')[0].split('/');
+  for(let r=0;r<8;r++){
+    let fi=0;
+    for(const ch of rows[r]){
+      if(/\d/.test(ch)) fi+=+ch;
+      else{board[FILES[fi]+(8-r)]=FROM_FEN[ch];fi++;}
+    }
+  }
+  return board;
+}
+
+function renderMiniBoard(fen){
+  const board=parseFen(fen);
+  const wrap=document.createElement('div');
+  wrap.className='card-board-wrap';
+  const grid=document.createElement('div');
+  grid.className='card-board';
+  for(let rank=8;rank>=1;rank--){
+    for(let fi=0;fi<8;fi++){
+      const sq=FILES[fi]+rank;
+      const isLight=(fi+rank)%2===0;
+      const cell=document.createElement('div');
+      cell.style.background=isLight?'#f0d9b5':'#b58863';
+      const piece=board[sq];
+      if(piece){
+        const img=document.createElement('img');
+        img.src=`https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
+        img.alt=piece;
+        img.draggable=false;
+        cell.appendChild(img);
+      }
+      grid.appendChild(cell);
+    }
+  }
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+const gridEl=document.getElementById('grid');
+OPENINGS.forEach(o=>{
+  const a=document.createElement('a');
+  a.className='card';
+  a.href=`/ouvertures/${o.slug}`;
+  a.appendChild(renderMiniBoard(o.fen));
+  a.innerHTML+=`
+    <div class="card-body">
+      <div class="card-top">
+        <span class="card-eco">${o.eco}</span>
+        <span class="card-cat">${o.cat}</span>
+      </div>
+      <h2>${o.name}</h2>
+      <p class="card-desc">${o.desc}</p>
+      <div class="card-footer">
+        <span class="card-moves">${o.moves}</span>
+        <span class="card-arrow">Voir →</span>
+      </div>
+    </div>`;
+  gridEl.appendChild(a);
+});
+</script>
+</body>
+</html>
