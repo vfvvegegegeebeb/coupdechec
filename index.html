@@ -1443,20 +1443,43 @@ function pgnApplyMove(brd,castle,turn,san){
 
 /* Parse PGN text → array of SAN move strings */
 function parsePgnText(text){
-  text=text.replace(/\[%[^\]]*\]/g,'');        // strip inline [%clk...] [%eval...] annotations
-  text=text.replace(/\[[^\]]*\]/g,'');          // strip headers
-  text=text.replace(/\{[^}]*\}/g,'');           // strip { comments } (multi-line safe)
-  text=text.replace(/;[^\n]*/g,'');             // strip ; line comments
-  while(/\([^()]*\)/.test(text)) text=text.replace(/\([^()]*\)/g,''); // strip variations
-  text=text.replace(/1-0|0-1|1\/2-1\/2|\*/g,'');
-  text=text.replace(/\d+\.+/g,' ');
-  return text.trim().split(/\s+/).filter(m=>m&&!/^\$/.test(m)&&!/^[!?]+$/.test(m)&&m.length>0);
+  // normalise line endings
+  text=text.replace(/\r\n?/g,'\n');
+  // 1. strip { ... } blocks first (comments, clock annotations, eval)
+  //    loop until no more matches (handles back-to-back blocks)
+  let prev;
+  do{ prev=text; text=text.replace(/\{[^{}]*\}/g,' '); }while(text!==prev);
+  // 2. strip any orphan { or } left over (unclosed blocks)
+  text=text.replace(/[{}]/g,' ');
+  // 3. strip [ ... ] blocks (headers + inline [%clk] / [%eval] / [%arrow])
+  do{ prev=text; text=text.replace(/\[[^\[\]]*\]/g,' '); }while(text!==prev);
+  // 4. strip any orphan [ or ] left over
+  text=text.replace(/[\[\]]/g,' ');
+  // 5. strip ; line comments
+  text=text.replace(/;[^\n]*/g,' ');
+  // 6. strip nested variations ( ... ) iteratively
+  do{ prev=text; text=text.replace(/\([^()]*\)/g,' '); }while(text!==prev);
+  // 7. strip game result markers and stray *
+  text=text.replace(/\b(1-0|0-1|1\/2-1\/2)\b/g,' ');
+  text=text.replace(/\*/g,' ');
+  // 8. strip move numbers: 1. 1... 10. 22... etc.
+  text=text.replace(/\d+\s*\.+/g,' ');
+  // 9. tokenise and filter out: empty, NAG ($n), annotation symbols (!!/??), stray digits
+  return text.trim().split(/\s+/).filter(m=>
+    m.length>0 &&
+    !/^\$/.test(m) &&
+    !/^[!?]+$/.test(m) &&
+    !/^\d+$/.test(m)
+  );
 }
 
 /* Load PGN and build position list */
 function loadPgn(text){
   const moves=parsePgnText(text);
+  console.log(`PGN nettoyé — ${moves.length} coup(s) détecté(s):`, moves);
   if(!moves.length){alert('PGN vide ou invalide.');return;}
+  document.getElementById('pgn-move-info').textContent=`⏳ ${moves.length} coup(s) détecté(s) — chargement…`;
+  document.getElementById('pgn-nav').style.display='block';
 
   const positions=[{
     board:startPosition(),
@@ -1470,14 +1493,17 @@ function loadPgn(text){
   for(let i=0;i<moves.length;i++){
     const res=pgnApplyMove(cur.board,cur.castle,cur.turn,moves[i]);
     if(!res){
-      console.warn(`PGN: coup ${i+1} "${moves[i]}" non reconnu — arrêt à ${positions.length-1} coup(s) chargé(s).`);
+      const loaded=positions.length-1;
+      console.warn(`PGN: coup ${i+1} "${moves[i]}" non reconnu — ${loaded} coup(s) chargé(s). Tokens: [${moves.slice(Math.max(0,i-2),i+3).join(', ')}]`);
       if(i>0){
-        // show how many moves were loaded before failing
-        const loaded=positions.length-1;
-        document.getElementById('pgn-move-info').textContent=`⚠ Arrêt au coup ${i+1} ("${moves[i]}") — ${loaded} coup(s) chargé(s)`;
-        break;
+        // partial load — navigate to last good position then show warning
+        pgnPositions=positions;
+        pgnGoto(loaded);
+        document.getElementById('pgn-move-info').textContent=`⚠ Coup ${i+1} ("${moves[i]}") non reconnu — ${loaded}/${moves.length} coup(s) chargé(s)`;
+        document.getElementById('pgn-nav').style.display='block';
+        return;
       }
-      alert(`Impossible de charger le coup "${moves[i]}". Vérifiez le PGN.`);
+      alert(`Impossible de charger le coup "${moves[i]}". Vérifiez le PGN.\nTokens reçus: ${moves.slice(0,6).join(', ')}`);
       return;
     }
     const n=Math.floor(i/2)+1;
@@ -1488,7 +1514,10 @@ function loadPgn(text){
 
   if(positions.length<2){alert('Aucun coup chargé.');return;}
   pgnPositions=positions;
+  const total=positions.length-1;
+  console.log(`PGN chargé — ${total} coup(s) sur ${moves.length} détectés.`);
   pgnGoto(0);
+  document.getElementById('pgn-move-info').textContent=`✓ ${total} coup(s) chargé(s) — Départ (0 / ${total})`;
   document.getElementById('pgn-nav').style.display='block';
 }
 
