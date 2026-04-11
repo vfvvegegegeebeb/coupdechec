@@ -123,6 +123,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   border-radius:8px;border:1px solid var(--border);font-size:.85rem;text-align:center;
   color:var(--muted);min-height:36px;display:flex;align-items:center;justify-content:center;
 }
+.dots::after{content:'';animation:dotsAnim 1.4s steps(4,end) infinite}
+@keyframes dotsAnim{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}}
 
 /* ── RIGHT CONTROLS ── */
 .controls{width:238px;flex-shrink:0;display:flex;flex-direction:column;gap:11px}
@@ -256,7 +258,7 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
   .rank-labels span{ font-size:.55rem; }
   .file-labels span{ font-size:.55rem; }
 
-  /* ── tray horizontal compact ── */
+  /* ── tray masqué par défaut, toggle via bouton ── */
   .tray{
     flex-direction:row;
     flex-wrap:wrap;
@@ -267,7 +269,17 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
     background:var(--card);
     border-radius:10px;
     border:1px solid var(--border);
+    display:none;
   }
+  .tray.open{ display:flex; }
+  #tray-toggle{
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    width:100%;padding:9px;border:1px solid var(--border);
+    background:var(--card);border-radius:10px;color:var(--muted);
+    font-size:.8rem;cursor:pointer;font-family:inherit;transition:.15s;
+  }
+  #tray-toggle:hover{border-color:var(--gold);color:var(--gold)}
+  #tray-toggle[aria-expanded="true"]{color:var(--gold);border-color:var(--gold)}
 
   /* petits séparateurs de section → deviennent des sauts de ligne */
   .tray-section{
@@ -372,6 +384,10 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
 <div class="layout">
 
   <!-- ══ TRAY ══ -->
+  <button id="tray-toggle" aria-expanded="false" aria-controls="tray">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Placer des pièces
+  </button>
   <div class="tray" id="tray">
     <div class="tray-section">Blancs</div>
     <div class="tray-piece" draggable="true" data-piece="wK"><img src="/pieces/wK.png" alt="♔"/></div>
@@ -408,7 +424,7 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
         <div class="file-labels" id="file-labels"></div>
       </div>
     </div>
-    <div class="status-bar" id="status-bar">Chargement du moteur…</div>
+    <div class="status-bar" id="status-bar">Moteur en cours de chargement<span class="dots"></span></div>
     <button id="btn-share">🔗 Partager cette position</button>
   </div>
 
@@ -1568,10 +1584,36 @@ document.getElementById('pgn-next').onclick=()=>pgnGoto(pgnIdx+1);
 document.getElementById('pgn-last').onclick=()=>pgnGoto(pgnPositions.length-1);
 document.getElementById('pgn-close').onclick=pgnExit;
 
-/* Keyboard navigation ← / → */
+/* Tray toggle (mobile) */
+(function(){
+  const btn=document.getElementById('tray-toggle');
+  if(!btn) return;
+  btn.addEventListener('click',()=>{
+    const tray=document.getElementById('tray');
+    const open=tray.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+    btn.innerHTML = open
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Fermer'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Placer des pièces';
+  });
+  // cache le bouton sur desktop
+  const mq=window.matchMedia('(max-width:700px)');
+  const update=()=>{ btn.style.display=mq.matches?'':'none'; };
+  mq.addEventListener('change',update); update();
+})();
+
+/* Keyboard navigation ← / → (PGN) + Enter (analyse) */
 document.addEventListener('keydown',e=>{
-  if(pgnIdx===-1) return;
   if(e.target.tagName==='TEXTAREA'||e.target.tagName==='INPUT') return;
+  // Enter → lancer l'analyse
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const btn=document.getElementById('analyse-btn');
+    if(btn&&!btn.disabled) btn.click();
+    return;
+  }
+  // Flèches → navigation PGN
+  if(pgnIdx===-1) return;
   if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();pgnGoto(pgnIdx+1);}
   if(e.key==='ArrowLeft' ||e.key==='ArrowUp')  {e.preventDefault();pgnGoto(pgnIdx-1);}
 });

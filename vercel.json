@@ -1,11 +1,16 @@
 {
   "rewrites": [
-    { "source": "/extension",          "destination": "/extension.html" },
-    { "source": "/analyse-echecs",     "destination": "/analyse-echecs.html" },
-    { "source": "/ouvertures-echecs",  "destination": "/ouvertures-echecs.html" },
-    { "source": "/mat-en-deux",        "destination": "/mat-en-deux.html" },
-    { "source": "/position-du-jour",   "destination": "/position-du-jour.html" },
-    { "source": "/ouvertures",         "destination": "/ouvertures.html" },
-    { "source": "/ouvertures/:slug",   "destination": "/ouverture.html" }
+    { "source": "/extension",                    "destination": "/extension.html" },
+    { "source": "/analyse-echecs",               "destination": "/analyse-echecs.html" },
+    { "source": "/analyser-position-echecs",     "destination": "/analyser-position-echecs.html" },
+    { "source": "/ouvertures-echecs",            "destination": "/ouvertures-echecs.html" },
+    { "source": "/ouvertures-echecs-debutants",  "destination": "/ouvertures-echecs-debutants.html" },
+    { "source": "/meilleures-ouvertures-echecs", "destination": "/meilleures-ouvertures-echecs.html" },
+    { "source": "/mat-en-deux",                  "destination": "/mat-en-deux.html" },
+    { "source": "/finales-echecs",               "destination": "/finales-echecs.html" },
+    { "source": "/finales-echecs-guide",         "destination": "/finales-echecs-guide.html" },
+    { "source": "/position-du-jour",             "destination": "/position-du-jour.html" },
+    { "source": "/ouvertures",                   "destination": "/ouvertures.html" },
+    { "source": "/ouvertures/:slug",             "destination": "/ouverture.html" }
   ]
 }

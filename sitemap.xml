@@ -3,71 +3,134 @@
 
   <url>
     <loc>https://coupdechec.vercel.app/</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
+    <loc>https://coupdechec.vercel.app/position-du-jour</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
     <loc>https://coupdechec.vercel.app/ouvertures</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://coupdechec.vercel.app/ouvertures/sicilienne</loc>
-    <lastmod>2026-04-10</lastmod>
+    <loc>https://coupdechec.vercel.app/analyse-echecs</loc>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/analyser-position-echecs</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/mat-en-deux</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/ouvertures-echecs</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/ouvertures-echecs-debutants</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/meilleures-ouvertures-echecs</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/finales-echecs</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/finales-echecs-guide</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/extension</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://coupdechec.vercel.app/ouvertures/sicilienne</loc>
+    <lastmod>2026-04-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://coupdechec.vercel.app/ouvertures/francaise</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://coupdechec.vercel.app/ouvertures/gambit-dame</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://coupdechec.vercel.app/ouvertures/espagnole</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://coupdechec.vercel.app/ouvertures/caro-kann</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://coupdechec.vercel.app/ouvertures/italienne</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://coupdechec.vercel.app/ouvertures/scandinave</loc>
-    <lastmod>2026-04-10</lastmod>
+    <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://coupdechec.vercel.app/position-du-jour</loc>
-    <lastmod>2026-04-10</lastmod>
-    <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
 
