@@ -904,18 +904,16 @@ window.addEventListener('resize',()=>{ if(lastArrow) drawArrow(lastArrow.from,la
    STOCKFISH
 ══════════════════════════════════════════════ */
 function initEngine(){
-  const sfUrl = 'https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
-  // Blob+importScripts trick: works under file:// AND https://
-  // (direct Worker(remoteUrl) is blocked by same-origin policy on file://)
+  const sfUrl = '/stockfish.js';
   try {
+    engine = new Worker(sfUrl);
+  } catch(e) {
+    // fallback: blob worker (needed under file://)
     const blob = new Blob(
       [`importScripts(${JSON.stringify(sfUrl)})`],
       {type:'application/javascript'}
     );
     engine = new Worker(URL.createObjectURL(blob));
-  } catch(e) {
-    // fallback for browsers that block blob workers
-    engine = new Worker(sfUrl);
   }
   engine.onerror = ()=>{
     document.getElementById('status-bar').textContent =
