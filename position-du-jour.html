@@ -4,14 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Position du jour — Puzzle quotidien | CoupDéchec</title>
-<meta name="description" content="Un nouveau puzzle d'échecs chaque jour. Trouvez le meilleur coup de la position du jour et analysez avec Stockfish."/>
+<meta name="description" content="Un nouveau puzzle d'échecs chaque jour. Trouvez la combinaison gagnante et analysez avec Stockfish."/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://coupdechec.vercel.app/position-du-jour"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://coupdechec.vercel.app/position-du-jour"/>
 <meta property="og:title" content="Position du jour — Puzzle quotidien échecs"/>
-<meta property="og:description" content="Un puzzle d'échecs différent chaque jour. Analysez la position avec Stockfish."/>
+<meta property="og:description" content="Un puzzle d'échecs différent chaque jour. Trouvez la combinaison gagnante."/>
 <meta property="og:locale" content="fr_FR"/>
 <meta property="og:site_name" content="CoupDéchec"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -39,111 +39,173 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px
 .nav-back:hover{color:var(--text)}
 
 /* MAIN */
-main{flex:1;display:flex;flex-direction:column;align-items:center;padding:40px 16px 60px;gap:28px}
+main{flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 16px 60px;gap:22px}
 
 /* HEADER */
-.page-header{text-align:center;max-width:520px}
+.page-header{text-align:center;max-width:480px}
 .day-badge{
   display:inline-flex;align-items:center;gap:6px;
   padding:4px 14px;border-radius:999px;
   border:1px solid var(--border);background:var(--surface);
   font-size:.7rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;
-  margin-bottom:14px;
+  margin-bottom:12px;
 }
 .day-badge em{color:var(--gold);font-style:normal;font-weight:700}
-h1{font-family:'Syne',sans-serif;font-size:clamp(1.4rem,4vw,2rem);font-weight:800;margin-bottom:6px}
-.sub{font-size:.88rem;color:var(--muted)}
-
-/* CARD */
-.puzzle-card{
-  background:var(--card);border:1px solid var(--border);border-radius:16px;
-  padding:28px;display:flex;flex-direction:column;align-items:center;gap:20px;
-  width:100%;max-width:520px;
-}
+h1{font-family:'Syne',sans-serif;font-size:clamp(1.3rem,4vw,1.9rem);font-weight:800;margin-bottom:4px}
 
 /* DIFFICULTY */
 .diff-badge{
-  padding:4px 14px;border-radius:999px;font-size:.72rem;font-weight:700;
-  text-transform:uppercase;letter-spacing:.8px;
+  display:inline-block;padding:3px 12px;border-radius:999px;font-size:.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;margin-top:6px;
 }
 .diff-facile   {background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.3)}
 .diff-moyen    {background:rgba(243,156,18,.12);color:var(--orange);border:1px solid rgba(243,156,18,.3)}
 .diff-difficile{background:rgba(231,76,60,.12);color:var(--red);border:1px solid rgba(231,76,60,.3)}
 
-.puzzle-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;text-align:center}
+/* PUZZLE WRAPPER */
+.puzzle-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  width:100%;max-width:480px;
+}
+
+/* TURN INDICATOR */
+.turn-row{display:flex;align-items:center;gap:8px;font-size:.83rem;color:var(--text);font-weight:600;align-self:flex-start}
+.turn-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.turn-dot.white{background:#f5f5f5;border:1.5px solid #aaa;box-shadow:0 0 4px rgba(255,255,255,.4)}
+.turn-dot.black{background:#1a1a1a;border:1.5px solid #555}
 
 /* BOARD */
-.board-wrap{position:relative;width:min(420px,calc(100vw - 64px));aspect-ratio:1}
-.board{
+.board-outer{position:relative;width:min(460px,calc(100vw - 32px));aspect-ratio:1}
+#board{
   display:grid;grid-template-columns:repeat(8,1fr);
   width:100%;height:100%;
-  border:2px solid #555;border-radius:4px;overflow:hidden;
+  border:2px solid #444;border-radius:3px;overflow:hidden;
   user-select:none;
 }
 .sq{
-  display:flex;align-items:center;justify-content:center;
-  aspect-ratio:1;font-size:clamp(1.4rem,5vw,2.6rem);line-height:1;
-  cursor:default;
+  position:relative;display:flex;align-items:center;justify-content:center;
+  aspect-ratio:1;cursor:pointer;
+  transition:background .1s;
 }
 .sq.light{background:var(--light-sq)}
 .sq.dark {background:var(--dark-sq)}
-.sq.wp,.sq.wn,.sq.wb,.sq.wr,.sq.wq,.sq.wk{color:#fff;text-shadow:0 0 3px rgba(0,0,0,.8),0 1px 4px rgba(0,0,0,.6)}
-.sq.bp,.sq.bn,.sq.bb,.sq.br,.sq.bq,.sq.bk{color:#1a1a1a;text-shadow:0 0 3px rgba(255,255,255,.4),0 1px 2px rgba(0,0,0,.4)}
+.sq.selected{outline:3px inset rgba(240,192,64,.9);z-index:2}
+.sq.hint::after{
+  content:'';position:absolute;
+  width:30%;height:30%;border-radius:50%;
+  background:rgba(0,0,0,.18);
+  pointer-events:none;z-index:3;
+}
+.sq.hint.has-piece::after{
+  width:90%;height:90%;
+  background:transparent;
+  border-radius:50%;
+  border:3px solid rgba(0,0,0,.22);
+}
+.sq.flash-ok {animation:flashOk .5s ease}
+.sq.flash-err{animation:flashErr .45s ease}
+.sq.engine-from{box-shadow:inset 0 0 0 3px rgba(243,156,18,.7)}
+.sq.engine-to  {box-shadow:inset 0 0 0 3px rgba(243,156,18,.9)}
+@keyframes flashOk {
+  0%  {background:rgba(46,204,113,.7)}
+  60% {background:rgba(46,204,113,.4)}
+  100%{}
+}
+@keyframes flashErr{
+  0%  {transform:translateX(0)}
+  20% {transform:translateX(-5px);background:rgba(231,76,60,.5)}
+  40% {transform:translateX(5px)}
+  60% {transform:translateX(-3px)}
+  80% {transform:translateX(2px)}
+  100%{transform:translateX(0)}
+}
+.sq img{width:88%;height:88%;object-fit:contain;pointer-events:none;user-select:none}
 
-/* TURN indicator */
-.turn-row{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)}
-.turn-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.turn-dot.white{background:#f0f0f0;border:1px solid #aaa}
-.turn-dot.black{background:#222;border:1px solid #666}
+/* PROGRESS DOTS */
+.progress-row{display:flex;gap:8px;align-items:center}
+.prog-dot{
+  width:10px;height:10px;border-radius:50%;border:1.5px solid var(--border);
+  background:transparent;transition:background .2s,border-color .2s;
+}
+.prog-dot.player{border-color:var(--gold)}
+.prog-dot.player.done{background:var(--green);border-color:var(--green)}
+.prog-dot.engine.done{background:var(--muted);border-color:var(--muted)}
 
-/* SOLUTION toggle */
-.solution-wrap{width:100%;text-align:center}
-.solution-btn{
+/* STATUS */
+.status-msg{
+  font-size:.88rem;font-weight:600;min-height:22px;text-align:center;
+  transition:color .2s;
+}
+.status-msg.ok  {color:var(--green)}
+.status-msg.err {color:var(--red)}
+.status-msg.muted{color:var(--muted)}
+
+/* SOLUTION TOGGLE */
+.sol-btn{
   background:transparent;border:1px solid var(--border);
-  color:var(--muted);border-radius:8px;padding:8px 18px;
-  font-size:.8rem;cursor:pointer;transition:.15s;
-  font-family:inherit;
+  color:var(--muted);border-radius:8px;padding:7px 16px;
+  font-size:.78rem;cursor:pointer;transition:.15s;font-family:inherit;
 }
-.solution-btn:hover{border-color:var(--gold);color:var(--gold)}
-.solution-text{
-  display:none;margin-top:10px;
-  font-family:monospace;font-size:1rem;font-weight:700;color:var(--gold);
-  letter-spacing:.5px;
+.sol-btn:hover{border-color:var(--gold);color:var(--gold)}
+.sol-text{
+  display:none;font-family:monospace;font-size:.9rem;font-weight:700;
+  color:var(--gold);letter-spacing:.5px;text-align:center;margin-top:6px;
 }
-.solution-text.visible{display:block}
+.sol-text.visible{display:block}
 
-/* CTA */
+/* BUTTONS */
 .btn-gold{
-  display:inline-flex;align-items:center;gap:9px;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
   padding:13px 28px;background:var(--gold);color:#111;
   border-radius:9px;font-weight:800;font-size:.95rem;
   font-family:'Syne',sans-serif;text-decoration:none;
   transition:background .15s,transform .1s;
-  box-shadow:0 0 20px rgba(240,192,64,.2);
-  width:100%;justify-content:center;
+  box-shadow:0 0 20px rgba(240,192,64,.2);width:100%;
 }
 .btn-gold:hover{background:var(--gold2);transform:translateY(-1px)}
-.btn-gold:active{transform:translateY(0)}
+
+/* SUCCESS OVERLAY */
+.success-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,10,20,.85);backdrop-filter:blur(6px);
+  z-index:100;align-items:center;justify-content:center;padding:24px;
+}
+.success-overlay.show{display:flex}
+.success-card{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:40px 32px;text-align:center;max-width:380px;width:100%;
+  animation:popIn .35s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.success-icon{font-size:3rem;margin-bottom:12px;display:block}
+.success-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:6px;color:var(--green)}
+.success-sub{color:var(--muted);font-size:.88rem;margin-bottom:24px}
+.success-moves{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;
+}
+.success-move-chip{
+  padding:4px 10px;border-radius:6px;font-family:monospace;font-size:.82rem;font-weight:700;
+}
+.success-move-chip.player{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3)}
+.success-move-chip.engine{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.btn-close{
+  display:block;margin-top:12px;background:transparent;border:1px solid var(--border);
+  color:var(--muted);border-radius:8px;padding:8px;font-size:.8rem;
+  cursor:pointer;font-family:inherit;width:100%;transition:.15s;
+}
+.btn-close:hover{border-color:var(--gold);color:var(--gold)}
 
 /* LOADER */
-.loader{
-  display:flex;flex-direction:column;align-items:center;gap:12px;
-  color:var(--muted);font-size:.88rem;padding:60px 0;
-}
-.spinner{
-  width:36px;height:36px;border:3px solid var(--border);
-  border-top-color:var(--gold);border-radius:50%;
-  animation:spin .7s linear infinite;
-}
+.loader{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--muted);font-size:.88rem;padding:60px 0}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* Footer */
-footer{text-align:center;padding:24px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
-footer a{color:var(--muted)}
+footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border-top:1px solid var(--border)}
 
 @media(max-width:480px){
   nav{padding:12px 16px}
-  .puzzle-card{padding:20px 16px}
+  .success-card{padding:28px 20px}
 }
 </style>
 </head>
@@ -157,35 +219,36 @@ footer a{color:var(--muted)}
 <main>
   <div class="page-header">
     <div class="day-badge">Puzzle · <em id="date-label">…</em></div>
-    <h1>Position du jour</h1>
-    <p class="sub">Une nouvelle position chaque jour — même position pour tous</p>
+    <h1 id="puzzle-title">Position du jour</h1>
+    <div id="diff-badge" class="diff-badge" style="display:none"></div>
   </div>
 
   <div id="loader" class="loader">
     <div class="spinner"></div>
-    Chargement de la position…
+    Chargement du puzzle…
   </div>
 
-  <div id="puzzle-card" class="puzzle-card" style="display:none">
-    <div id="diff-badge" class="diff-badge">—</div>
-    <div id="puzzle-title" class="puzzle-title">—</div>
-
-    <div class="board-wrap">
-      <div class="board" id="board"></div>
-    </div>
-
+  <div id="puzzle-wrap" class="puzzle-wrap" style="display:none">
     <div class="turn-row">
       <div class="turn-dot" id="turn-dot"></div>
       <span id="turn-label">—</span>
     </div>
 
-    <div class="solution-wrap">
-      <button class="solution-btn" id="sol-btn">Voir la solution</button>
-      <div class="solution-text" id="sol-text"></div>
+    <div class="board-outer">
+      <div id="board"></div>
+    </div>
+
+    <div class="progress-row" id="progress-row"></div>
+
+    <div class="status-msg muted" id="status-msg">Trouvez le meilleur coup</div>
+
+    <div>
+      <button class="sol-btn" id="sol-btn">Voir la solution</button>
+      <div class="sol-text" id="sol-text"></div>
     </div>
 
     <a class="btn-gold" id="analyze-btn" href="#">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
       </svg>
       Analyser avec Stockfish
@@ -193,130 +256,490 @@ footer a{color:var(--muted)}
   </div>
 </main>
 
-<footer><a href="/">CoupDéchec</a> · Position du jour · Puzzle quotidien</footer>
+<!-- Success overlay -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card">
+    <span class="success-icon">♟</span>
+    <div class="success-title">Puzzle résolu !</div>
+    <div class="success-sub" id="success-sub">Excellente combinaison</div>
+    <div class="success-moves" id="success-moves"></div>
+    <a class="btn-gold" id="success-analyze" href="#">
+      Analyser avec Stockfish
+    </a>
+    <button class="btn-close" id="success-close">Fermer</button>
+  </div>
+</div>
+
+<footer>
+  <a href="/">CoupDéchec</a> · Position du jour · Puzzle quotidien d'échecs
+</footer>
 
 <script>
-(function () {
-  'use strict';
+'use strict';
 
-  var SUPABASE_URL = 'https://mzzdnganybacsehrouwm.supabase.co';
-  var ANON_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16emRuZ2FueWJhY3NlaHJvdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTI5MTUsImV4cCI6MjA5MTIyODkxNX0.4twVSNCpT5HhVQD-bH4AtVseRgTUCn8ZOB-PcxMVSDA';
+/* ══════════════════════════════════════════════
+   SUPABASE
+══════════════════════════════════════════════ */
+var SUPABASE_URL = 'https://mzzdnganybacsehrouwm.supabase.co';
+var ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16emRuZ2FueWJhY3NlaHJvdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTI5MTUsImV4cCI6MjA5MTIyODkxNX0.4twVSNCpT5HhVQD-bH4AtVseRgTUCn8ZOB-PcxMVSDA';
 
-  // ── Pièces Unicode ─────────────────────────────────────────────────────────
-  var PIECES = {
-    K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙',
-    k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟'
-  };
-  var CLASS_MAP = {
-    K:'wk',Q:'wq',R:'wr',B:'wb',N:'wn',P:'wp',
-    k:'bk',q:'bq',r:'br',b:'bb',n:'bn',p:'bp'
-  };
+/* ══════════════════════════════════════════════
+   CHESS LOGIC
+══════════════════════════════════════════════ */
+var FILES = 'abcdefgh';
 
-  // ── Rendu du plateau ───────────────────────────────────────────────────────
-  function renderBoard(fen) {
-    var parts  = fen.split(' ');
-    var rows   = parts[0].split('/');
-    var board  = document.getElementById('board');
-    board.innerHTML = '';
-
-    for (var r = 0; r < 8; r++) {
-      var row = rows[r];
-      var file = 0;
-      for (var i = 0; i < row.length; i++) {
-        var ch = row[i];
-        var n  = parseInt(ch);
-        if (!isNaN(n)) {
-          for (var j = 0; j < n; j++) {
-            board.appendChild(makeSquare(r, file, ''));
-            file++;
-          }
-        } else {
-          board.appendChild(makeSquare(r, file, ch));
-          file++;
-        }
+function fenToState(fen) {
+  var parts = fen.split(' ');
+  var placement = parts[0], turnChar = parts[1]||'w', castleStr = parts[2]||'-';
+  var board = {};
+  var rows = placement.split('/');
+  for (var r = 0; r < 8; r++) {
+    var file = 0;
+    for (var i = 0; i < rows[r].length; i++) {
+      var ch = rows[r][i];
+      if (/\d/.test(ch)) { file += +ch; }
+      else {
+        var sq = FILES[file] + (8 - r);
+        board[sq] = (ch === ch.toUpperCase() ? 'w' : 'b') + ch.toUpperCase();
+        file++;
       }
     }
   }
-
-  function makeSquare(rank, file, piece) {
-    var sq = document.createElement('div');
-    var light = (rank + file) % 2 === 0;
-    sq.className = 'sq ' + (light ? 'light' : 'dark');
-    if (piece) {
-      sq.textContent = PIECES[piece] || '';
-      sq.classList.add(CLASS_MAP[piece] || '');
+  return {
+    board: board,
+    turn: turnChar,
+    castle: {
+      wK: castleStr.includes('K'),
+      wQ: castleStr.includes('Q'),
+      bK: castleStr.includes('k'),
+      bQ: castleStr.includes('q')
     }
-    return sq;
+  };
+}
+
+function isPathClear(brd, from, to) {
+  var fi0=FILES.indexOf(from[0]),ri0=+from[1];
+  var fi1=FILES.indexOf(to[0]),ri1=+to[1];
+  var df=fi1-fi0,dr=ri1-ri0;
+  var steps=Math.max(Math.abs(df),Math.abs(dr));
+  if (steps<=1) return true;
+  var sf=Math.sign(df),sr=Math.sign(dr);
+  for (var i=1;i<steps;i++) {
+    if (brd[FILES[fi0+sf*i]+(ri0+sr*i)]) return false;
+  }
+  return true;
+}
+
+function canPieceReach(brd, pieceCode, from, to, turn) {
+  var target=brd[to];
+  if (target&&target[0]===turn) return false;
+  var fi0=FILES.indexOf(from[0]),ri0=+from[1];
+  var fi1=FILES.indexOf(to[0]),ri1=+to[1];
+  var df=fi1-fi0,dr=ri1-ri0;
+  var pt=pieceCode[1];
+  if (pt==='P') {
+    var dir=turn==='w'?1:-1;
+    if (df===0) {
+      if (target) return false;
+      if (dr===dir) return true;
+      if (dr===2*dir&&ri0===(turn==='w'?2:7)&&!brd[from[0]+(ri0+dir)]) return true;
+    } else if (Math.abs(df)===1&&dr===dir) return true;
+    return false;
+  }
+  if (pt==='N') return (Math.abs(df)===1&&Math.abs(dr)===2)||(Math.abs(df)===2&&Math.abs(dr)===1);
+  if (pt==='B') return Math.abs(df)===Math.abs(dr)&&df!==0&&isPathClear(brd,from,to);
+  if (pt==='R') return (df===0||dr===0)&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
+  if (pt==='Q') return (df===0||dr===0||Math.abs(df)===Math.abs(dr))&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
+  if (pt==='K') return Math.abs(df)<=1&&Math.abs(dr)<=1&&(df!==0||dr!==0);
+  return false;
+}
+
+// Returns all pseudo-legal destination squares for piece at `sq`
+function legalSquares(brd, sq, turn) {
+  var piece = brd[sq];
+  if (!piece||piece[0]!==turn) return [];
+  var result = [];
+  for (var f=0;f<8;f++) {
+    for (var r=1;r<=8;r++) {
+      var dest = FILES[f]+r;
+      if (dest!==sq && canPieceReach(brd,piece,sq,dest,turn)) result.push(dest);
+    }
+  }
+  // Castling
+  if (piece[1]==='K') {
+    var rank = turn==='w'?'1':'8';
+    if (turn==='w'&&state.castle.wK&&!brd['f'+rank]&&!brd['g'+rank]) result.push('g'+rank);
+    if (turn==='w'&&state.castle.wQ&&!brd['d'+rank]&&!brd['c'+rank]&&!brd['b'+rank]) result.push('c'+rank);
+    if (turn==='b'&&state.castle.bK&&!brd['f'+rank]&&!brd['g'+rank]) result.push('g'+rank);
+    if (turn==='b'&&state.castle.bQ&&!brd['d'+rank]&&!brd['c'+rank]&&!brd['b'+rank]) result.push('c'+rank);
+  }
+  return result;
+}
+
+// SAN → {from, to, promo} or null
+function sanToMove(brd, san, turn) {
+  var s = san.replace(/[+#!?]/g,'').replace(/\$\d+/g,'').trim();
+  var promo = null;
+  var pm = s.match(/=([QRBN])$/i);
+  if (pm) { promo=pm[1].toUpperCase(); s=s.slice(0,-2); }
+  else { var pm2=s.match(/([QRBN])$/i); if(pm2&&/[18]$/.test(s.slice(-3,-1))){promo=pm2[1].toUpperCase();s=s.slice(0,-1);} }
+
+  if (s==='O-O'||s==='0-0')   return {from:turn==='w'?'e1':'e8', to:turn==='w'?'g1':'g8', promo:null};
+  if (s==='O-O-O'||s==='0-0-0') return {from:turn==='w'?'e1':'e8', to:turn==='w'?'c1':'c8', promo:null};
+
+  var to=s.slice(-2); s=s.slice(0,-2);
+  var pieceType='P';
+  if (s.length>0&&/[KQRBN]/.test(s[0])){pieceType=s[0];s=s.slice(1);}
+  s=s.replace('x','');
+  var disambig=s;
+  var pieceCode=turn+pieceType;
+
+  var sqs = Object.keys(brd);
+  for (var i=0;i<sqs.length;i++) {
+    var sq=sqs[i], pc=brd[sq];
+    if (pc!==pieceCode) continue;
+    if (disambig.length===1) {
+      if (/[a-h]/.test(disambig)&&sq[0]!==disambig) continue;
+      if (/[1-8]/.test(disambig)&&sq[1]!==disambig) continue;
+    } else if (disambig.length===2&&sq!==disambig) continue;
+    if (canPieceReach(brd,pieceCode,sq,to,turn)) return {from:sq,to:to,promo:promo};
+  }
+  return null;
+}
+
+// Apply move → new {board, castle, turn}
+function applyMove(brd, castle, from, to, promo, turn) {
+  var nb={}, nc={wK:castle.wK,wQ:castle.wQ,bK:castle.bK,bQ:castle.bQ};
+  Object.assign(nb, brd);
+  var piece=nb[from];
+  if (!piece) return null;
+  var pt=piece[1];
+
+  // En passant
+  if (pt==='P'&&from[0]!==to[0]&&!brd[to]) delete nb[to[0]+from[1]];
+
+  // Castling — move rook
+  if (pt==='K') {
+    var df=FILES.indexOf(to[0])-FILES.indexOf(from[0]);
+    if (Math.abs(df)===2) {
+      var rank=from[1];
+      if (df>0){nb['f'+rank]=turn+'R';delete nb['h'+rank];}
+      else    {nb['d'+rank]=turn+'R';delete nb['a'+rank];}
+    }
+    nc[turn+'K']=nc[turn+'Q']=false;
   }
 
-  // ── Date affichée ──────────────────────────────────────────────────────────
-  function formatDate() {
-    var d = new Date();
-    return d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
-  }
+  nb[to]=promo?(turn+promo):piece;
+  delete nb[from];
 
-  // ── Fetch Supabase ─────────────────────────────────────────────────────────
-  function fetchPosition() {
-    fetch(SUPABASE_URL + '/rest/v1/position_du_jour?select=*', {
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': 'Bearer ' + ANON_KEY
+  if (from==='a1'||to==='a1') nc.wQ=false;
+  if (from==='h1'||to==='h1') nc.wK=false;
+  if (from==='a8'||to==='a8') nc.bQ=false;
+  if (from==='h8'||to==='h8') nc.bK=false;
+
+  return {board:nb, castle:nc, turn:turn==='w'?'b':'w'};
+}
+
+/* ══════════════════════════════════════════════
+   PUZZLE STATE
+══════════════════════════════════════════════ */
+var state = { board:{}, castle:{}, turn:'w' };
+var puzzleMoves  = [];   // ['Qh5','Kh8','Qxf7#']
+var moveIdx      = 0;    // current move index
+var selectedSq   = null;
+var enabled      = true; // false during engine response animation
+var startFen     = '';
+var hintSquares  = [];
+
+/* ══════════════════════════════════════════════
+   RENDER
+══════════════════════════════════════════════ */
+var flipBoard = false; // true when player is black
+
+function renderBoard(highlightFrom, highlightTo, hlType) {
+  var boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+
+  var ranks = flipBoard ? [1,2,3,4,5,6,7,8] : [8,7,6,5,4,3,2,1];
+  var files  = flipBoard ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+
+  ranks.forEach(function(rank) {
+    files.forEach(function(fi) {
+      var file = FILES[fi];
+      var sq   = file + rank;
+      var isLight = (fi + rank) % 2 === 0;
+
+      var div = document.createElement('div');
+      var cls = 'sq ' + (isLight ? 'light' : 'dark');
+
+      if (sq === selectedSq)  cls += ' selected';
+      if (sq === highlightFrom) cls += hlType==='engine' ? ' engine-from' : '';
+      if (sq === highlightTo) {
+        if (hlType==='correct') cls += ' flash-ok';
+        else if (hlType==='wrong') cls += ' flash-err';
+        else if (hlType==='engine') cls += ' engine-to';
       }
-    })
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (!data || !data.length) { showError(); return; }
-      display(data[0]);
-    })
-    .catch(showError);
+      if (hintSquares.indexOf(sq) !== -1) {
+        cls += ' hint';
+        if (state.board[sq]) cls += ' has-piece';
+      }
+
+      div.className = cls;
+      div.dataset.sq = sq;
+
+      var piece = state.board[sq];
+      if (piece) {
+        var img = document.createElement('img');
+        img.src = '/pieces/' + piece + '.png';
+        img.alt = piece;
+        div.appendChild(img);
+      }
+
+      div.addEventListener('click', function() { onSquareClick(this.dataset.sq); });
+      boardEl.appendChild(div);
+    });
+  });
+}
+
+function updateProgress() {
+  var row = document.getElementById('progress-row');
+  row.innerHTML = '';
+  puzzleMoves.forEach(function(_, i) {
+    var dot = document.createElement('div');
+    dot.className = 'prog-dot ' + (i%2===0 ? 'player' : 'engine');
+    if (i < moveIdx) dot.classList.add('done');
+    row.appendChild(dot);
+  });
+}
+
+function setStatus(msg, cls) {
+  var el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = 'status-msg ' + (cls||'muted');
+}
+
+function updateTurnIndicator() {
+  var playerTurn = (moveIdx % 2 === 0); // even = player's move
+  var dot   = document.getElementById('turn-dot');
+  var label = document.getElementById('turn-label');
+  dot.className = 'turn-dot ' + (state.turn==='w' ? 'white' : 'black');
+  label.textContent = playerTurn
+    ? (state.turn==='w' ? 'Les Blancs jouent' : 'Les Noirs jouent')
+    : 'L\'adversaire réfléchit…';
+}
+
+/* ══════════════════════════════════════════════
+   INTERACTION
+══════════════════════════════════════════════ */
+function onSquareClick(sq) {
+  if (!enabled) return;
+  if (moveIdx >= puzzleMoves.length) return;
+  if (moveIdx % 2 !== 0) return; // engine's turn
+
+  var piece = state.board[sq];
+
+  if (!selectedSq) {
+    if (!piece || piece[0] !== state.turn) return;
+    selectedSq = sq;
+    hintSquares = legalSquares(state.board, sq, state.turn);
+    renderBoard();
+    return;
   }
 
-  function display(pos) {
-    document.getElementById('loader').style.display = 'none';
-    var card = document.getElementById('puzzle-card');
-    card.style.display = 'flex';
+  // Clicked same square → deselect
+  if (sq === selectedSq) {
+    selectedSq = null;
+    hintSquares = [];
+    renderBoard();
+    return;
+  }
 
-    // Date
-    document.getElementById('date-label').textContent = formatDate();
+  // Clicked own piece → switch selection
+  if (piece && piece[0] === state.turn) {
+    selectedSq = sq;
+    hintSquares = legalSquares(state.board, sq, state.turn);
+    renderBoard();
+    return;
+  }
 
-    // Titre + difficulté
-    document.getElementById('puzzle-title').textContent = pos.titre;
-    var badge = document.getElementById('diff-badge');
+  // Attempt move
+  var expected = sanToMove(state.board, puzzleMoves[moveIdx], state.turn);
+  var from = selectedSq;
+  selectedSq = null;
+  hintSquares = [];
+
+  if (expected && from === expected.from && sq === expected.to) {
+    // ✓ Correct move
+    var newState = applyMove(state.board, state.castle, from, sq, expected.promo, state.turn);
+    if (!newState) { renderBoard(); return; }
+    state = newState;
+    moveIdx++;
+    renderBoard(from, sq, 'correct');
+    updateProgress();
+    setStatus('Excellent !', 'ok');
+
+    if (moveIdx >= puzzleMoves.length) {
+      setTimeout(showSuccess, 700);
+    } else {
+      enabled = false;
+      updateTurnIndicator();
+      setTimeout(playEngineMove, 750);
+    }
+  } else {
+    // ✗ Wrong move
+    renderBoard(null, sq, 'wrong');
+    setStatus('Pas le bon coup, réessayez', 'err');
+    setTimeout(function() {
+      renderBoard();
+      setStatus('Trouvez le meilleur coup', 'muted');
+    }, 900);
+  }
+}
+
+function playEngineMove() {
+  var san  = puzzleMoves[moveIdx];
+  var move = sanToMove(state.board, san, state.turn);
+  if (!move) { enabled = true; return; }
+
+  var newState = applyMove(state.board, state.castle, move.from, move.to, move.promo, state.turn);
+  if (!newState) { enabled = true; return; }
+  state = newState;
+  moveIdx++;
+  renderBoard(move.from, move.to, 'engine');
+  updateProgress();
+
+  if (moveIdx >= puzzleMoves.length) {
+    setTimeout(showSuccess, 600);
+    return;
+  }
+
+  setTimeout(function() {
+    enabled = true;
+    renderBoard();
+    updateTurnIndicator();
+    setStatus('Continuez !', 'muted');
+  }, 500);
+}
+
+/* ══════════════════════════════════════════════
+   SUCCESS
+══════════════════════════════════════════════ */
+function showSuccess() {
+  var overlay = document.getElementById('success-overlay');
+  var movesEl = document.getElementById('success-moves');
+  var subEl   = document.getElementById('success-sub');
+  var diff    = document.getElementById('diff-badge').textContent.toLowerCase();
+
+  movesEl.innerHTML = '';
+  puzzleMoves.forEach(function(m, i) {
+    var chip = document.createElement('span');
+    chip.className = 'success-move-chip ' + (i%2===0 ? 'player' : 'engine');
+    chip.textContent = m;
+    movesEl.appendChild(chip);
+  });
+
+  var subs = {facile:'Belle combinaison !', moyen:'Excellente trouvaille !', difficile:'Bravo, c\'est du niveau maître !'};
+  subEl.textContent = subs[diff] || 'Excellente combinaison !';
+
+  document.getElementById('success-analyze').href = '/?fen=' + encodeURIComponent(startFen);
+  overlay.classList.add('show');
+}
+
+/* ══════════════════════════════════════════════
+   INIT / FETCH
+══════════════════════════════════════════════ */
+function dayOfYear() {
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  return Math.floor((now - start) / 86400000);
+}
+
+function formatDate() {
+  return new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+}
+
+function loadPuzzle(pos) {
+  startFen = pos.fen;
+  var parsed = fenToState(pos.fen);
+  state = parsed;
+  flipBoard = (parsed.turn === 'b');
+
+  // Parse solution: space-separated SAN moves
+  var sol = (pos.solution || '').trim();
+  puzzleMoves = sol.split(/\s+/).filter(function(m){ return m.length>0; });
+
+  if (!puzzleMoves.length) {
+    // Fallback: non-interactive mode
+    puzzleMoves = [];
+  }
+
+  // Title & difficulty
+  document.getElementById('puzzle-title').textContent = pos.titre || 'Position du jour';
+  document.getElementById('date-label').textContent = formatDate();
+  var badge = document.getElementById('diff-badge');
+  if (pos.difficulte) {
     badge.textContent = pos.difficulte.charAt(0).toUpperCase() + pos.difficulte.slice(1);
     badge.className = 'diff-badge diff-' + pos.difficulte;
-
-    // Tour
-    var turn = (pos.fen.split(' ')[1] || 'w') === 'w';
-    var dot   = document.getElementById('turn-dot');
-    dot.className = 'turn-dot ' + (turn ? 'white' : 'black');
-    document.getElementById('turn-label').textContent = turn ? 'Les Blancs jouent' : 'Les Noirs jouent';
-
-    // Plateau
-    renderBoard(pos.fen);
-
-    // Solution
-    var btn = document.getElementById('sol-btn');
-    var txt = document.getElementById('sol-text');
-    txt.textContent = '→ ' + pos.solution;
-    btn.addEventListener('click', function () {
-      txt.classList.toggle('visible');
-      btn.textContent = txt.classList.contains('visible') ? 'Masquer la solution' : 'Voir la solution';
-    });
-
-    // Lien Analyser
-    document.getElementById('analyze-btn').href = '/?' + 'fen=' + encodeURIComponent(pos.fen);
+    badge.style.display = 'inline-block';
   }
 
-  function showError() {
-    document.getElementById('loader').innerHTML =
-      '<p style="color:var(--muted)">Impossible de charger la position. <a href="/">Retour</a></p>';
-  }
+  // Turn indicator
+  updateTurnIndicator();
 
-  // ── Init ──────────────────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function () {
-    fetchPosition();
+  // Solution toggle (shows raw text)
+  var solBtn = document.getElementById('sol-btn');
+  var solTxt = document.getElementById('sol-text');
+  solTxt.textContent = '→ ' + puzzleMoves.join(' ');
+  solBtn.addEventListener('click', function() {
+    solTxt.classList.toggle('visible');
+    solBtn.textContent = solTxt.classList.contains('visible') ? 'Masquer la solution' : 'Voir la solution';
   });
-})();
+
+  // Analyze link
+  document.getElementById('analyze-btn').href = '/?fen=' + encodeURIComponent(pos.fen);
+
+  // Progress dots
+  updateProgress();
+
+  // Render board
+  renderBoard();
+
+  // Status
+  if (puzzleMoves.length > 0) {
+    var label = state.turn==='w' ? 'Les Blancs jouent' : 'Les Noirs jouent';
+    setStatus(label + ' — trouvez le meilleur coup', 'muted');
+  } else {
+    setStatus('Analysez cette position', 'muted');
+    enabled = false;
+  }
+
+  // Show puzzle
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('puzzle-wrap').style.display = 'flex';
+}
+
+function showError() {
+  document.getElementById('loader').innerHTML =
+    '<p style="color:var(--muted)">Impossible de charger le puzzle. <a href="/">Retour</a></p>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('success-close').addEventListener('click', function() {
+    document.getElementById('success-overlay').classList.remove('show');
+  });
+
+  fetch(SUPABASE_URL + '/rest/v1/position_du_jour?select=*', {
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (!data || !data.length) { showError(); return; }
+    // Pick today's puzzle — deterministic by day of year
+    var puzzle = data[dayOfYear() % data.length];
+    loadPuzzle(puzzle);
+  })
+  .catch(showError);
+});
 </script>
 </body>
 </html>
