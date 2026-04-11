@@ -75,13 +75,31 @@ h1{font-family:'Syne',sans-serif;font-size:clamp(1.3rem,4vw,1.9rem);font-weight:
 .turn-dot.black{background:#1a1a1a;border:1.5px solid #555}
 
 /* BOARD */
-.board-outer{position:relative;width:min(460px,calc(100vw - 32px));aspect-ratio:1}
+.board-outer{display:flex;gap:0}
+.rank-labels{display:flex;flex-direction:column;justify-content:space-around;padding:2px 4px 18px 0;width:16px;flex-shrink:0}
+.rank-labels span{font-size:.65rem;color:var(--muted);text-align:right;line-height:1}
+.board-col{display:flex;flex-direction:column}
+.board-wrap{position:relative}
 #board{
   display:grid;grid-template-columns:repeat(8,1fr);
-  width:100%;height:100%;
+  width:min(480px,calc(100vw - 48px));aspect-ratio:1;
   border:2px solid #444;border-radius:3px;overflow:hidden;
   user-select:none;
 }
+.file-labels{display:flex;padding:3px 0 0 0;width:min(480px,calc(100vw - 48px))}
+.file-labels span{flex:1;font-size:.65rem;color:var(--muted);text-align:center}
+
+/* DIFF TABS */
+.diff-tabs{display:flex;gap:8px;width:100%;max-width:496px}
+.diff-tab{
+  flex:1;padding:8px 4px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--muted);font-size:.8rem;font-weight:700;
+  cursor:pointer;transition:.15s;font-family:inherit;
+}
+.diff-tab:hover{border-color:var(--text);color:var(--text)}
+.diff-tab.active[data-diff="facile"]   {border-color:var(--green);color:var(--green);background:rgba(46,204,113,.08)}
+.diff-tab.active[data-diff="moyen"]    {border-color:var(--orange);color:var(--orange);background:rgba(243,156,18,.08)}
+.diff-tab.active[data-diff="difficile"]{border-color:var(--red);color:var(--red);background:rgba(231,76,60,.08)}
 .sq{
   position:relative;display:flex;align-items:center;justify-content:center;
   aspect-ratio:1;cursor:pointer;
@@ -270,6 +288,12 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
     Puzzle du jour déjà résolu — revenez demain !
   </div>
 
+  <div class="diff-tabs" id="diff-tabs" style="display:none">
+    <button class="diff-tab active" data-diff="facile">Facile</button>
+    <button class="diff-tab" data-diff="moyen">Moyen</button>
+    <button class="diff-tab" data-diff="difficile">Difficile</button>
+  </div>
+
   <div id="puzzle-wrap" class="puzzle-wrap" style="display:none">
     <div class="turn-row">
       <div class="turn-dot" id="turn-dot"></div>
@@ -277,7 +301,13 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
     </div>
 
     <div class="board-outer">
-      <div id="board"></div>
+      <div class="rank-labels" id="rank-labels"></div>
+      <div class="board-col">
+        <div class="board-wrap">
+          <div id="board"></div>
+        </div>
+        <div class="file-labels" id="file-labels"></div>
+      </div>
     </div>
 
     <div class="progress-row" id="progress-row"></div>
@@ -337,14 +367,17 @@ function getStreak() {
   catch(e) { return {count:0, lastSolved:null}; }
 }
 
-function alreadySolvedToday() {
-  return getStreak().lastSolved === todayStr();
+function alreadySolvedToday(diff) {
+  return localStorage.getItem('cdc_solved_' + (diff||currentDiff)) === todayStr();
 }
 
 function markSolvedAndGetStreak() {
   var today = todayStr();
+  // Mark this difficulty solved
+  localStorage.setItem('cdc_solved_' + currentDiff, today);
+
   var s = getStreak();
-  if (s.lastSolved === today) return s; // déjà compté
+  if (s.lastSolved === today) return s; // streak already counted today
 
   var prev = new Date(); prev.setDate(prev.getDate()-1);
   var yest = prev.toISOString().slice(0,10);
@@ -539,11 +572,20 @@ var startFen     = '';
 var hintSquares  = [];
 var hintFromSq   = null; // for the hint-from pulse highlight
 var hintTimer    = null;
+var currentDiff  = 'facile';
+var allPuzzles   = [];
 
 /* ══════════════════════════════════════════════
    RENDER
 ══════════════════════════════════════════════ */
 var flipBoard = false; // true when player is black
+
+function renderLabels(ranks, fileIdxs) {
+  var rl = document.getElementById('rank-labels');
+  if (rl) { rl.innerHTML=''; ranks.forEach(function(r){var s=document.createElement('span');s.textContent=r;rl.appendChild(s);}); }
+  var fl = document.getElementById('file-labels');
+  if (fl) { fl.innerHTML=''; fileIdxs.forEach(function(fi){var s=document.createElement('span');s.textContent=FILES[fi];fl.appendChild(s);}); }
+}
 
 function renderBoard(highlightFrom, highlightTo, hlType) {
   var boardEl = document.getElementById('board');
@@ -589,6 +631,8 @@ function renderBoard(highlightFrom, highlightTo, hlType) {
       boardEl.appendChild(div);
     });
   });
+
+  renderLabels(ranks, files);
 }
 
 function updateProgress() {
@@ -808,6 +852,14 @@ function formatDate() {
 }
 
 function loadPuzzle(pos) {
+  // Reset state
+  moveIdx = 0;
+  selectedSq = null;
+  hintSquares = [];
+  hintFromSq = null;
+  if (hintTimer) clearTimeout(hintTimer);
+  enabled = true;
+
   startFen = pos.fen;
   var parsed = fenToState(pos.fen);
   state = parsed;
@@ -817,12 +869,7 @@ function loadPuzzle(pos) {
   var sol = (pos.solution || '').trim();
   puzzleMoves = sol.split(/\s+/).filter(function(m){ return m.length>0; });
 
-  if (!puzzleMoves.length) {
-    // Fallback: non-interactive mode
-    puzzleMoves = [];
-  }
-
-  // Title & difficulty
+  // Title & difficulty badge
   document.getElementById('puzzle-title').textContent = pos.titre || 'Position du jour';
   document.getElementById('date-label').textContent = formatDate();
   var badge = document.getElementById('diff-badge');
@@ -834,12 +881,6 @@ function loadPuzzle(pos) {
 
   // Turn indicator
   updateTurnIndicator();
-
-  // Hint button
-  document.getElementById('hint-btn').addEventListener('click', showHint);
-
-  // Give-up button
-  document.getElementById('give-up-btn').addEventListener('click', giveUp);
 
   // Analyze link
   document.getElementById('analyze-btn').href = '/?fen=' + encodeURIComponent(pos.fen);
@@ -859,19 +900,43 @@ function loadPuzzle(pos) {
     enabled = false;
   }
 
-  // Streak badge au chargement
+  // Streak badge
   renderStreakBadge(getStreak().count);
 
-  // Si déjà résolu aujourd'hui : afficher le board en lecture seule + message
+  // Hide already-done by default, show if needed
+  document.getElementById('already-done').classList.remove('show');
+
   if (alreadySolvedToday()) {
     enabled = false;
     document.getElementById('already-done').classList.add('show');
     setStatus('Déjà résolu aujourd\'hui — revenez demain !', 'ok');
   }
 
-  // Show puzzle
+  // Show everything
   document.getElementById('loader').style.display = 'none';
+  document.getElementById('diff-tabs').style.display = 'flex';
   document.getElementById('puzzle-wrap').style.display = 'flex';
+}
+
+function loadForDifficulty(diff) {
+  currentDiff = diff;
+
+  // Update active tab styling
+  document.querySelectorAll('.diff-tab').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.diff === diff);
+  });
+
+  // Filter puzzles by difficulty
+  var pool = allPuzzles.filter(function(p){ return p.difficulte === diff; });
+  if (!pool.length) {
+    // fallback: use any puzzle if no match for this difficulty
+    pool = allPuzzles;
+  }
+  if (!pool.length) { showError(); return; }
+
+  // Deterministic pick: day-of-year mod pool size
+  var puzzle = pool[dayOfYear() % pool.length];
+  loadPuzzle(puzzle);
 }
 
 function showError() {
@@ -884,15 +949,24 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('success-overlay').classList.remove('show');
   });
 
+  // Difficulty tab clicks
+  document.getElementById('hint-btn').addEventListener('click', showHint);
+  document.getElementById('give-up-btn').addEventListener('click', giveUp);
+
+  document.querySelectorAll('.diff-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      loadForDifficulty(this.dataset.diff);
+    });
+  });
+
   fetch(SUPABASE_URL + '/rest/v1/position_du_jour?select=*', {
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
   })
   .then(function(r){ return r.json(); })
   .then(function(data) {
     if (!data || !data.length) { showError(); return; }
-    // Pick today's puzzle — deterministic by day of year
-    var puzzle = data[dayOfYear() % data.length];
-    loadPuzzle(puzzle);
+    allPuzzles = data;
+    loadForDifficulty('facile');
   })
   .catch(showError);
 });
