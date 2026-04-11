@@ -374,20 +374,20 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
   <!-- ══ TRAY ══ -->
   <div class="tray" id="tray">
     <div class="tray-section">Blancs</div>
-    <div class="tray-piece" draggable="true" data-piece="wK"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wK.png" alt="♔"/></div>
-    <div class="tray-piece" draggable="true" data-piece="wQ"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wQ.png" alt="♕"/></div>
-    <div class="tray-piece" draggable="true" data-piece="wR"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wR.png" alt="♖"/></div>
-    <div class="tray-piece" draggable="true" data-piece="wB"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wB.png" alt="♗"/></div>
-    <div class="tray-piece" draggable="true" data-piece="wN"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wN.png" alt="♘"/></div>
-    <div class="tray-piece" draggable="true" data-piece="wP"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/wP.png" alt="♙"/></div>
+    <div class="tray-piece" draggable="true" data-piece="wK"><img src="/pieces/wK.png" alt="♔"/></div>
+    <div class="tray-piece" draggable="true" data-piece="wQ"><img src="/pieces/wQ.png" alt="♕"/></div>
+    <div class="tray-piece" draggable="true" data-piece="wR"><img src="/pieces/wR.png" alt="♖"/></div>
+    <div class="tray-piece" draggable="true" data-piece="wB"><img src="/pieces/wB.png" alt="♗"/></div>
+    <div class="tray-piece" draggable="true" data-piece="wN"><img src="/pieces/wN.png" alt="♘"/></div>
+    <div class="tray-piece" draggable="true" data-piece="wP"><img src="/pieces/wP.png" alt="♙"/></div>
     <div class="tray-sep"></div>
     <div class="tray-section">Noirs</div>
-    <div class="tray-piece" draggable="true" data-piece="bK"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/bK.png" alt="♚"/></div>
-    <div class="tray-piece" draggable="true" data-piece="bQ"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/bQ.png" alt="♛"/></div>
-    <div class="tray-piece" draggable="true" data-piece="bR"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/bR.png" alt="♜"/></div>
-    <div class="tray-piece" draggable="true" data-piece="bB"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/bB.png" alt="♝"/></div>
-    <div class="tray-piece" draggable="true" data-piece="bN"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/bN.png" alt="♞"/></div>
-    <div class="tray-piece" draggable="true" data-piece="bP"><img src="https://chessboardjs.com/img/chesspieces/wikipedia/bP.png" alt="♟"/></div>
+    <div class="tray-piece" draggable="true" data-piece="bK"><img src="/pieces/bK.png" alt="♚"/></div>
+    <div class="tray-piece" draggable="true" data-piece="bQ"><img src="/pieces/bQ.png" alt="♛"/></div>
+    <div class="tray-piece" draggable="true" data-piece="bR"><img src="/pieces/bR.png" alt="♜"/></div>
+    <div class="tray-piece" draggable="true" data-piece="bB"><img src="/pieces/bB.png" alt="♝"/></div>
+    <div class="tray-piece" draggable="true" data-piece="bN"><img src="/pieces/bN.png" alt="♞"/></div>
+    <div class="tray-piece" draggable="true" data-piece="bP"><img src="/pieces/bP.png" alt="♟"/></div>
     <div class="tray-sep"></div>
     <div class="tray-eraser" id="eraser" draggable="true" title="Glissez sur une pièce pour l'effacer, ou cliquez pour activer le mode effacement">✕<span style="font-size:.65rem">Effacer</span></div>
   </div>
@@ -517,7 +517,7 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
 const FILES = 'abcdefgh';
 
 const PIECE_IMG = piece =>
-  `https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
+  `/pieces/${piece}.png`;
 
 // piece code → FEN char
 const TO_FEN = {

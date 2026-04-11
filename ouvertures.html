@@ -140,7 +140,7 @@ function renderMiniBoard(fen){
       const piece=board[sq];
       if(piece){
         const img=document.createElement('img');
-        img.src=`https://chessboardjs.com/img/chesspieces/wikipedia/${piece}.png`;
+        img.src=`/pieces/${piece}.png`;
         img.alt=piece;
         img.draggable=false;
         cell.appendChild(img);
