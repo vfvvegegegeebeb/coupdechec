@@ -200,6 +200,34 @@ h1{font-family:'Syne',sans-serif;font-size:clamp(1.3rem,4vw,1.9rem);font-weight:
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* STREAK */
+.streak-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:999px;
+  background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.3);
+  font-size:.8rem;font-weight:700;color:var(--orange);
+  margin-top:10px;
+}
+.streak-badge.zero{background:var(--surface);border-color:var(--border);color:var(--muted)}
+.streak-num{font-family:'Syne',sans-serif;font-size:1rem}
+.already-done{
+  display:none;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:11px 16px;border-radius:10px;
+  background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);
+  color:var(--green);font-size:.83rem;font-weight:600;
+}
+.already-done.show{display:flex}
+/* streak dans la success card */
+.streak-result{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:14px;border-radius:12px;background:rgba(243,156,18,.08);
+  border:1px solid rgba(243,156,18,.2);margin-bottom:20px;
+}
+.streak-result-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--orange);line-height:1}
+.streak-result-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+@keyframes streakPop{0%{transform:scale(1)}40%{transform:scale(1.25)}70%{transform:scale(.95)}100%{transform:scale(1)}}
+.streak-pop{animation:streakPop .5s ease}
+
 /* Footer */
 footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border-top:1px solid var(--border)}
 
@@ -221,11 +249,21 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
     <div class="day-badge">Puzzle · <em id="date-label">…</em></div>
     <h1 id="puzzle-title">Position du jour</h1>
     <div id="diff-badge" class="diff-badge" style="display:none"></div>
+    <div class="streak-badge zero" id="streak-badge">
+      <span>🔥</span>
+      <span class="streak-num" id="streak-num">0</span>
+      <span id="streak-label">jour de série</span>
+    </div>
   </div>
 
   <div id="loader" class="loader">
     <div class="spinner"></div>
     Chargement du puzzle…
+  </div>
+
+  <div class="already-done" id="already-done">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    Puzzle du jour déjà résolu — revenez demain !
   </div>
 
   <div id="puzzle-wrap" class="puzzle-wrap" style="display:none">
@@ -262,6 +300,10 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
     <span class="success-icon">♟</span>
     <div class="success-title">Puzzle résolu !</div>
     <div class="success-sub" id="success-sub">Excellente combinaison</div>
+    <div class="streak-result" id="streak-result">
+      <div class="streak-result-num" id="streak-result-num">🔥 1</div>
+      <div class="streak-result-label" id="streak-result-label">jour de série</div>
+    </div>
     <div class="success-moves" id="success-moves"></div>
     <a class="btn-gold" id="success-analyze" href="#">
       Analyser avec Stockfish
@@ -276,6 +318,47 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
 
 <script>
 'use strict';
+
+/* ══════════════════════════════════════════════
+   STREAK (localStorage)
+══════════════════════════════════════════════ */
+var STREAK_KEY = 'cdc_streak';
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10); // "2026-04-11"
+}
+
+function getStreak() {
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || {count:0, lastSolved:null}; }
+  catch(e) { return {count:0, lastSolved:null}; }
+}
+
+function alreadySolvedToday() {
+  return getStreak().lastSolved === todayStr();
+}
+
+function markSolvedAndGetStreak() {
+  var today = todayStr();
+  var s = getStreak();
+  if (s.lastSolved === today) return s; // déjà compté
+
+  var prev = new Date(); prev.setDate(prev.getDate()-1);
+  var yest = prev.toISOString().slice(0,10);
+  s.count = (s.lastSolved === yest) ? (s.count||0)+1 : 1;
+  s.lastSolved = today;
+  localStorage.setItem(STREAK_KEY, JSON.stringify(s));
+  return s;
+}
+
+function renderStreakBadge(count) {
+  var badge = document.getElementById('streak-badge');
+  var num   = document.getElementById('streak-num');
+  var lbl   = document.getElementById('streak-label');
+  num.textContent = count;
+  lbl.textContent = count > 1 ? 'jours de suite' : 'jour de série';
+  if (count > 0) badge.classList.remove('zero');
+  else badge.classList.add('zero');
+}
 
 /* ══════════════════════════════════════════════
    SUPABASE
@@ -641,6 +724,18 @@ function showSuccess() {
   var subs = {facile:'Belle combinaison !', moyen:'Excellente trouvaille !', difficile:'Bravo, c\'est du niveau maître !'};
   subEl.textContent = subs[diff] || 'Excellente combinaison !';
 
+  // Streak
+  var streak = markSolvedAndGetStreak();
+  var srNum = document.getElementById('streak-result-num');
+  var srLbl = document.getElementById('streak-result-label');
+  srNum.textContent = '🔥 ' + streak.count;
+  srLbl.textContent = streak.count > 1 ? 'jours de suite !' : 'premier jour — revenez demain !';
+  srNum.classList.add('streak-pop');
+  renderStreakBadge(streak.count);
+
+  // Marquer "déjà résolu" si l'overlay est fermé
+  document.getElementById('already-done').classList.add('show');
+
   document.getElementById('success-analyze').href = '/?fen=' + encodeURIComponent(startFen);
   overlay.classList.add('show');
 }
@@ -711,6 +806,16 @@ function loadPuzzle(pos) {
   } else {
     setStatus('Analysez cette position', 'muted');
     enabled = false;
+  }
+
+  // Streak badge au chargement
+  renderStreakBadge(getStreak().count);
+
+  // Si déjà résolu aujourd'hui : afficher le board en lecture seule + message
+  if (alreadySolvedToday()) {
+    enabled = false;
+    document.getElementById('already-done').classList.add('show');
+    setStatus('Déjà résolu aujourd\'hui — revenez demain !', 'ok');
   }
 
   // Show puzzle
