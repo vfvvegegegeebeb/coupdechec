@@ -1384,10 +1384,15 @@ function pgnApplyMove(brd,castle,turn,san){
   const nb={...brd}, nc={...castle};
   let s=san.replace(/[+#!?]/g,'').replace(/\$\d+/g,'').trim();
 
-  // promotion
+  // promotion: handles both e8=Q (standard) and e8Q (chess.com / some exporters)
   let promo=null;
   const pm=s.match(/=([QRBN])$/i);
   if(pm){promo=pm[1].toUpperCase();s=s.slice(0,-2);}
+  else{
+    const pm2=s.match(/([QRBN])$/i);
+    // only treat as promotion if the square before the piece ends on rank 1 or 8
+    if(pm2&&/[18]$/.test(s.slice(-3,-1))){promo=pm2[1].toUpperCase();s=s.slice(0,-1);}
+  }
 
   // castling
   if(s==='O-O'||s==='0-0'){
@@ -1438,13 +1443,14 @@ function pgnApplyMove(brd,castle,turn,san){
 
 /* Parse PGN text → array of SAN move strings */
 function parsePgnText(text){
-  text=text.replace(/\[[^\]]*\]/g,'');        // strip headers
-  text=text.replace(/\{[^}]*\}/g,'');          // strip { comments }
+  text=text.replace(/\[%[^\]]*\]/g,'');        // strip inline [%clk...] [%eval...] annotations
+  text=text.replace(/\[[^\]]*\]/g,'');          // strip headers
+  text=text.replace(/\{[^}]*\}/g,'');           // strip { comments } (multi-line safe)
   text=text.replace(/;[^\n]*/g,'');             // strip ; line comments
   while(/\([^()]*\)/.test(text)) text=text.replace(/\([^()]*\)/g,''); // strip variations
   text=text.replace(/1-0|0-1|1\/2-1\/2|\*/g,'');
   text=text.replace(/\d+\.+/g,' ');
-  return text.trim().split(/\s+/).filter(m=>m&&!/^\$/.test(m)&&m.length>0);
+  return text.trim().split(/\s+/).filter(m=>m&&!/^\$/.test(m)&&!/^[!?]+$/.test(m)&&m.length>0);
 }
 
 /* Load PGN and build position list */
@@ -1464,7 +1470,13 @@ function loadPgn(text){
   for(let i=0;i<moves.length;i++){
     const res=pgnApplyMove(cur.board,cur.castle,cur.turn,moves[i]);
     if(!res){
-      if(i>0) break; // use what we have
+      console.warn(`PGN: coup ${i+1} "${moves[i]}" non reconnu — arrêt à ${positions.length-1} coup(s) chargé(s).`);
+      if(i>0){
+        // show how many moves were loaded before failing
+        const loaded=positions.length-1;
+        document.getElementById('pgn-move-info').textContent=`⚠ Arrêt au coup ${i+1} ("${moves[i]}") — ${loaded} coup(s) chargé(s)`;
+        break;
+      }
       alert(`Impossible de charger le coup "${moves[i]}". Vérifiez le PGN.`);
       return;
     }
