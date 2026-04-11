@@ -140,18 +140,22 @@ h1{font-family:'Syne',sans-serif;font-size:clamp(1.3rem,4vw,1.9rem);font-weight:
 .status-msg.err {color:var(--red)}
 .status-msg.muted{color:var(--muted)}
 
-/* SOLUTION TOGGLE */
-.sol-btn{
-  background:transparent;border:1px solid var(--border);
-  color:var(--muted);border-radius:8px;padding:7px 16px;
-  font-size:.78rem;cursor:pointer;transition:.15s;font-family:inherit;
+/* PUZZLE ACTIONS */
+.puzzle-actions{display:flex;gap:10px;width:100%}
+.hint-btn,.give-up-btn{
+  flex:1;background:transparent;border:1px solid var(--border);
+  border-radius:8px;padding:8px 12px;font-size:.8rem;cursor:pointer;
+  transition:.15s;font-family:inherit;color:var(--muted);
 }
-.sol-btn:hover{border-color:var(--gold);color:var(--gold)}
-.sol-text{
-  display:none;font-family:monospace;font-size:.9rem;font-weight:700;
-  color:var(--gold);letter-spacing:.5px;text-align:center;margin-top:6px;
+.hint-btn:hover{border-color:var(--gold);color:var(--gold)}
+.give-up-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* HINT HIGHLIGHT */
+.sq.hint-from{animation:hintPulse 1s ease-in-out infinite}
+@keyframes hintPulse{
+  0%,100%{box-shadow:inset 0 0 0 3px rgba(240,192,64,.5)}
+  50%{box-shadow:inset 0 0 0 4px rgba(240,192,64,1)}
 }
-.sol-text.visible{display:block}
 
 /* BUTTONS */
 .btn-gold{
@@ -280,9 +284,9 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
 
     <div class="status-msg muted" id="status-msg">Trouvez le meilleur coup</div>
 
-    <div>
-      <button class="sol-btn" id="sol-btn">Voir la solution</button>
-      <div class="sol-text" id="sol-text"></div>
+    <div class="puzzle-actions">
+      <button class="hint-btn" id="hint-btn">💡 Indice</button>
+      <button class="give-up-btn" id="give-up-btn">Abandonner</button>
     </div>
 
     <a class="btn-gold" id="analyze-btn" href="#">
@@ -533,6 +537,8 @@ var selectedSq   = null;
 var enabled      = true; // false during engine response animation
 var startFen     = '';
 var hintSquares  = [];
+var hintFromSq   = null; // for the hint-from pulse highlight
+var hintTimer    = null;
 
 /* ══════════════════════════════════════════════
    RENDER
@@ -562,6 +568,7 @@ function renderBoard(highlightFrom, highlightTo, hlType) {
         else if (hlType==='wrong') cls += ' flash-err';
         else if (hlType==='engine') cls += ' engine-to';
       }
+      if (sq === hintFromSq) cls += ' hint-from';
       if (hintSquares.indexOf(sq) !== -1) {
         cls += ' hint';
         if (state.board[sq]) cls += ' has-piece';
@@ -659,7 +666,7 @@ function onSquareClick(sq) {
     moveIdx++;
     renderBoard(from, sq, 'correct');
     updateProgress();
-    setStatus('Excellent !', 'ok');
+    setStatus('Correct !', 'ok');
 
     if (moveIdx >= puzzleMoves.length) {
       setTimeout(showSuccess, 700);
@@ -671,7 +678,7 @@ function onSquareClick(sq) {
   } else {
     // ✗ Wrong move
     renderBoard(null, sq, 'wrong');
-    setStatus('Pas le bon coup, réessayez', 'err');
+    setStatus('Incorrect, réessaie !', 'err');
     setTimeout(function() {
       renderBoard();
       setStatus('Trouvez le meilleur coup', 'muted');
@@ -741,6 +748,53 @@ function showSuccess() {
 }
 
 /* ══════════════════════════════════════════════
+   HINT & GIVE UP
+══════════════════════════════════════════════ */
+function showHint() {
+  if (!enabled || moveIdx >= puzzleMoves.length || moveIdx % 2 !== 0) return;
+  var expected = sanToMove(state.board, puzzleMoves[moveIdx], state.turn);
+  if (!expected) return;
+
+  if (hintTimer) clearTimeout(hintTimer);
+  hintFromSq = expected.from;
+  selectedSq = null;
+  hintSquares = [];
+  renderBoard();
+
+  hintTimer = setTimeout(function() {
+    hintFromSq = null;
+    renderBoard();
+  }, 3000);
+}
+
+function giveUp() {
+  if (!enabled && moveIdx < puzzleMoves.length) return;
+  enabled = false;
+  hintFromSq = null;
+  if (hintTimer) clearTimeout(hintTimer);
+
+  // Show solution as status
+  setStatus('Solution : ' + puzzleMoves.join(' '), 'muted');
+  renderBoard();
+
+  // Play through remaining moves visually
+  function playRemaining() {
+    if (moveIdx >= puzzleMoves.length) return;
+    var san  = puzzleMoves[moveIdx];
+    var move = sanToMove(state.board, san, state.turn);
+    if (!move) return;
+    var newState = applyMove(state.board, state.castle, move.from, move.to, move.promo, state.turn);
+    if (!newState) return;
+    state = newState;
+    moveIdx++;
+    renderBoard(move.from, move.to, 'engine');
+    updateProgress();
+    if (moveIdx < puzzleMoves.length) setTimeout(playRemaining, 700);
+  }
+  playRemaining();
+}
+
+/* ══════════════════════════════════════════════
    INIT / FETCH
 ══════════════════════════════════════════════ */
 function dayOfYear() {
@@ -781,14 +835,11 @@ function loadPuzzle(pos) {
   // Turn indicator
   updateTurnIndicator();
 
-  // Solution toggle (shows raw text)
-  var solBtn = document.getElementById('sol-btn');
-  var solTxt = document.getElementById('sol-text');
-  solTxt.textContent = '→ ' + puzzleMoves.join(' ');
-  solBtn.addEventListener('click', function() {
-    solTxt.classList.toggle('visible');
-    solBtn.textContent = solTxt.classList.contains('visible') ? 'Masquer la solution' : 'Voir la solution';
-  });
+  // Hint button
+  document.getElementById('hint-btn').addEventListener('click', showHint);
+
+  // Give-up button
+  document.getElementById('give-up-btn').addEventListener('click', giveUp);
 
   // Analyze link
   document.getElementById('analyze-btn').href = '/?fen=' + encodeURIComponent(pos.fen);
