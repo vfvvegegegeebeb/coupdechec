@@ -416,6 +416,33 @@ var SUPABASE_URL = 'https://mzzdnganybacsehrouwm.supabase.co';
 var ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16emRuZ2FueWJhY3NlaHJvdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTI5MTUsImV4cCI6MjA5MTIyODkxNX0.4twVSNCpT5HhVQD-bH4AtVseRgTUCn8ZOB-PcxMVSDA';
 
 /* ══════════════════════════════════════════════
+   PUZZLES STATIQUES (fallback garanti)
+══════════════════════════════════════════════ */
+var STATIC_PUZZLES = {
+  facile: {
+    fen:       '4k3/8/4K3/8/8/8/8/4R3 w - - 0 1',
+    solution:  ['Re8#'],
+    titre:     'Mat en 1',
+    difficulte:'facile',
+    description:'Les Blancs jouent — mat en 1 coup'
+  },
+  moyen: {
+    fen:       'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
+    solution:  ['Bxf7+', 'Ke7', 'Ng5'],
+    titre:     'Attaque du roi',
+    difficulte:'moyen',
+    description:'Les Blancs jouent — attaque en 3 coups'
+  },
+  difficile: {
+    fen:       '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1',
+    solution:  ['Re8+', 'Rxe8', 'fxe8=Q#'],
+    titre:     'Promotion gagnante',
+    difficulte:'difficile',
+    description:'Les Blancs jouent — promotion en 3 coups'
+  }
+};
+
+/* ══════════════════════════════════════════════
    CHESS LOGIC
 ══════════════════════════════════════════════ */
 var FILES = 'abcdefgh';
@@ -925,20 +952,26 @@ function showSuccess() {
    HINT & GIVE UP
 ══════════════════════════════════════════════ */
 function showHint() {
-  if (!enabled || moveIdx >= puzzleMoves.length || moveIdx % 2 !== 0) return;
+  console.log('[Indice] enabled='+enabled+' moveIdx='+moveIdx+' puzzleMoves='+JSON.stringify(puzzleMoves)+' turn='+state.turn);
+  if (!enabled) { console.log('[Indice] bloqué: not enabled'); return; }
+  if (moveIdx >= puzzleMoves.length) { console.log('[Indice] bloqué: puzzle terminé'); return; }
+  if (moveIdx % 2 !== 0) { console.log('[Indice] bloqué: tour adversaire'); return; }
+
   var expected = sanToMove(state.board, puzzleMoves[moveIdx], state.turn);
-  if (!expected) return;
+  console.log('[Indice] expected move:', expected, 'pour SAN:', puzzleMoves[moveIdx]);
+  if (!expected) { console.log('[Indice] sanToMove a retourné null'); return; }
 
   if (hintTimer) clearTimeout(hintTimer);
   hintFromSq  = expected.from;
   selectedSq  = null;
   hintSquares = [];
   renderBoard();
+  console.log('[Indice] hintFromSq mis à', hintFromSq);
 
   hintTimer = setTimeout(function() {
     hintFromSq = null;
     renderBoard();
-  }, 2000);
+  }, 3000);
 }
 
 function giveUp() {
@@ -946,24 +979,25 @@ function giveUp() {
   hintFromSq = null;
   if (hintTimer) clearTimeout(hintTimer);
 
-  /* solution visible seulement après abandon */
+  /* affiche la solution complète */
   setStatus('Solution : ' + puzzleMoves.join(' → '), 'muted');
   renderBoard();
 
+  /* rejoue tous les coups restants avec 800ms entre chaque */
   function playRemaining() {
     if (moveIdx >= puzzleMoves.length) return;
     var san  = puzzleMoves[moveIdx];
     var move = sanToMove(state.board, san, state.turn);
-    if (!move) return;
+    if (!move) { console.log('[giveUp] sanToMove null pour', san); return; }
     var newState = applyMove(state.board, state.castle, move.from, move.to, move.promo, state.turn);
-    if (!newState) return;
+    if (!newState) { console.log('[giveUp] applyMove null pour', san); return; }
     state = newState;
     moveIdx++;
     renderBoard(move.from, move.to, 'engine');
     updateProgress();
-    if (moveIdx < puzzleMoves.length) setTimeout(playRemaining, 700);
+    setTimeout(playRemaining, 800);
   }
-  playRemaining();
+  setTimeout(playRemaining, 800);
 }
 
 /* ══════════════════════════════════════════════
@@ -993,8 +1027,12 @@ function loadPuzzle(pos) {
   state = parsed;
   flipBoard = (parsed.turn === 'b');
 
-  var sol = (pos.solution || '').trim();
-  puzzleMoves = sol.split(/\s+/).filter(function(m){ return m.length>0; });
+  if (Array.isArray(pos.solution)) {
+    puzzleMoves = pos.solution.filter(function(m){ return m && m.length>0; });
+  } else {
+    var sol = (pos.solution || '').trim();
+    puzzleMoves = sol.split(/\s+/).filter(function(m){ return m.length>0; });
+  }
 
   document.getElementById('puzzle-title').textContent = pos.titre || 'Position du jour';
   document.getElementById('date-label').textContent   = formatDate();
@@ -1046,7 +1084,9 @@ function loadForDifficulty(diff) {
   /* 2nd pass: match by solution length if DB field doesn't distinguish */
   if (!pool.length) {
     pool = allPuzzles.filter(function(p) {
-      var moves = (p.solution || '').trim().split(/\s+/).filter(function(m){ return m.length>0; });
+      var moves = Array.isArray(p.solution)
+        ? p.solution
+        : (p.solution || '').trim().split(/\s+/).filter(function(m){ return m.length>0; });
       if (diff === 'facile')    return moves.length <= 2;
       if (diff === 'moyen')     return moves.length >= 3 && moves.length <= 4;
       if (diff === 'difficile') return moves.length >= 5;
@@ -1054,9 +1094,17 @@ function loadForDifficulty(diff) {
     });
   }
 
-  /* ultimate fallback: use everything */
-  if (!pool.length) pool = allPuzzles;
-  if (!pool.length) { showError(); return; }
+  /* 3rd pass: static puzzle guaranteed for each difficulty */
+  if (!pool.length && STATIC_PUZZLES[diff]) {
+    loadPuzzle(STATIC_PUZZLES[diff]);
+    return;
+  }
+
+  /* ultimate fallback: static facile */
+  if (!pool.length) {
+    loadPuzzle(STATIC_PUZZLES['facile']);
+    return;
+  }
 
   /* deterministic pick: day-of-year mod pool size */
   var puzzle = pool[dayOfYear() % pool.length];
@@ -1082,16 +1130,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  /* Charge les puzzles statiques immédiatement, puis tente le fetch DB */
+  allPuzzles = [STATIC_PUZZLES.facile, STATIC_PUZZLES.moyen, STATIC_PUZZLES.difficile];
+  loadForDifficulty('facile');
+
   fetch(SUPABASE_URL + '/rest/v1/position_du_jour?select=*', {
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
   })
   .then(function(r){ return r.json(); })
   .then(function(data) {
-    if (!data || !data.length) { showError(); return; }
+    if (!data || !data.length) return; // garde les statiques
     allPuzzles = data;
-    loadForDifficulty('facile');
+    loadForDifficulty(currentDiff); // recharge avec les données DB
   })
-  .catch(showError);
+  .catch(function() { /* silencieux — on garde les statiques */ });
 });
 </script>
 </body>
