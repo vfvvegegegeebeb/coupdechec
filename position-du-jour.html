@@ -3,312 +3,224 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Position du jour — Puzzle quotidien | CoupDéchec</title>
-<meta name="description" content="Un nouveau puzzle d'échecs chaque jour. Trouvez la combinaison gagnante et analysez avec Stockfish."/>
-<meta name="robots" content="index, follow"/>
-<link rel="canonical" href="https://coupdechec.vercel.app/position-du-jour"/>
+<title>Puzzle du Jour — CoupDEchec</title>
+<meta name="description" content="Résolvez le puzzle du jour fourni par Lichess. Trouvez le meilleur coup !"/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#F5C518"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="CoupDEchec"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-<meta property="og:type" content="website"/>
-<meta property="og:url" content="https://coupdechec.vercel.app/position-du-jour"/>
-<meta property="og:title" content="Position du jour — Puzzle quotidien échecs"/>
-<meta property="og:description" content="Un puzzle d'échecs différent chaque jour. Trouvez la combinaison gagnante."/>
-<meta property="og:locale" content="fr_FR"/>
-<meta property="og:site_name" content="CoupDéchec"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GSCXNSLW1N"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GSCXNSLW1N');</script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0f0f1a;--surface:#16162a;--card:#1e1e35;--border:#2a2a48;
   --gold:#f0c040;--gold2:#c8a020;--text:#dde0f0;--muted:#7070a0;
   --light-sq:#f0d9b5;--dark-sq:#b58863;
-  --green:#2ecc71;--red:#e74c3c;--orange:#f39c12;
+  --green:#2ecc71;--red:#e74c3c;
 }
-html{scroll-behavior:smooth}
+*{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}
-a{color:var(--gold);text-decoration:none}
 
-/* NAV */
-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);text-decoration:none}
-.logo em{color:var(--gold);font-style:normal}
-.nav-back{color:var(--muted);font-size:.83rem;text-decoration:none;transition:color .15s}
-.nav-back:hover{color:var(--text)}
-
-/* MAIN */
-main{flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 16px 60px;gap:22px}
-
-/* HEADER */
-.page-header{text-align:center;max-width:480px}
-.day-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:4px 14px;border-radius:999px;
-  border:1px solid var(--border);background:var(--surface);
-  font-size:.7rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;
-  margin-bottom:12px;
-}
-.day-badge em{color:var(--gold);font-style:normal;font-weight:700}
-h1{font-family:'Syne',sans-serif;font-size:clamp(1.3rem,4vw,1.9rem);font-weight:800;margin-bottom:4px}
-
-/* DIFFICULTY */
-.diff-badge{
-  display:inline-block;padding:3px 12px;border-radius:999px;font-size:.7rem;font-weight:700;
-  text-transform:uppercase;letter-spacing:.8px;margin-top:6px;
-}
-.diff-facile   {background:rgba(46,204,113,.12);color:var(--green);border:1px solid rgba(46,204,113,.3)}
-.diff-moyen    {background:rgba(243,156,18,.12);color:var(--orange);border:1px solid rgba(243,156,18,.3)}
-.diff-difficile{background:rgba(231,76,60,.12);color:var(--red);border:1px solid rgba(231,76,60,.3)}
-
-/* PUZZLE WRAPPER */
-.puzzle-wrap{
-  display:flex;flex-direction:column;align-items:center;gap:14px;
-  width:100%;max-width:480px;
+/* ── Header ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.logo-sub{color:var(--muted);font-size:.8rem;margin-top:1px}
+.ext-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border:2px solid var(--gold);border-radius:8px;color:var(--gold);font-size:.8rem;font-weight:700;text-decoration:none;transition:.15s;white-space:nowrap}
+.ext-btn:hover{background:var(--gold);color:#111}
+@media(max-width:600px){
+  header{flex-direction:column;align-items:flex-start;gap:10px}
+  .ext-btn{width:100%;justify-content:center}
 }
 
-/* TURN INDICATOR */
-.turn-row{display:flex;align-items:center;gap:8px;font-size:.83rem;color:var(--text);font-weight:600;align-self:flex-start}
-.turn-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
-.turn-dot.white{background:#f5f5f5;border:1.5px solid #aaa;box-shadow:0 0 4px rgba(255,255,255,.4)}
-.turn-dot.black{background:#1a1a1a;border:1.5px solid #555}
+/* ── Layout ── */
+main{flex:1;display:flex;justify-content:center;padding:24px 16px}
+.puzzle-wrap{width:100%;max-width:540px;display:flex;flex-direction:column;align-items:stretch;gap:14px}
 
-/* BOARD */
-.board-outer{display:flex;gap:0}
-.rank-labels{display:flex;flex-direction:column;justify-content:space-around;padding:2px 4px 18px 0;width:16px;flex-shrink:0}
+/* ── Puzzle header card ── */
+.puzzle-header{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px}
+.puzzle-title{font-size:1.05rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.puzzle-meta{font-size:.78rem;color:var(--muted)}
+.color-badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:.75rem;font-weight:700;margin-top:7px}
+.color-badge.white{background:#dde0f015;border:1px solid #dde0f030;color:#dde0f0}
+.color-badge.black{background:#2a2a4a;border:1px solid #7070a080;color:#aaaacc}
+
+/* ── Board ── */
+.board-outer{display:flex;gap:0;width:100%}
+.rank-labels{display:flex;flex-direction:column;justify-content:space-around;padding:2px 4px 18px 0;width:18px;flex-shrink:0}
 .rank-labels span{font-size:.65rem;color:var(--muted);text-align:right;line-height:1}
-.board-col{display:flex;flex-direction:column}
-.board-wrap{position:relative}
-#board{
-  display:grid;grid-template-columns:repeat(8,1fr);
-  width:min(480px,calc(100vw - 48px));aspect-ratio:1;
-  border:2px solid #444;border-radius:3px;overflow:hidden;
-  user-select:none;
-}
-.file-labels{display:flex;padding:3px 0 0 0;width:min(480px,calc(100vw - 48px))}
-.file-labels span{flex:1;font-size:.65rem;color:var(--muted);text-align:center}
-
-/* DIFF TABS */
-.diff-tabs{display:flex;gap:8px;width:100%;max-width:496px}
-.diff-tab{
-  flex:1;padding:8px 4px;border-radius:8px;border:1px solid var(--border);
-  background:var(--surface);color:var(--muted);font-size:.8rem;font-weight:700;
-  cursor:pointer;transition:.15s;font-family:inherit;
-}
-.diff-tab:hover{border-color:var(--text);color:var(--text)}
-.diff-tab.active[data-diff="facile"]   {border-color:var(--green);color:var(--green);background:rgba(46,204,113,.08)}
-.diff-tab.active[data-diff="moyen"]    {border-color:var(--orange);color:var(--orange);background:rgba(243,156,18,.08)}
-.diff-tab.active[data-diff="difficile"]{border-color:var(--red);color:var(--red);background:rgba(231,76,60,.08)}
-.sq{
-  position:relative;display:flex;align-items:center;justify-content:center;
-  aspect-ratio:1;cursor:pointer;
-  transition:background .1s;
-}
+.board-col{display:flex;flex-direction:column;flex:1;min-width:0}
+.board-wrap{position:relative;width:100%}
+#board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;aspect-ratio:1;border:2px solid #555;user-select:none}
+.sq{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1}
 .sq.light{background:var(--light-sq)}
 .sq.dark {background:var(--dark-sq)}
-.sq.selected{outline:3px inset rgba(240,192,64,.9);z-index:2}
-.sq.drag-over{outline:3px inset rgba(240,192,64,.7);z-index:2}
-.sq.hint::after{
-  content:'';position:absolute;
-  width:30%;height:30%;border-radius:50%;
-  background:rgba(0,0,0,.18);
-  pointer-events:none;z-index:3;
-}
-.sq.hint.has-piece::after{
-  width:90%;height:90%;
-  background:transparent;
-  border-radius:50%;
-  border:3px solid rgba(0,0,0,.22);
-}
-.sq.flash-ok {animation:flashOk .5s ease}
-.sq.flash-err{animation:flashErr .45s ease}
-.sq.engine-from{box-shadow:inset 0 0 0 3px rgba(243,156,18,.7)}
-.sq.engine-to  {box-shadow:inset 0 0 0 3px rgba(243,156,18,.9)}
-@keyframes flashOk {
-  0%  {background:rgba(46,204,113,.7)}
-  60% {background:rgba(46,204,113,.4)}
-  100%{}
+.sq img{width:88%;height:88%;object-fit:contain;pointer-events:all;user-select:none}
+.sq img.draggable{cursor:grab}
+.sq img.static{cursor:default}
+.sq.drag-over{outline:3px inset rgba(240,192,64,.7)}
+.sq.hl{box-shadow:inset 0 0 0 4px rgba(240,192,64,.85)}
+.file-labels{display:flex;padding:3px 0 0 0;width:100%}
+.file-labels span{flex:1;font-size:.65rem;color:var(--muted);text-align:center}
+
+/* ── Animations ── */
+@keyframes flashOk{
+  0%  {box-shadow:inset 0 0 0 3px var(--green),0 0 16px rgba(46,204,113,.5)}
+  100%{box-shadow:none}
 }
 @keyframes flashErr{
-  0%  {transform:translateX(0)}
-  20% {transform:translateX(-5px);background:rgba(231,76,60,.5)}
-  40% {transform:translateX(5px)}
-  60% {transform:translateX(-3px)}
-  80% {transform:translateX(2px)}
-  100%{transform:translateX(0)}
+  0%,100%{transform:translateX(0)}
+  20%    {transform:translateX(-7px);box-shadow:inset 0 0 0 3px var(--red)}
+  40%    {transform:translateX( 7px);box-shadow:inset 0 0 0 3px var(--red)}
+  60%    {transform:translateX(-4px);box-shadow:inset 0 0 0 2px rgba(231,76,60,.6)}
+  80%    {transform:translateX( 4px);box-shadow:inset 0 0 0 2px rgba(231,76,60,.3)}
 }
-.sq img{width:88%;height:88%;object-fit:contain;pointer-events:all;cursor:grab;user-select:none}
-
-/* PROGRESS DOTS */
-.progress-row{display:flex;gap:8px;align-items:center}
-.prog-dot{
-  width:10px;height:10px;border-radius:50%;border:1.5px solid var(--border);
-  background:transparent;transition:background .2s,border-color .2s;
-}
-.prog-dot.player{border-color:var(--gold)}
-.prog-dot.player.done{background:var(--green);border-color:var(--green)}
-.prog-dot.engine.done{background:var(--muted);border-color:var(--muted)}
-
-/* STATUS */
-.status-msg{
-  font-size:.88rem;font-weight:600;min-height:22px;text-align:center;
-  transition:color .2s;
-}
-.status-msg.ok  {color:var(--green)}
-.status-msg.err {color:var(--red)}
-.status-msg.muted{color:var(--muted)}
-
-/* PUZZLE ACTIONS */
-.puzzle-actions{display:flex;gap:10px;width:100%}
-.hint-btn,.give-up-btn{
-  flex:1;background:transparent;border:1px solid var(--border);
-  border-radius:8px;padding:8px 12px;font-size:.8rem;cursor:pointer;
-  transition:.15s;font-family:inherit;color:var(--muted);
-}
-.hint-btn:hover{border-color:var(--gold);color:var(--gold)}
-.give-up-btn:hover{border-color:var(--red);color:var(--red)}
-
-/* HINT HIGHLIGHT */
-.sq.hint-from{animation:hintPulse .8s ease-in-out infinite}
 @keyframes hintPulse{
-  0%,100%{box-shadow:inset 0 0 0 3px rgba(240,192,64,.5),0 0 0 0 rgba(240,192,64,0)}
-  50%{box-shadow:inset 0 0 0 4px rgba(240,192,64,1),0 0 12px 4px rgba(240,192,64,.55)}
+  0%,100%{box-shadow:0 0 0 3px var(--gold),0 0 14px var(--gold)}
+  50%    {box-shadow:0 0 0 6px var(--gold),0 0 32px var(--gold),0 0 54px rgba(240,192,64,.25)}
 }
+.sq.flash-ok {animation:flashOk .65s ease-out forwards}
+.sq.flash-err{animation:flashErr .9s ease-out forwards}
+.sq.hint-glow{animation:hintPulse .75s ease-in-out infinite;z-index:2}
 
-/* TOUCH GHOST */
+/* ── Status bar ── */
+.status-bar{
+  padding:10px 16px;background:var(--card);border:1px solid var(--border);
+  border-radius:8px;font-size:.88rem;text-align:center;
+  min-height:42px;display:flex;align-items:center;justify-content:center;
+  transition:color .2s,border-color .2s;
+}
+.status-bar.ok {color:var(--green);font-weight:700;border-color:var(--green)}
+.status-bar.err{color:var(--red);  font-weight:700;border-color:var(--red)}
+
+/* ── Buttons ── */
+.puzzle-controls{display:flex;gap:10px}
+.ctrl-btn{
+  flex:1;padding:11px 8px;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:9px;color:var(--text);
+  font-size:.85rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:.15s;font-family:inherit;
+}
+.ctrl-btn:hover:not(:disabled){border-color:var(--gold);background:#1e1e10;color:var(--gold)}
+.ctrl-btn:disabled{opacity:.35;cursor:default}
+
+/* ── Success overlay ── */
+#success-overlay{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.65);align-items:center;justify-content:center;
+}
+#success-overlay.show{display:flex}
+.success-card{
+  background:var(--card);border:2px solid var(--gold);border-radius:16px;
+  padding:40px 48px;text-align:center;
+  box-shadow:0 8px 48px rgba(240,192,64,.3);
+  animation:scaleIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes scaleIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.success-emoji{font-size:3.5rem;margin-bottom:12px}
+.success-text {font-size:1.4rem;font-weight:900;color:var(--gold);margin-bottom:6px}
+.success-sub  {font-size:.85rem;color:var(--muted);margin-bottom:22px}
+.success-link {
+  display:inline-block;padding:10px 22px;
+  background:var(--gold);color:#111;border-radius:8px;
+  text-decoration:none;font-weight:800;font-size:.85rem;transition:.15s;
+}
+.success-link:hover{background:var(--gold2)}
+.success-close{
+  display:block;margin-top:13px;background:transparent;border:none;
+  color:var(--muted);font-size:.8rem;cursor:pointer;font-family:inherit;
+}
+.success-close:hover{color:var(--text)}
+
+/* ── Loading / Error ── */
+.loading-wrap{text-align:center;padding:48px 20px;color:var(--muted)}
+.spinner{
+  display:inline-block;width:36px;height:36px;
+  border:3px solid var(--border);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .7s linear infinite;margin-bottom:14px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-icon{font-size:2.5rem;margin-bottom:12px}
+.retry-btn{
+  margin-top:16px;padding:10px 22px;
+  background:var(--gold);color:#111;
+  border:none;border-radius:8px;
+  font-weight:800;cursor:pointer;font-family:inherit;font-size:.88rem;
+}
+.retry-btn:hover{background:var(--gold2)}
+
+/* ── Touch ghost ── */
 .touch-ghost{
   position:fixed;pointer-events:none;z-index:9999;
   width:72px;height:72px;
   transform:translate(-50%,-80%);
   filter:drop-shadow(0 8px 20px rgba(0,0,0,.7));
-  opacity:.93;
-  will-change:left,top;
+  opacity:.93;will-change:left,top;
 }
+.sq{touch-action:auto}
 
-/* BUTTONS */
-.btn-gold{
-  display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  padding:13px 28px;background:var(--gold);color:#111;
-  border-radius:9px;font-weight:800;font-size:.95rem;
-  font-family:'Syne',sans-serif;text-decoration:none;
-  transition:background .15s,transform .1s;
-  box-shadow:0 0 20px rgba(240,192,64,.2);width:100%;
-}
-.btn-gold:hover{background:var(--gold2);transform:translateY(-1px)}
-
-/* SUCCESS OVERLAY */
-.success-overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(10,10,20,.85);backdrop-filter:blur(6px);
-  z-index:100;align-items:center;justify-content:center;padding:24px;
-}
-.success-overlay.show{display:flex}
-.success-card{
-  background:var(--card);border:1px solid var(--border);border-radius:20px;
-  padding:40px 32px;text-align:center;max-width:380px;width:100%;
-  animation:popIn .35s cubic-bezier(.175,.885,.32,1.275);
-}
-@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-.success-icon{font-size:3rem;margin-bottom:12px;display:block}
-.success-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:6px;color:var(--green)}
-.success-sub{color:var(--muted);font-size:.88rem;margin-bottom:24px}
-.success-moves{
-  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;
-}
-.success-move-chip{
-  padding:4px 10px;border-radius:6px;font-family:monospace;font-size:.82rem;font-weight:700;
-}
-.success-move-chip.player{background:rgba(46,204,113,.15);color:var(--green);border:1px solid rgba(46,204,113,.3)}
-.success-move-chip.engine{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
-.btn-close{
-  display:block;margin-top:12px;background:transparent;border:1px solid var(--border);
-  color:var(--muted);border-radius:8px;padding:8px;font-size:.8rem;
-  cursor:pointer;font-family:inherit;width:100%;transition:.15s;
-}
-.btn-close:hover{border-color:var(--gold);color:var(--gold)}
-
-/* LOADER */
-.loader{display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--muted);font-size:.88rem;padding:60px 0}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* STREAK */
-.streak-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:5px 14px;border-radius:999px;
-  background:rgba(243,156,18,.1);border:1px solid rgba(243,156,18,.3);
-  font-size:.8rem;font-weight:700;color:var(--orange);
-  margin-top:10px;
-}
-.streak-badge.zero{background:var(--surface);border-color:var(--border);color:var(--muted)}
-.streak-num{font-family:'Syne',sans-serif;font-size:1rem}
-.already-done{
-  display:none;align-items:center;justify-content:center;gap:8px;
-  width:100%;padding:11px 16px;border-radius:10px;
-  background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.2);
-  color:var(--green);font-size:.83rem;font-weight:600;
-}
-.already-done.show{display:flex}
-/* streak dans la success card */
-.streak-result{
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  padding:14px;border-radius:12px;background:rgba(243,156,18,.08);
-  border:1px solid rgba(243,156,18,.2);margin-bottom:20px;
-}
-.streak-result-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--orange);line-height:1}
-.streak-result-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-@keyframes streakPop{0%{transform:scale(1)}40%{transform:scale(1.25)}70%{transform:scale(.95)}100%{transform:scale(1)}}
-.streak-pop{animation:streakPop .5s ease}
-
-/* Footer */
-footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border-top:1px solid var(--border)}
-
-@media(max-width:480px){
-  nav{padding:12px 16px}
-  .success-card{padding:28px 20px}
-}
+footer{text-align:center;padding:12px;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
 
-<nav>
-  <a class="logo" href="/">Coup<em>Déchec</em></a>
-  <a class="nav-back" href="/">← Retour à l'analyseur</a>
-</nav>
+<header>
+  <div>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 40" width="270" height="40" aria-label="CoupDEchec" overflow="visible">
+        <g fill="#f0c040">
+          <circle cx="18" cy="8" r="6.5"/>
+          <rect x="15.5" y="13.5" width="5" height="4" rx="1"/>
+          <path d="M11.5 17.5 C10.5 21 11.5 25 15.5 26.5 L20.5 26.5 C24.5 25 25.5 21 24.5 17.5 Z"/>
+          <rect x="10" y="27" width="16" height="4.5" rx="2"/>
+          <rect x="7.5" y="31" width="21" height="5" rx="2.5" fill="#c8a020"/>
+        </g>
+        <text x="38" y="29" font-family="Syne, 'Segoe UI', system-ui, sans-serif" font-weight="800" font-size="28" letter-spacing="0.3">
+          <tspan fill="#dde0f0">Coup</tspan><tspan fill="#f0c040">D</tspan><tspan fill="#dde0f0">Echec</tspan>
+        </text>
+      </svg>
+    </a>
+    <div class="logo-sub">Puzzle du Jour · Lichess</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <a class="ext-btn" href="/">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Analyser
+    </a>
+    <a class="ext-btn" href="/ouvertures">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Ouvertures
+    </a>
+  </div>
+</header>
 
 <main>
-  <div class="page-header">
-    <div class="day-badge">Puzzle · <em id="date-label">…</em></div>
-    <h1 id="puzzle-title">Position du jour</h1>
-    <div id="diff-badge" class="diff-badge" style="display:none"></div>
-    <div class="streak-badge zero" id="streak-badge">
-      <span>🔥</span>
-      <span class="streak-num" id="streak-num">0</span>
-      <span id="streak-label">jour de série</span>
-    </div>
-  </div>
+<div class="puzzle-wrap">
 
-  <div id="loader" class="loader">
+  <!-- Loading state -->
+  <div id="state-loading" class="loading-wrap">
     <div class="spinner"></div>
-    Chargement du puzzle…
+    <div>Chargement du puzzle du jour…</div>
   </div>
 
-  <div class="already-done" id="already-done">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    Puzzle du jour déjà résolu — revenez demain !
+  <!-- Error state -->
+  <div id="state-error" class="loading-wrap" style="display:none">
+    <div class="error-icon">⚠️</div>
+    <div id="error-msg" style="color:var(--red)">Impossible de charger le puzzle.</div>
+    <button class="retry-btn" onclick="loadDailyPuzzle()">Réessayer</button>
   </div>
 
-  <div class="diff-tabs" id="diff-tabs" style="display:none">
-    <button class="diff-tab active" data-diff="facile">Facile</button>
-    <button class="diff-tab" data-diff="moyen">Moyen</button>
-    <button class="diff-tab" data-diff="difficile">Difficile</button>
-  </div>
+  <!-- Puzzle state -->
+  <div id="state-puzzle" style="display:none;width:100%">
 
-  <div id="puzzle-wrap" class="puzzle-wrap" style="display:none">
-    <div class="turn-row">
-      <div class="turn-dot" id="turn-dot"></div>
-      <span id="turn-label">—</span>
+    <div class="puzzle-header">
+      <div class="puzzle-title">♟ Puzzle du Jour — Lichess</div>
+      <div class="puzzle-meta" id="puzzle-meta">Chargement…</div>
+      <div id="color-badge" class="color-badge"></div>
     </div>
 
     <div class="board-outer">
@@ -321,830 +233,530 @@ footer{text-align:center;padding:20px;font-size:.73rem;color:var(--muted);border
       </div>
     </div>
 
-    <div class="progress-row" id="progress-row"></div>
+    <div class="status-bar" id="status-bar">À votre tour !</div>
 
-    <div class="status-msg muted" id="status-msg">Trouvez le meilleur coup</div>
-
-    <div class="puzzle-actions">
-      <button class="hint-btn" id="hint-btn">💡 Indice</button>
-      <button class="give-up-btn" id="give-up-btn">Abandonner</button>
+    <div class="puzzle-controls">
+      <button class="ctrl-btn" id="btn-hint">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></svg>
+        Indice
+      </button>
+      <button class="ctrl-btn" id="btn-giveup">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Abandonner
+      </button>
     </div>
 
-    <a class="btn-gold" id="analyze-btn" href="#">
-      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/>
-      </svg>
-      Analyser avec Stockfish
-    </a>
-  </div>
+  </div><!-- /state-puzzle -->
+
+</div><!-- /puzzle-wrap -->
 </main>
 
 <!-- Success overlay -->
-<div class="success-overlay" id="success-overlay">
+<div id="success-overlay">
   <div class="success-card">
-    <span class="success-icon">🎉</span>
-    <div class="success-title">Résolu !</div>
-    <div class="success-sub" id="success-sub">Excellente combinaison</div>
-    <div class="streak-result" id="streak-result">
-      <div class="streak-result-num" id="streak-result-num">🔥 1</div>
-      <div class="streak-result-label" id="streak-result-label">jour de série</div>
-    </div>
-    <div class="success-moves" id="success-moves"></div>
-    <a class="btn-gold" id="success-analyze" href="#">
-      Analyser avec Stockfish
-    </a>
-    <button class="btn-close" id="success-close">Fermer</button>
+    <div class="success-emoji">🎉</div>
+    <div class="success-text">Puzzle Résolu !</div>
+    <div class="success-sub" id="success-sub">Excellent travail !</div>
+    <a id="lichess-link" href="https://lichess.org/training/daily" target="_blank" rel="noopener" class="success-link">Voir sur Lichess ↗</a>
+    <button class="success-close" onclick="document.getElementById('success-overlay').classList.remove('show')">Fermer</button>
   </div>
 </div>
 
-<footer>
-  <a href="/">CoupDéchec</a> · Position du jour · Puzzle quotidien d'échecs
-</footer>
+<footer>CoupDEchec · Puzzle du Jour via Lichess</footer>
 
 <script>
-'use strict';
-
 /* ══════════════════════════════════════════════
-   STREAK (localStorage)
-══════════════════════════════════════════════ */
-var STREAK_KEY = 'cdc_streak';
-
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10); // "2026-04-11"
-}
-
-function getStreak() {
-  try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || {count:0, lastSolved:null}; }
-  catch(e) { return {count:0, lastSolved:null}; }
-}
-
-function alreadySolvedToday(diff) {
-  return localStorage.getItem('cdc_solved_' + (diff||currentDiff)) === todayStr();
-}
-
-function markSolvedAndGetStreak() {
-  var today = todayStr();
-  // Mark this difficulty solved
-  localStorage.setItem('cdc_solved_' + currentDiff, today);
-
-  var s = getStreak();
-  if (s.lastSolved === today) return s; // streak already counted today
-
-  var prev = new Date(); prev.setDate(prev.getDate()-1);
-  var yest = prev.toISOString().slice(0,10);
-  s.count = (s.lastSolved === yest) ? (s.count||0)+1 : 1;
-  s.lastSolved = today;
-  localStorage.setItem(STREAK_KEY, JSON.stringify(s));
-  return s;
-}
-
-function renderStreakBadge(count) {
-  var badge = document.getElementById('streak-badge');
-  var num   = document.getElementById('streak-num');
-  var lbl   = document.getElementById('streak-label');
-  num.textContent = count;
-  lbl.textContent = count > 1 ? 'jours de suite' : 'jour de série';
-  if (count > 0) badge.classList.remove('zero');
-  else badge.classList.add('zero');
-}
-
-/* ══════════════════════════════════════════════
-   SUPABASE
-══════════════════════════════════════════════ */
-var SUPABASE_URL = 'https://mzzdnganybacsehrouwm.supabase.co';
-var ANON_KEY     = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16emRuZ2FueWJhY3NlaHJvdXdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NTI5MTUsImV4cCI6MjA5MTIyODkxNX0.4twVSNCpT5HhVQD-bH4AtVseRgTUCn8ZOB-PcxMVSDA';
-
-/* ══════════════════════════════════════════════
-   PUZZLES STATIQUES (fallback garanti)
-══════════════════════════════════════════════ */
-var STATIC_PUZZLES = {
-  facile: {
-    fen:       '4k3/8/4K3/8/8/8/8/4R3 w - - 0 1',
-    solution:  ['Re8#'],
-    titre:     'Mat en 1',
-    difficulte:'facile',
-    description:'Les Blancs jouent — mat en 1 coup'
-  },
-  moyen: {
-    fen:       'r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4',
-    solution:  ['Bxf7+', 'Ke7', 'Ng5'],
-    titre:     'Attaque du roi',
-    difficulte:'moyen',
-    description:'Les Blancs jouent — attaque en 3 coups'
-  },
-  difficile: {
-    fen:       '6k1/5ppp/8/8/8/8/5PPP/4R1K1 w - - 0 1',
-    solution:  ['Re8+', 'Rxe8', 'fxe8=Q#'],
-    titre:     'Promotion gagnante',
-    difficulte:'difficile',
-    description:'Les Blancs jouent — promotion en 3 coups'
-  }
-};
-
-/* ══════════════════════════════════════════════
-   CHESS LOGIC
+   CONSTANTS
 ══════════════════════════════════════════════ */
 var FILES = 'abcdefgh';
+function PIECE_IMG(p){ return '/pieces/'+p+'.webp'; }
+var TO_FEN = {wK:'K',wQ:'Q',wR:'R',wB:'B',wN:'N',wP:'P',bK:'k',bQ:'q',bR:'r',bB:'b',bN:'n',bP:'p'};
+var FROM_FEN = {};
+Object.entries(TO_FEN).forEach(function(kv){ FROM_FEN[kv[1]]=kv[0]; });
 
-function fenToState(fen) {
-  var parts = fen.split(' ');
-  var placement = parts[0], turnChar = parts[1]||'w', castleStr = parts[2]||'-';
-  var board = {};
-  var rows = placement.split('/');
-  for (var r = 0; r < 8; r++) {
-    var file = 0;
-    for (var i = 0; i < rows[r].length; i++) {
-      var ch = rows[r][i];
-      if (/\d/.test(ch)) { file += +ch; }
-      else {
-        var sq = FILES[file] + (8 - r);
-        board[sq] = (ch === ch.toUpperCase() ? 'w' : 'b') + ch.toUpperCase();
-        file++;
-      }
-    }
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+var boardState    = {};
+var orientation   = 'white';
+var playerColor   = 'w';
+var currentTurn   = 'w';
+var solution      = [];
+var moveIdx       = 0;
+var puzzleEnabled = false;
+var puzzleId      = '';
+var lastFrom      = null;
+var lastTo        = null;
+var hintTimer     = null;
+var dragData      = null;
+var touchDrag     = null;
+var pendingTouch  = null;
+
+/* ══════════════════════════════════════════════
+   APPLY UCI MOVE  →  {board, turn} or null
+══════════════════════════════════════════════ */
+function applyUci(brd, uci, turn){
+  var from=uci.slice(0,2), to=uci.slice(2,4);
+  var promo=uci[4]?uci[4].toUpperCase():null;
+  var piece=brd[from];
+  if(!piece) return null;
+  var nb=Object.assign({},brd);
+  var fc=TO_FEN[piece];
+  /* en passant */
+  if(fc==='P'&&from[0]!==to[0]&&!brd[to]) delete nb[to[0]+from[1]];
+  /* castling */
+  if(fc==='K'){
+    if(from==='e1'&&to==='g1'){nb['f1']='wR';delete nb['h1'];}
+    else if(from==='e1'&&to==='c1'){nb['d1']='wR';delete nb['a1'];}
+    else if(from==='e8'&&to==='g8'){nb['f8']='bR';delete nb['h8'];}
+    else if(from==='e8'&&to==='c8'){nb['d8']='bR';delete nb['a8'];}
   }
-  return {
-    board: board,
-    turn: turnChar,
-    castle: {
-      wK: castleStr.includes('K'),
-      wQ: castleStr.includes('Q'),
-      bK: castleStr.includes('k'),
-      bQ: castleStr.includes('q')
-    }
-  };
+  nb[to]=promo?(piece[0]+promo):piece;
+  delete nb[from];
+  return{board:nb,turn:turn==='w'?'b':'w'};
 }
 
-function isPathClear(brd, from, to) {
+/* ══════════════════════════════════════════════
+   PGN HELPERS  (rebuild puzzle position)
+══════════════════════════════════════════════ */
+function isPathClear(brd,from,to){
   var fi0=FILES.indexOf(from[0]),ri0=+from[1];
   var fi1=FILES.indexOf(to[0]),ri1=+to[1];
-  var df=fi1-fi0,dr=ri1-ri0;
-  var steps=Math.max(Math.abs(df),Math.abs(dr));
-  if (steps<=1) return true;
+  var df=fi1-fi0,dr=ri1-ri0,steps=Math.max(Math.abs(df),Math.abs(dr));
+  if(steps<=1) return true;
   var sf=Math.sign(df),sr=Math.sign(dr);
-  for (var i=1;i<steps;i++) {
-    if (brd[FILES[fi0+sf*i]+(ri0+sr*i)]) return false;
-  }
+  for(var i=1;i<steps;i++) if(brd[FILES[fi0+sf*i]+(ri0+sr*i)]) return false;
   return true;
 }
-
-function canPieceReach(brd, pieceCode, from, to, turn) {
+function canPieceReach(brd,pc,from,to,turn){
   var target=brd[to];
-  if (target&&target[0]===turn) return false;
+  if(target&&target[0]===turn) return false;
   var fi0=FILES.indexOf(from[0]),ri0=+from[1];
   var fi1=FILES.indexOf(to[0]),ri1=+to[1];
   var df=fi1-fi0,dr=ri1-ri0;
-  var pt=pieceCode[1];
-  if (pt==='P') {
-    var dir=turn==='w'?1:-1;
-    if (df===0) {
-      if (target) return false;
-      if (dr===dir) return true;
-      if (dr===2*dir&&ri0===(turn==='w'?2:7)&&!brd[from[0]+(ri0+dir)]) return true;
-    } else if (Math.abs(df)===1&&dr===dir) return true;
-    return false;
+  switch(pc[1]){
+    case 'P':{
+      var dir=turn==='w'?1:-1;
+      if(df===0){if(target)return false;if(dr===dir)return true;if(dr===2*dir&&ri0===(turn==='w'?2:7)&&!brd[from[0]+(ri0+dir)])return true;}
+      else if(Math.abs(df)===1&&dr===dir)return true;
+      return false;}
+    case 'N':return(Math.abs(df)===1&&Math.abs(dr)===2)||(Math.abs(df)===2&&Math.abs(dr)===1);
+    case 'B':return Math.abs(df)===Math.abs(dr)&&df!==0&&isPathClear(brd,from,to);
+    case 'R':return(df===0||dr===0)&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
+    case 'Q':return(df===0||dr===0||Math.abs(df)===Math.abs(dr))&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
+    case 'K':return Math.abs(df)<=1&&Math.abs(dr)<=1&&(df!==0||dr!==0);
   }
-  if (pt==='N') return (Math.abs(df)===1&&Math.abs(dr)===2)||(Math.abs(df)===2&&Math.abs(dr)===1);
-  if (pt==='B') return Math.abs(df)===Math.abs(dr)&&df!==0&&isPathClear(brd,from,to);
-  if (pt==='R') return (df===0||dr===0)&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
-  if (pt==='Q') return (df===0||dr===0||Math.abs(df)===Math.abs(dr))&&!(df===0&&dr===0)&&isPathClear(brd,from,to);
-  if (pt==='K') return Math.abs(df)<=1&&Math.abs(dr)<=1&&(df!==0||dr!==0);
   return false;
 }
-
-function legalSquares(brd, sq, turn) {
-  var piece = brd[sq];
-  if (!piece||piece[0]!==turn) return [];
-  var result = [];
-  for (var f=0;f<8;f++) {
-    for (var r=1;r<=8;r++) {
-      var dest = FILES[f]+r;
-      if (dest!==sq && canPieceReach(brd,piece,sq,dest,turn)) result.push(dest);
-    }
-  }
-  if (piece[1]==='K') {
-    var rank = turn==='w'?'1':'8';
-    if (turn==='w'&&state.castle.wK&&!brd['f'+rank]&&!brd['g'+rank]) result.push('g'+rank);
-    if (turn==='w'&&state.castle.wQ&&!brd['d'+rank]&&!brd['c'+rank]&&!brd['b'+rank]) result.push('c'+rank);
-    if (turn==='b'&&state.castle.bK&&!brd['f'+rank]&&!brd['g'+rank]) result.push('g'+rank);
-    if (turn==='b'&&state.castle.bQ&&!brd['d'+rank]&&!brd['c'+rank]&&!brd['b'+rank]) result.push('c'+rank);
-  }
-  return result;
+function startPos(){
+  return{a1:'wR',b1:'wN',c1:'wB',d1:'wQ',e1:'wK',f1:'wB',g1:'wN',h1:'wR',
+    a2:'wP',b2:'wP',c2:'wP',d2:'wP',e2:'wP',f2:'wP',g2:'wP',h2:'wP',
+    a7:'bP',b7:'bP',c7:'bP',d7:'bP',e7:'bP',f7:'bP',g7:'bP',h7:'bP',
+    a8:'bR',b8:'bN',c8:'bB',d8:'bQ',e8:'bK',f8:'bB',g8:'bN',h8:'bR'};
 }
-
-function sanToMove(brd, san, turn) {
-  var s = san.replace(/[+#!?]/g,'').replace(/\$\d+/g,'').trim();
-  var promo = null;
-  var pm = s.match(/=([QRBN])$/i);
-  if (pm) { promo=pm[1].toUpperCase(); s=s.slice(0,-2); }
-  else { var pm2=s.match(/([QRBN])$/i); if(pm2&&/[18]$/.test(s.slice(-3,-1))){promo=pm2[1].toUpperCase();s=s.slice(0,-1);} }
-
-  if (s==='O-O'||s==='0-0')     return {from:turn==='w'?'e1':'e8', to:turn==='w'?'g1':'g8', promo:null};
-  if (s==='O-O-O'||s==='0-0-0') return {from:turn==='w'?'e1':'e8', to:turn==='w'?'c1':'c8', promo:null};
-
-  var to=s.slice(-2); s=s.slice(0,-2);
-  var pieceType='P';
-  if (s.length>0&&/[KQRBN]/.test(s[0])){pieceType=s[0];s=s.slice(1);}
+function parsePgnText(text){
+  text=text.replace(/\r\n?/g,'\n');
+  var prev;
+  do{prev=text;text=text.replace(/\{[^{}]*\}/g,' ');}while(text!==prev);
+  text=text.replace(/[{}]/g,' ');
+  do{prev=text;text=text.replace(/\[[^\[\]]*\]/g,' ');}while(text!==prev);
+  text=text.replace(/[\[\]]/g,' ');
+  text=text.replace(/;[^\n]*/g,' ');
+  do{prev=text;text=text.replace(/\([^()]*\)/g,' ');}while(text!==prev);
+  text=text.replace(/\b(1-0|0-1|1\/2-1\/2)\b/g,' ').replace(/\*/g,' ');
+  text=text.replace(/\d+\s*\.+/g,' ');
+  return text.trim().split(/\s+/).filter(function(m){
+    return m.length>0&&!/^\$/.test(m)&&!/^[!?]+$/.test(m)&&!/^\d+$/.test(m);
+  });
+}
+function pgnApplyMove(brd,castle,turn,san){
+  var nb=Object.assign({},brd),nc=Object.assign({},castle);
+  var s=san.replace(/[+#!?]/g,'').replace(/\$\d+/g,'').trim();
+  var promo=null;
+  var pm=s.match(/=([QRBN])$/i);
+  if(pm){promo=pm[1].toUpperCase();s=s.slice(0,-2);}
+  else{var pm2=s.match(/([QRBN])$/i);if(pm2&&/[18]$/.test(s.slice(-3,-1))){promo=pm2[1].toUpperCase();s=s.slice(0,-1);}}
+  if(s==='O-O'||s==='0-0'){
+    if(turn==='w'){nb['g1']='wK';nb['f1']='wR';delete nb['e1'];delete nb['h1'];nc.wK=nc.wQ=false;}
+    else{nb['g8']='bK';nb['f8']='bR';delete nb['e8'];delete nb['h8'];nc.bK=nc.bQ=false;}
+    return{board:nb,castle:nc,turn:turn==='w'?'b':'w'};
+  }
+  if(s==='O-O-O'||s==='0-0-0'){
+    if(turn==='w'){nb['c1']='wK';nb['d1']='wR';delete nb['e1'];delete nb['a1'];nc.wK=nc.wQ=false;}
+    else{nb['c8']='bK';nb['d8']='bR';delete nb['e8'];delete nb['a8'];nc.bK=nc.bQ=false;}
+    return{board:nb,castle:nc,turn:turn==='w'?'b':'w'};
+  }
+  var to=s.slice(-2);s=s.slice(0,-2);
+  var pt='P';
+  if(s.length>0&&/[KQRBN]/.test(s[0])){pt=s[0];s=s.slice(1);}
   s=s.replace('x','');
-  var disambig=s;
-  var pieceCode=turn+pieceType;
-
-  var sqs = Object.keys(brd);
-  for (var i=0;i<sqs.length;i++) {
-    var sq=sqs[i], pc=brd[sq];
-    if (pc!==pieceCode) continue;
-    if (disambig.length===1) {
-      if (/[a-h]/.test(disambig)&&sq[0]!==disambig) continue;
-      if (/[1-8]/.test(disambig)&&sq[1]!==disambig) continue;
-    } else if (disambig.length===2&&sq!==disambig) continue;
-    if (canPieceReach(brd,pieceCode,sq,to,turn)) return {from:sq,to:to,promo:promo};
+  var disambig=s,pieceCode=turn+pt,from=null;
+  var entries=Object.entries(brd);
+  for(var ei=0;ei<entries.length;ei++){
+    var sq=entries[ei][0],pc=entries[ei][1];
+    if(pc!==pieceCode)continue;
+    if(disambig.length===1){
+      if(/[a-h]/.test(disambig)&&sq[0]!==disambig)continue;
+      if(/[1-8]/.test(disambig)&&sq[1]!==disambig)continue;
+    }else if(disambig.length===2&&sq!==disambig)continue;
+    if(canPieceReach(brd,pieceCode,sq,to,turn)){from=sq;break;}
   }
-  return null;
-}
-
-function applyMove(brd, castle, from, to, promo, turn) {
-  var nb={}, nc={wK:castle.wK,wQ:castle.wQ,bK:castle.bK,bQ:castle.bQ};
-  Object.assign(nb, brd);
-  var piece=nb[from];
-  if (!piece) return null;
-  var pt=piece[1];
-
-  if (pt==='P'&&from[0]!==to[0]&&!brd[to]) delete nb[to[0]+from[1]];
-
-  if (pt==='K') {
-    var df=FILES.indexOf(to[0])-FILES.indexOf(from[0]);
-    if (Math.abs(df)===2) {
-      var rank=from[1];
-      if (df>0){nb['f'+rank]=turn+'R';delete nb['h'+rank];}
-      else    {nb['d'+rank]=turn+'R';delete nb['a'+rank];}
-    }
-    nc[turn+'K']=nc[turn+'Q']=false;
-  }
-
-  nb[to]=promo?(turn+promo):piece;
+  if(!from)return null;
+  if(pt==='P'&&from[0]!==to[0]&&!brd[to])delete nb[to[0]+from[1]];
+  nb[to]=promo?(turn+promo):pieceCode;
   delete nb[from];
-
-  if (from==='a1'||to==='a1') nc.wQ=false;
-  if (from==='h1'||to==='h1') nc.wK=false;
-  if (from==='a8'||to==='a8') nc.bQ=false;
-  if (from==='h8'||to==='h8') nc.bK=false;
-
-  return {board:nb, castle:nc, turn:turn==='w'?'b':'w'};
+  if(pieceCode==='wK')nc.wK=nc.wQ=false;
+  if(pieceCode==='bK')nc.bK=nc.bQ=false;
+  if(from==='a1'||to==='a1')nc.wQ=false;
+  if(from==='h1'||to==='h1')nc.wK=false;
+  if(from==='a8'||to==='a8')nc.bQ=false;
+  if(from==='h8'||to==='h8')nc.bK=false;
+  return{board:nb,castle:nc,turn:turn==='w'?'b':'w'};
+}
+function buildPosFromPgn(pgn,plyCount){
+  var moves=parsePgnText(pgn);
+  var cur={board:startPos(),castle:{wK:true,wQ:true,bK:true,bQ:true},turn:'w'};
+  var limit=Math.min(plyCount,moves.length);
+  for(var i=0;i<limit;i++){
+    var res=pgnApplyMove(cur.board,cur.castle,cur.turn,moves[i]);
+    if(!res){console.warn('PGN parse failed at ply',i,moves[i]);break;}
+    cur=res;
+  }
+  return cur;
 }
 
 /* ══════════════════════════════════════════════
-   PUZZLE STATE
+   BOARD RENDER
 ══════════════════════════════════════════════ */
-var state        = { board:{}, castle:{}, turn:'w' };
-var puzzleMoves  = [];
-var moveIdx      = 0;
-var selectedSq   = null;
-var hintSquares  = [];
-var enabled      = true;
-var startFen     = '';
-var hintFromSq   = null;
-var hintTimer    = null;
-var currentDiff  = 'facile';
-var allPuzzles   = [];
-var flipBoard    = false;
+function renderBoard(){
+  var boardEl=document.getElementById('board');
+  boardEl.innerHTML='';
+  var ranks    =orientation==='white'?[8,7,6,5,4,3,2,1]:[1,2,3,4,5,6,7,8];
+  var fileIdxs =orientation==='white'?[0,1,2,3,4,5,6,7]:[7,6,5,4,3,2,1,0];
 
-/* drag & drop */
-var dragSq       = null;
-var touchDrag    = null;
-var pendingTouch = null;
+  ranks.forEach(function(rank){
+    fileIdxs.forEach(function(fi){
+      var file=FILES[fi],sq=file+rank;
+      var isLight=(fi+rank)%2===0;
+      var div=document.createElement('div');
+      div.className='sq '+(isLight?'light':'dark');
+      div.dataset.sq=sq;
+      if(sq===lastFrom||sq===lastTo) div.classList.add('hl');
 
-/* ══════════════════════════════════════════════
-   RENDER
-══════════════════════════════════════════════ */
-function renderLabels(ranks, fileIdxs) {
-  var rl = document.getElementById('rank-labels');
-  if (rl) { rl.innerHTML=''; ranks.forEach(function(r){var s=document.createElement('span');s.textContent=r;rl.appendChild(s);}); }
-  var fl = document.getElementById('file-labels');
-  if (fl) { fl.innerHTML=''; fileIdxs.forEach(function(fi){var s=document.createElement('span');s.textContent=FILES[fi];fl.appendChild(s);}); }
-}
-
-function renderBoard(highlightFrom, highlightTo, hlType) {
-  var boardEl = document.getElementById('board');
-  boardEl.innerHTML = '';
-
-  var ranks = flipBoard ? [1,2,3,4,5,6,7,8] : [8,7,6,5,4,3,2,1];
-  var files  = flipBoard ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
-
-  ranks.forEach(function(rank) {
-    files.forEach(function(fi) {
-      var file = FILES[fi];
-      var sq   = file + rank;
-      var isLight = (fi + rank) % 2 === 0;
-
-      var div = document.createElement('div');
-      var cls = 'sq ' + (isLight ? 'light' : 'dark');
-
-      if (sq === selectedSq)    cls += ' selected';
-      if (sq === highlightFrom && hlType === 'engine') cls += ' engine-from';
-      if (sq === highlightTo) {
-        if (hlType === 'correct')     cls += ' flash-ok';
-        else if (hlType === 'wrong')  cls += ' flash-err';
-        else if (hlType === 'engine') cls += ' engine-to';
-      }
-      if (sq === hintFromSq) cls += ' hint-from';
-      if (hintSquares.indexOf(sq) !== -1) {
-        cls += ' hint';
-        if (state.board[sq]) cls += ' has-piece';
-      }
-
-      div.className = cls;
-      div.dataset.sq = sq;
-
-      var piece = state.board[sq];
-      if (piece) {
-        var img = document.createElement('img');
-        img.src = '/pieces/' + piece + '.webp';
-        img.alt = piece;
-
-        /* HTML5 drag — only for player's movable pieces */
-        if (enabled && moveIdx % 2 === 0 && piece[0] === state.turn) {
-          img.draggable = true;
-          (function(capSq, capPiece, capImg) {
-            capImg.addEventListener('dragstart', function(e) {
+      var piece=boardState[sq];
+      if(piece){
+        var img=document.createElement('img');
+        img.src=PIECE_IMG(piece);
+        img.alt=piece;
+        var canDrag=puzzleEnabled&&piece[0]===playerColor&&currentTurn===playerColor;
+        if(canDrag){
+          img.draggable=true;
+          img.className='draggable';
+          (function(cSq,cPiece,cImg){
+            cImg.addEventListener('dragstart',function(e){
               e.stopPropagation();
-              dragSq = capSq;
-              e.dataTransfer.effectAllowed = 'move';
-              setTimeout(function() { capImg.style.opacity = '.3'; }, 0);
+              dragData={piece:cPiece,fromSq:cSq};
+              e.dataTransfer.effectAllowed='move';
+              setTimeout(function(){cImg.style.opacity='.3';},0);
             });
-            capImg.addEventListener('dragend', function() {
-              capImg.style.opacity = '1';
-              dragSq = null;
-            });
-            /* touch drag — long-press 150ms */
-            capImg.addEventListener('touchstart', function(e) {
-              var touch = e.touches[0];
-              var timer = setTimeout(function() {
-                if (!pendingTouch) return;
-                var lx = pendingTouch.lastX, ly = pendingTouch.lastY;
-                pendingTouch = null;
-                startTouchDrag(capPiece, capSq, capImg, lx, ly);
-              }, 150);
-              pendingTouch = {timer:timer, startX:touch.clientX, startY:touch.clientY,
-                              lastX:touch.clientX, lastY:touch.clientY,
-                              piece:capPiece, fromSq:capSq, el:capImg};
-            }, {passive:false});
-          })(sq, piece, img);
+            cImg.addEventListener('dragend',function(){cImg.style.opacity='1';});
+          })(sq,piece,img);
+        }else{
+          img.className='static';
         }
-
         div.appendChild(img);
       }
 
-      /* drop target events on every square */
-      div.addEventListener('dragover', function(e) {
-        if (dragSq) { e.preventDefault(); div.classList.add('drag-over'); }
-      });
-      div.addEventListener('dragleave', function() { div.classList.remove('drag-over'); });
-      div.addEventListener('drop', function(e) {
-        e.preventDefault();
-        div.classList.remove('drag-over');
-        if (!dragSq) return;
-        var from = dragSq;
-        dragSq = null;
-        if (from !== sq) attemptMove(from, sq);
+      div.addEventListener('dragover',function(e){e.preventDefault();div.classList.add('drag-over');});
+      div.addEventListener('dragleave',function(){div.classList.remove('drag-over');});
+      div.addEventListener('drop',function(e){
+        e.preventDefault();div.classList.remove('drag-over');
+        if(!dragData||!dragData.fromSq)return;
+        var from=dragData.fromSq,to=sq;
+        dragData=null;
+        if(from!==to)attemptMove(from,to);
       });
 
-      /* click fallback (select + confirm) */
-      div.addEventListener('click', function() { onSquareClick(sq); });
+      if(piece&&piece[0]===playerColor&&currentTurn===playerColor&&puzzleEnabled){
+        (function(cSq,cPiece){
+          div.addEventListener('touchstart',function(e){
+            var touch=e.touches[0];
+            var el=div.querySelector('img')||div;
+            var timer=setTimeout(function(){
+              if(!pendingTouch)return;
+              var pt=pendingTouch;pendingTouch=null;
+              startTouchDrag(cPiece,cSq,el,pt.lastX,pt.lastY);
+            },150);
+            pendingTouch={timer:timer,startX:touch.clientX,startY:touch.clientY,
+              lastX:touch.clientX,lastY:touch.clientY,piece:cPiece,fromSq:cSq,el:el};
+          },{passive:false});
+        })(sq,piece);
+      }
 
       boardEl.appendChild(div);
     });
   });
 
-  renderLabels(ranks, files);
+  var rl=document.getElementById('rank-labels');rl.innerHTML='';
+  ranks.forEach(function(r){var s=document.createElement('span');s.textContent=r;rl.appendChild(s);});
+  var fl=document.getElementById('file-labels');fl.innerHTML='';
+  fileIdxs.forEach(function(fi){var s=document.createElement('span');s.textContent=FILES[fi];fl.appendChild(s);});
 }
 
 /* ══════════════════════════════════════════════
-   TOUCH DRAG & DROP
+   TOUCH DRAG
 ══════════════════════════════════════════════ */
-function startTouchDrag(piece, fromSq, originEl, x, y) {
-  var ghost = document.createElement('img');
-  ghost.src = '/pieces/' + piece + '.webp';
-  ghost.className = 'touch-ghost';
-  ghost.style.left = x + 'px';
-  ghost.style.top  = y + 'px';
+function startTouchDrag(piece,fromSq,originEl,x,y){
+  var ghost=document.createElement('img');
+  ghost.src=PIECE_IMG(piece);ghost.className='touch-ghost';
+  ghost.style.left=x+'px';ghost.style.top=y+'px';
   document.body.appendChild(ghost);
-  if (originEl) originEl.style.opacity = '.2';
-  touchDrag = {piece:piece, fromSq:fromSq, ghost:ghost, originEl:originEl};
+  if(originEl)originEl.style.opacity='.2';
+  touchDrag={piece:piece,fromSq:fromSq,ghost:ghost,originEl:originEl};
 }
-
-document.addEventListener('touchmove', function(e) {
-  if (touchDrag) {
+document.addEventListener('touchmove',function(e){
+  if(touchDrag){
     e.preventDefault();
-    var t = e.touches[0];
-    touchDrag.ghost.style.left = t.clientX + 'px';
-    touchDrag.ghost.style.top  = t.clientY + 'px';
+    var t=e.touches[0];
+    touchDrag.ghost.style.left=t.clientX+'px';
+    touchDrag.ghost.style.top=t.clientY+'px';
     return;
   }
-  if (pendingTouch) {
-    var t = e.touches[0];
-    var dx = Math.abs(t.clientX - pendingTouch.startX);
-    var dy = Math.abs(t.clientY - pendingTouch.startY);
-    if (dy > 12 || dx > 12) {
-      clearTimeout(pendingTouch.timer);
-      pendingTouch = null;
-    } else {
-      pendingTouch.lastX = t.clientX;
-      pendingTouch.lastY = t.clientY;
-      e.preventDefault();
-    }
+  if(pendingTouch){
+    var t2=e.touches[0];
+    var dx=Math.abs(t2.clientX-pendingTouch.startX),dy=Math.abs(t2.clientY-pendingTouch.startY);
+    if(dx>12||dy>12){clearTimeout(pendingTouch.timer);pendingTouch=null;}
+    else{pendingTouch.lastX=t2.clientX;pendingTouch.lastY=t2.clientY;e.preventDefault();}
   }
-}, {passive:false});
-
-document.addEventListener('touchend', function(e) {
-  if (pendingTouch) {
-    clearTimeout(pendingTouch.timer);
-    pendingTouch = null;
-  }
-  if (!touchDrag) return;
-  var piece = touchDrag.piece, fromSq = touchDrag.fromSq,
-      ghost = touchDrag.ghost, originEl = touchDrag.originEl;
-  touchDrag = null;
-
-  var t = e.changedTouches[0];
-  ghost.style.visibility = 'hidden';
-  var under = document.elementFromPoint(t.clientX, t.clientY);
-  ghost.remove();
-  if (originEl) originEl.style.opacity = '';
-
-  var sqEl = under && under.closest('.sq');
-  if (sqEl) {
-    var toSq = sqEl.dataset.sq;
-    if (toSq !== fromSq) attemptMove(fromSq, toSq);
-  }
-}, {passive:false});
-
-document.addEventListener('touchcancel', function() {
-  if (pendingTouch) { clearTimeout(pendingTouch.timer); pendingTouch = null; }
-  if (!touchDrag) return;
+},{passive:false});
+document.addEventListener('touchend',function(e){
+  if(pendingTouch){clearTimeout(pendingTouch.timer);pendingTouch=null;}
+  if(!touchDrag)return;
+  var td=touchDrag;touchDrag=null;
+  var t=e.changedTouches[0];
+  td.ghost.style.visibility='hidden';
+  var under=document.elementFromPoint(t.clientX,t.clientY);
+  td.ghost.remove();
+  if(td.originEl)td.originEl.style.opacity='';
+  var sqEl=under&&under.closest('.sq');
+  if(sqEl&&sqEl.dataset.sq&&sqEl.dataset.sq!==td.fromSq)
+    attemptMove(td.fromSq,sqEl.dataset.sq);
+},{passive:false});
+document.addEventListener('touchcancel',function(){
+  if(pendingTouch){clearTimeout(pendingTouch.timer);pendingTouch=null;}
+  if(!touchDrag)return;
   touchDrag.ghost.remove();
-  if (touchDrag.originEl) touchDrag.originEl.style.opacity = '';
-  touchDrag = null;
+  if(touchDrag.originEl)touchDrag.originEl.style.opacity='';
+  touchDrag=null;
 });
 
 /* ══════════════════════════════════════════════
-   PROGRESS & STATUS
+   STATUS
 ══════════════════════════════════════════════ */
-function updateProgress() {
-  var row = document.getElementById('progress-row');
-  row.innerHTML = '';
-  puzzleMoves.forEach(function(_, i) {
-    var dot = document.createElement('div');
-    dot.className = 'prog-dot ' + (i%2===0 ? 'player' : 'engine');
-    if (i < moveIdx) dot.classList.add('done');
-    row.appendChild(dot);
-  });
+function setStatus(text,cls){
+  var el=document.getElementById('status-bar');
+  el.textContent=text;
+  el.className='status-bar'+(cls?' '+cls:'');
 }
-
-function setStatus(msg, cls) {
-  var el = document.getElementById('status-msg');
-  el.textContent = msg;
-  el.className = 'status-msg ' + (cls||'muted');
-}
-
-function updateTurnIndicator() {
-  var playerTurn = (moveIdx % 2 === 0);
-  var dot   = document.getElementById('turn-dot');
-  var label = document.getElementById('turn-label');
-  dot.className = 'turn-dot ' + (state.turn==='w' ? 'white' : 'black');
-  label.textContent = playerTurn
-    ? (state.turn==='w' ? 'Les Blancs jouent' : 'Les Noirs jouent')
-    : 'L\'adversaire réfléchit…';
+function playerPrompt(){
+  setStatus(playerColor==='w'?'♔ Blancs jouent — à vous !':'♚ Noirs jouent — à vous !');
 }
 
 /* ══════════════════════════════════════════════
-   INTERACTION — move attempt (drag OR click)
+   FLASH HELPER
 ══════════════════════════════════════════════ */
-function attemptMove(from, to) {
-  if (!enabled) return;
-  if (moveIdx >= puzzleMoves.length) return;
-  if (moveIdx % 2 !== 0) return;
+function flashSq(sq,cls,dur){
+  var el=document.querySelector('[data-sq="'+sq+'"]');
+  if(!el)return;
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+  setTimeout(function(){el.classList.remove(cls);},dur);
+}
 
-  selectedSq  = null;
-  hintSquares = [];
+/* ══════════════════════════════════════════════
+   ATTEMPT MOVE
+══════════════════════════════════════════════ */
+function attemptMove(from,to){
+  if(!puzzleEnabled||currentTurn!==playerColor)return;
+  var piece=boardState[from];
+  if(!piece||piece[0]!==playerColor)return;
 
-  var expected = sanToMove(state.board, puzzleMoves[moveIdx], state.turn);
+  /* auto queen-promotion */
+  var promo='';
+  if(TO_FEN[piece]==='P'){
+    var rank=parseInt(to[1]);
+    if((playerColor==='w'&&rank===8)||(playerColor==='b'&&rank===1))promo='q';
+  }
 
-  if (expected && from === expected.from && to === expected.to) {
-    /* ✓ Correct */
-    var newState = applyMove(state.board, state.castle, from, to, expected.promo, state.turn);
-    if (!newState) { renderBoard(); return; }
-    state = newState;
-    moveIdx++;
-    renderBoard(from, to, 'correct');
-    updateProgress();
-    setStatus('✓ Correct !', 'ok');
+  var playerUci=(from+to+promo).toLowerCase();
+  var expected=solution[moveIdx].toLowerCase();
+  var matches=playerUci===expected||
+    (expected.length===5&&expected.slice(0,4)===playerUci&&expected[4]==='q');
 
-    if (moveIdx >= puzzleMoves.length) {
-      setTimeout(showSuccess, 700);
-    } else {
-      enabled = false;
-      updateTurnIndicator();
-      setTimeout(playEngineMove, 750);
-    }
-  } else {
-    /* ✗ Wrong — shake & restore */
-    renderBoard(null, to, 'wrong');
-    setStatus('✗ Réessaie !', 'err');
-    setTimeout(function() {
-      renderBoard();
-      setStatus('Trouvez le meilleur coup', 'muted');
-    }, 900);
+  if(matches){
+    var res=applyUci(boardState,solution[moveIdx],currentTurn);
+    if(!res)return;
+    boardState=res.board;currentTurn=res.turn;
+    lastFrom=from;lastTo=to;
+    moveIdx++;puzzleEnabled=false;
+    renderBoard();
+    flashSq(to,'flash-ok',650);
+    setStatus('✓ Correct !','ok');
+    if(moveIdx>=solution.length){setTimeout(showSuccess,700);}
+    else{setTimeout(playEngineMove,750);}
+  }else{
+    flashSq(from,'flash-err',900);
+    setStatus('✗ Réessaie !','err');
+    setTimeout(function(){if(!puzzleEnabled)return;playerPrompt();},950);
   }
 }
 
-function onSquareClick(sq) {
-  if (!enabled) return;
-  if (moveIdx >= puzzleMoves.length) return;
-  if (moveIdx % 2 !== 0) return;
-
-  var piece = state.board[sq];
-
-  if (!selectedSq) {
-    if (!piece || piece[0] !== state.turn) return;
-    selectedSq = sq;
-    hintSquares = legalSquares(state.board, sq, state.turn);
-    renderBoard();
-    return;
-  }
-
-  if (sq === selectedSq) {
-    selectedSq = null;
-    hintSquares = [];
-    renderBoard();
-    return;
-  }
-
-  if (piece && piece[0] === state.turn) {
-    selectedSq = sq;
-    hintSquares = legalSquares(state.board, sq, state.turn);
-    renderBoard();
-    return;
-  }
-
-  var from = selectedSq;
-  attemptMove(from, sq);
-}
-
-function playEngineMove() {
-  var san  = puzzleMoves[moveIdx];
-  var move = sanToMove(state.board, san, state.turn);
-  if (!move) { enabled = true; return; }
-
-  var newState = applyMove(state.board, state.castle, move.from, move.to, move.promo, state.turn);
-  if (!newState) { enabled = true; return; }
-  state = newState;
+/* ══════════════════════════════════════════════
+   ENGINE REPLY
+══════════════════════════════════════════════ */
+function playEngineMove(){
+  if(moveIdx>=solution.length){showSuccess();return;}
+  var uci=solution[moveIdx];
+  var res=applyUci(boardState,uci,currentTurn);
+  if(!res){showSuccess();return;}
+  lastFrom=uci.slice(0,2);lastTo=uci.slice(2,4);
+  boardState=res.board;currentTurn=res.turn;
   moveIdx++;
-  renderBoard(move.from, move.to, 'engine');
-  updateProgress();
-
-  if (moveIdx >= puzzleMoves.length) {
-    setTimeout(showSuccess, 600);
-    return;
+  renderBoard();
+  setStatus('L\'adversaire joue…');
+  if(moveIdx>=solution.length){setTimeout(showSuccess,500);}
+  else{
+    setTimeout(function(){
+      puzzleEnabled=true;
+      playerPrompt();
+      renderBoard();
+    },500);
   }
-
-  setTimeout(function() {
-    enabled = true;
-    renderBoard();
-    updateTurnIndicator();
-    setStatus('Continuez !', 'muted');
-  }, 500);
 }
 
 /* ══════════════════════════════════════════════
    SUCCESS
 ══════════════════════════════════════════════ */
-function showSuccess() {
-  var overlay = document.getElementById('success-overlay');
-  var movesEl = document.getElementById('success-moves');
-  var subEl   = document.getElementById('success-sub');
-
-  movesEl.innerHTML = '';
-  puzzleMoves.forEach(function(m, i) {
-    var chip = document.createElement('span');
-    chip.className = 'success-move-chip ' + (i%2===0 ? 'player' : 'engine');
-    chip.textContent = m;
-    movesEl.appendChild(chip);
-  });
-
-  var subs = {facile:'Belle combinaison !', moyen:'Excellente trouvaille !', difficile:'Bravo, c\'est du niveau maître !'};
-  subEl.textContent = subs[currentDiff] || 'Excellente combinaison !';
-
-  var streak = markSolvedAndGetStreak();
-  var srNum = document.getElementById('streak-result-num');
-  var srLbl = document.getElementById('streak-result-label');
-  srNum.textContent = '🔥 ' + streak.count;
-  srLbl.textContent = streak.count > 1 ? 'jours de suite !' : 'premier jour — revenez demain !';
-  srNum.classList.add('streak-pop');
-  renderStreakBadge(streak.count);
-
-  document.getElementById('already-done').classList.add('show');
-  document.getElementById('success-analyze').href = '/?fen=' + encodeURIComponent(startFen);
-  overlay.classList.add('show');
+function showSuccess(){
+  puzzleEnabled=false;
+  setStatus('🎉 Puzzle résolu !','ok');
+  var themes=document.getElementById('puzzle-meta').dataset.themes||'';
+  document.getElementById('success-sub').textContent=
+    themes?'Thème(s) : '+themes:'Excellent travail !';
+  document.getElementById('success-overlay').classList.add('show');
 }
 
 /* ══════════════════════════════════════════════
-   HINT & GIVE UP
+   HINT
 ══════════════════════════════════════════════ */
-function showHint() {
-  console.log('[Indice] enabled='+enabled+' moveIdx='+moveIdx+' puzzleMoves='+JSON.stringify(puzzleMoves)+' turn='+state.turn);
-  if (!enabled) { console.log('[Indice] bloqué: not enabled'); return; }
-  if (moveIdx >= puzzleMoves.length) { console.log('[Indice] bloqué: puzzle terminé'); return; }
-  if (moveIdx % 2 !== 0) { console.log('[Indice] bloqué: tour adversaire'); return; }
-
-  var expected = sanToMove(state.board, puzzleMoves[moveIdx], state.turn);
-  console.log('[Indice] expected move:', expected, 'pour SAN:', puzzleMoves[moveIdx]);
-  if (!expected) { console.log('[Indice] sanToMove a retourné null'); return; }
-
-  if (hintTimer) clearTimeout(hintTimer);
-  hintFromSq  = expected.from;
-  selectedSq  = null;
-  hintSquares = [];
-  renderBoard();
-  console.log('[Indice] hintFromSq mis à', hintFromSq);
-
-  hintTimer = setTimeout(function() {
-    hintFromSq = null;
-    renderBoard();
-  }, 3000);
-}
-
-function giveUp() {
-  enabled = false;
-  hintFromSq = null;
-  if (hintTimer) clearTimeout(hintTimer);
-
-  /* affiche la solution complète */
-  setStatus('Solution : ' + puzzleMoves.join(' → '), 'muted');
-  renderBoard();
-
-  /* rejoue tous les coups restants avec 800ms entre chaque */
-  function playRemaining() {
-    if (moveIdx >= puzzleMoves.length) return;
-    var san  = puzzleMoves[moveIdx];
-    var move = sanToMove(state.board, san, state.turn);
-    if (!move) { console.log('[giveUp] sanToMove null pour', san); return; }
-    var newState = applyMove(state.board, state.castle, move.from, move.to, move.promo, state.turn);
-    if (!newState) { console.log('[giveUp] applyMove null pour', san); return; }
-    state = newState;
-    moveIdx++;
-    renderBoard(move.from, move.to, 'engine');
-    updateProgress();
-    setTimeout(playRemaining, 800);
-  }
-  setTimeout(playRemaining, 800);
-}
-
-/* ══════════════════════════════════════════════
-   INIT / FETCH
-══════════════════════════════════════════════ */
-function dayOfYear() {
-  var now = new Date();
-  var start = new Date(now.getFullYear(), 0, 0);
-  return Math.floor((now - start) / 86400000);
-}
-
-function formatDate() {
-  return new Date().toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-}
-
-function loadPuzzle(pos) {
-  moveIdx      = 0;
-  selectedSq   = null;
-  hintSquares  = [];
-  hintFromSq   = null;
-  dragSq       = null;
-  if (hintTimer) clearTimeout(hintTimer);
-  enabled = true;
-
-  startFen = pos.fen;
-  var parsed = fenToState(pos.fen);
-  state = parsed;
-  flipBoard = (parsed.turn === 'b');
-
-  if (Array.isArray(pos.solution)) {
-    puzzleMoves = pos.solution.filter(function(m){ return m && m.length>0; });
-  } else {
-    var sol = (pos.solution || '').trim();
-    puzzleMoves = sol.split(/\s+/).filter(function(m){ return m.length>0; });
-  }
-
-  document.getElementById('puzzle-title').textContent = pos.titre || 'Position du jour';
-  document.getElementById('date-label').textContent   = formatDate();
-
-  var badge = document.getElementById('diff-badge');
-  if (pos.difficulte) {
-    badge.textContent   = pos.difficulte.charAt(0).toUpperCase() + pos.difficulte.slice(1);
-    badge.className     = 'diff-badge diff-' + pos.difficulte;
-    badge.style.display = 'inline-block';
-  }
-
-  updateTurnIndicator();
-  document.getElementById('analyze-btn').href = '/?fen=' + encodeURIComponent(pos.fen);
-  updateProgress();
-  renderBoard();
-
-  if (puzzleMoves.length > 0) {
-    var label = state.turn==='w' ? 'Les Blancs jouent' : 'Les Noirs jouent';
-    setStatus(label + ' — trouvez le meilleur coup', 'muted');
-  } else {
-    setStatus('Analysez cette position', 'muted');
-    enabled = false;
-  }
-
-  renderStreakBadge(getStreak().count);
-  document.getElementById('already-done').classList.remove('show');
-
-  if (alreadySolvedToday()) {
-    enabled = false;
-    document.getElementById('already-done').classList.add('show');
-    setStatus('Déjà résolu aujourd\'hui — revenez demain !', 'ok');
-  }
-
-  document.getElementById('loader').style.display    = 'none';
-  document.getElementById('diff-tabs').style.display  = 'flex';
-  document.getElementById('puzzle-wrap').style.display = 'flex';
-}
-
-function loadForDifficulty(diff) {
-  currentDiff = diff;
-
-  document.querySelectorAll('.diff-tab').forEach(function(btn) {
-    btn.classList.toggle('active', btn.dataset.diff === diff);
-  });
-
-  /* 1st pass: match difficulte field in DB */
-  var pool = allPuzzles.filter(function(p) { return p.difficulte === diff; });
-
-  /* 2nd pass: match by solution length if DB field doesn't distinguish */
-  if (!pool.length) {
-    pool = allPuzzles.filter(function(p) {
-      var moves = Array.isArray(p.solution)
-        ? p.solution
-        : (p.solution || '').trim().split(/\s+/).filter(function(m){ return m.length>0; });
-      if (diff === 'facile')    return moves.length <= 2;
-      if (diff === 'moyen')     return moves.length >= 3 && moves.length <= 4;
-      if (diff === 'difficile') return moves.length >= 5;
-      return false;
-    });
-  }
-
-  /* 3rd pass: static puzzle guaranteed for each difficulty */
-  if (!pool.length && STATIC_PUZZLES[diff]) {
-    loadPuzzle(STATIC_PUZZLES[diff]);
-    return;
-  }
-
-  /* ultimate fallback: static facile */
-  if (!pool.length) {
-    loadPuzzle(STATIC_PUZZLES['facile']);
-    return;
-  }
-
-  /* deterministic pick: day-of-year mod pool size */
-  var puzzle = pool[dayOfYear() % pool.length];
-  loadPuzzle(puzzle);
-}
-
-function showError() {
-  document.getElementById('loader').innerHTML =
-    '<p style="color:var(--muted)">Impossible de charger le puzzle. <a href="/">Retour</a></p>';
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('success-close').addEventListener('click', function() {
-    document.getElementById('success-overlay').classList.remove('show');
-  });
-
-  document.getElementById('hint-btn').addEventListener('click', showHint);
-  document.getElementById('give-up-btn').addEventListener('click', giveUp);
-
-  document.querySelectorAll('.diff-tab').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      loadForDifficulty(this.dataset.diff);
-    });
-  });
-
-  /* Charge les puzzles statiques immédiatement, puis tente le fetch DB */
-  allPuzzles = [STATIC_PUZZLES.facile, STATIC_PUZZLES.moyen, STATIC_PUZZLES.difficile];
-  loadForDifficulty('facile');
-
-  fetch(SUPABASE_URL + '/rest/v1/position_du_jour?select=*', {
-    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(data) {
-    if (!data || !data.length) return; // garde les statiques
-    allPuzzles = data;
-    loadForDifficulty(currentDiff); // recharge avec les données DB
-  })
-  .catch(function() { /* silencieux — on garde les statiques */ });
+document.getElementById('btn-hint').addEventListener('click',function(){
+  if(!puzzleEnabled||moveIdx>=solution.length)return;
+  var from=solution[moveIdx].slice(0,2);
+  document.querySelectorAll('.sq.hint-glow').forEach(function(el){el.classList.remove('hint-glow');});
+  if(hintTimer){clearTimeout(hintTimer);hintTimer=null;}
+  var sqEl=document.querySelector('[data-sq="'+from+'"]');
+  if(!sqEl)return;
+  sqEl.classList.add('hint-glow');
+  hintTimer=setTimeout(function(){sqEl.classList.remove('hint-glow');hintTimer=null;},3000);
 });
+
+/* ══════════════════════════════════════════════
+   GIVE UP
+══════════════════════════════════════════════ */
+document.getElementById('btn-giveup').addEventListener('click',function(){
+  if(moveIdx>=solution.length)return;
+  puzzleEnabled=false;
+  document.getElementById('btn-hint').disabled=true;
+  document.getElementById('btn-giveup').disabled=true;
+  setStatus('Solution en cours…');
+  setTimeout(playRemaining,400);
+});
+function playRemaining(){
+  if(moveIdx>=solution.length){setStatus('Solution complète.');return;}
+  var uci=solution[moveIdx];
+  var res=applyUci(boardState,uci,currentTurn);
+  if(!res){setStatus('Solution complète.');return;}
+  lastFrom=uci.slice(0,2);lastTo=uci.slice(2,4);
+  boardState=res.board;currentTurn=res.turn;
+  moveIdx++;
+  renderBoard();
+  setTimeout(playRemaining,800);
+}
+
+/* ══════════════════════════════════════════════
+   SHOW STATE
+══════════════════════════════════════════════ */
+function showState(name){
+  document.getElementById('state-loading').style.display=name==='loading'?'block':'none';
+  document.getElementById('state-error').style.display  =name==='error'  ?'block':'none';
+  document.getElementById('state-puzzle').style.display =name==='puzzle' ?'block':'none';
+}
+
+/* ══════════════════════════════════════════════
+   LOAD LICHESS DAILY PUZZLE
+══════════════════════════════════════════════ */
+function loadDailyPuzzle(){
+  showState('loading');
+  fetch('https://lichess.org/api/puzzle/daily',{headers:{'Accept':'application/json'}})
+    .then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      return r.json();
+    })
+    .then(function(data){initPuzzle(data);})
+    .catch(function(err){
+      console.error('Lichess puzzle error:',err);
+      showState('error');
+      document.getElementById('error-msg').textContent=
+        'Impossible de charger le puzzle du jour. Vérifiez votre connexion.';
+    });
+}
+
+function initPuzzle(data){
+  var puzzle=data.puzzle,game=data.game;
+  puzzleId=puzzle.id||'';
+  solution=puzzle.solution||[];
+
+  /* Rebuild puzzle position from PGN */
+  var pos=buildPosFromPgn(game.pgn,puzzle.initialPly);
+  boardState=pos.board;
+  currentTurn=pos.turn;
+  playerColor=pos.turn;
+  orientation=playerColor==='w'?'white':'black';
+
+  /* Meta */
+  var themes=(puzzle.themes||[]).join(', ');
+  var rating=puzzle.rating?'ELO '+puzzle.rating:'';
+  var metaEl=document.getElementById('puzzle-meta');
+  metaEl.textContent='#'+puzzleId+(rating?' · '+rating:'')+(themes?' · '+themes:'');
+  metaEl.dataset.themes=themes;
+
+  var badge=document.getElementById('color-badge');
+  badge.textContent=playerColor==='w'?'♔ Vous jouez les Blancs':'♚ Vous jouez les Noirs';
+  badge.className='color-badge '+(playerColor==='w'?'white':'black');
+
+  document.getElementById('lichess-link').href='https://lichess.org/training/'+puzzleId;
+
+  lastFrom=null;lastTo=null;
+  moveIdx=0;puzzleEnabled=true;
+  document.getElementById('btn-hint').disabled=false;
+  document.getElementById('btn-giveup').disabled=false;
+
+  showState('puzzle');
+  renderBoard();
+  playerPrompt();
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+loadDailyPuzzle();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(e){console.warn('SW:',e);});
+  });
+}
 </script>
 </body>
 </html>
