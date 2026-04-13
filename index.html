@@ -12,7 +12,13 @@
 <link rel="canonical" href="https://coupdechec.vercel.app/"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
-<link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png"/>
+<link rel="apple-touch-icon" href="/favicon-192.png"/>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#F5C518"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="CoupDEchec"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
@@ -341,6 +347,32 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
   #board{ width:calc(100vw - 36px) !important; }
   .file-labels,.status-bar{ width:calc(100vw - 36px) !important; }
 }
+
+/* ══ Bandeau installation PWA ══ */
+#pwa-banner{
+  display:none;          /* masqué par défaut, JS l'active */
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:12px 16px;
+  align-items:center;gap:12px;
+  box-shadow:0 -4px 20px rgba(0,0,0,.4);
+}
+#pwa-banner.show{display:flex}
+.pwa-text{flex:1;font-size:.8rem;color:var(--text);line-height:1.4}
+.pwa-text strong{color:var(--gold)}
+#pwa-install-btn{
+  flex-shrink:0;padding:8px 16px;
+  background:var(--gold);color:#111;
+  border:none;border-radius:8px;
+  font-size:.8rem;font-weight:800;cursor:pointer;
+  font-family:inherit;transition:background .15s;white-space:nowrap;
+}
+#pwa-install-btn:hover{background:var(--gold2)}
+#pwa-dismiss{
+  flex-shrink:0;background:transparent;border:none;
+  color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px;line-height:1;
+}
+#pwa-dismiss:hover{color:var(--text)}
 </style>
 </head>
 <body>
@@ -525,6 +557,15 @@ textarea#pgn-input:focus{outline:none;border-color:var(--gold)}
 </div>
 
 <footer>CoupDEchec · Powered by Stockfish.js</footer>
+
+<!-- Bandeau installation PWA (mobile uniquement) -->
+<div id="pwa-banner" role="banner" aria-live="polite">
+  <span class="pwa-text" id="pwa-text">
+    📲 <strong>Installez l'app</strong> — Ajoutez CoupDEchec à votre écran d'accueil
+  </span>
+  <button id="pwa-install-btn">Installer</button>
+  <button id="pwa-dismiss" aria-label="Fermer">✕</button>
+</div>
 
 <script>
 /* ══════════════════════════════════════════════
@@ -1631,6 +1672,80 @@ if(_urlFen && parseFen(decodeURIComponent(_urlFen))){
 renderBoard();
 syncFen();
 initEngine();
+
+/* ══════════════════════════════════════════════
+   PWA — Service Worker + Bandeau installation
+══════════════════════════════════════════════ */
+(function() {
+  /* 1. Enregistrement du service worker */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').catch(function(err) {
+        console.warn('SW registration failed:', err);
+      });
+    });
+  }
+
+  /* 2. Détection mobile (> tablette exclue volontairement) */
+  var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobile) return;
+
+  var banner      = document.getElementById('pwa-banner');
+  var installBtn  = document.getElementById('pwa-install-btn');
+  var dismissBtn  = document.getElementById('pwa-dismiss');
+  var textEl      = document.getElementById('pwa-text');
+  var DISMISSED_KEY = 'pwa_banner_dismissed';
+
+  /* Ne pas réafficher si déjà ignoré */
+  if (localStorage.getItem(DISMISSED_KEY)) return;
+
+  /* 3. iOS : pas de beforeinstallprompt → message manuel */
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                  || window.navigator.standalone === true;
+  if (isStandalone) return; /* déjà installée */
+
+  if (isIOS) {
+    textEl.innerHTML = '📲 <strong>Installer l\'app</strong> — Appuyez sur <strong>Partager</strong> puis <em>« Sur l\'écran d\'accueil »</em>';
+    installBtn.style.display = 'none'; /* pas de bouton sur iOS */
+    banner.classList.add('show');
+    dismissBtn.addEventListener('click', function() {
+      banner.classList.remove('show');
+      localStorage.setItem(DISMISSED_KEY, '1');
+    });
+    return;
+  }
+
+  /* 4. Android / Chrome : beforeinstallprompt */
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    banner.classList.add('show');
+  });
+
+  installBtn.addEventListener('click', function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result) {
+      deferredPrompt = null;
+      banner.classList.remove('show');
+      if (result.outcome === 'accepted') {
+        localStorage.setItem(DISMISSED_KEY, '1');
+      }
+    });
+  });
+
+  dismissBtn.addEventListener('click', function() {
+    banner.classList.remove('show');
+    localStorage.setItem(DISMISSED_KEY, '1');
+  });
+
+  /* Cacher si l'app vient d'être installée */
+  window.addEventListener('appinstalled', function() {
+    banner.classList.remove('show');
+  });
+})();
 </script>
 </body>
 </html>

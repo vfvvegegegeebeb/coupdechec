@@ -1,0 +1,23 @@
+{
+  "name": "CoupDEchec",
+  "short_name": "CoupDEchec",
+  "description": "Analyse d'échecs avec Stockfish",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1e2e",
+  "theme_color": "#F5C518",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
