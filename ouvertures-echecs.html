@@ -83,6 +83,25 @@ strong{color:var(--text);font-weight:700}
 }
 .btn-gold:hover{background:var(--gold2);text-decoration:none}
 
+/* ── Variantes ── */
+.var-section{margin-top:10px}
+.var-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.var-btns{display:flex;flex-wrap:wrap;gap:5px}
+.var-btn{
+  padding:4px 11px;border:1px solid rgba(240,192,64,.45);border-radius:5px;
+  background:var(--surface);color:var(--gold);
+  font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:background .12s,border-color .12s;
+}
+.var-btn:hover,.var-btn.active{background:rgba(240,192,64,.12);border-color:var(--gold)}
+.var-moves{
+  display:none;width:100%;margin-top:5px;
+  padding:6px 10px;border-radius:5px;
+  background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.18);
+  font-family:monospace;font-size:.74rem;color:var(--gold);line-height:1.5;
+}
+.var-moves.show{display:block}
+
 footer{margin-top:auto;text-align:center;padding:28px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
 footer a{color:var(--muted)}
 </style>
@@ -134,6 +153,15 @@ footer a{color:var(--muted)}
   <div class="opening-card">
     <h3>L'Ouverture Italienne</h3>
     <div class="moves">1. e4 e5 2. Cf3 Cc6 3. Fc4</div>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Giuoco Piano</button>
+        <div class="var-moves">3...Bc5 4.c3 Nf6 5.d4</div>
+        <button class="var-btn">Evans Gambit</button>
+        <div class="var-moves">3...Bc5 4.b4 Bxb4 5.c3</div>
+      </div>
+    </div>
     <p>L'une des ouvertures les plus anciennes et les plus populaires. Le fou attaque directement la case f7, point faible du roi noir. Très jouée à tous les niveaux, des débutants aux grands maîtres.</p>
     <p><strong>Idéale pour :</strong> Apprendre à attaquer avec le fou et le cavalier coordonnés.</p>
   </div>
@@ -141,6 +169,17 @@ footer a{color:var(--muted)}
   <div class="opening-card">
     <h3>La Ruy Lopez (Partie Espagnole)</h3>
     <div class="moves">1. e4 e5 2. Cf3 Cc6 3. Fb5</div>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Berlin</button>
+        <div class="var-moves">3...Nf6 4.O-O Nxe4 5.d4</div>
+        <button class="var-btn">Morphy</button>
+        <div class="var-moves">3...a6 4.Ba4 Nf6 5.O-O</div>
+        <button class="var-btn">Marshall</button>
+        <div class="var-moves">3...a6 4.Ba4 Nf6 8...d5</div>
+      </div>
+    </div>
     <p>L'ouverture préférée des champions du monde depuis des siècles. Le fou attaque indirectement le pion e5 en clouant le cavalier défenseur. Mène à des structures complexes avec beaucoup de profondeur stratégique.</p>
     <p><strong>Idéale pour :</strong> Joueurs souhaitant progresser sérieusement et comprendre la stratégie.</p>
   </div>
@@ -150,6 +189,17 @@ footer a{color:var(--muted)}
   <div class="opening-card">
     <h3>La Défense Sicilienne</h3>
     <div class="moves">1. e4 c5</div>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Najdorf</button>
+        <div class="var-moves">5...a6 6.Bg5 e6 7.f4</div>
+        <button class="var-btn">Dragon</button>
+        <div class="var-moves">5...g6 6.Be3 Bg7 7.f3</div>
+        <button class="var-btn">Scheveningen</button>
+        <div class="var-moves">5...e6 6.g4 a6 7.g5</div>
+      </div>
+    </div>
     <p>La réponse la plus populaire à 1.e4. En jouant c5, les Noirs refusent de céder le centre et créent un déséquilibre immédiat. La Sicilienne est réputée pour ses parties tranchantes et ses nombreuses variantes (Dragon, Najdorf, Scheveningen).</p>
     <p><strong>Idéale pour :</strong> Joueurs qui aiment les positions complexes et ne veulent pas la nulle.</p>
   </div>
@@ -157,6 +207,17 @@ footer a{color:var(--muted)}
   <div class="opening-card">
     <h3>La Défense Française</h3>
     <div class="moves">1. e4 e6</div>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Winawer</button>
+        <div class="var-moves">3...Bb4 4.e5 c5 5.a3</div>
+        <button class="var-btn">Classique</button>
+        <div class="var-moves">3...Nf6 4.Bg5 Be7 5.e5</div>
+        <button class="var-btn">Avance</button>
+        <div class="var-moves">3.e5 c5 4.c3 Nc6 5.Nf3</div>
+      </div>
+    </div>
     <p>Une défense solide et stratégique. Les Noirs construisent une forteresse et attaquent le centre blanc avec d5. La structure de pions typique donne aux Noirs un contre-jeu sur l'aile dame.</p>
     <p><strong>Idéale pour :</strong> Joueurs qui préfèrent les positions solides avec un plan clair.</p>
   </div>
@@ -164,6 +225,17 @@ footer a{color:var(--muted)}
   <div class="opening-card">
     <h3>La Défense Caro-Kann</h3>
     <div class="moves">1. e4 c6</div>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Classique</button>
+        <div class="var-moves">4...Bf5 5.Ng3 Bg6 6.h4</div>
+        <button class="var-btn">Avance</button>
+        <div class="var-moves">3.e5 Bf5 4.Nf3 e6 5.Be2</div>
+        <button class="var-btn">Schlechter</button>
+        <div class="var-moves">4...Nd7 5.Bc4 Ngf6 6.Ng5</div>
+      </div>
+    </div>
     <p>Similaire à la Française mais avec l'avantage de ne pas enfermer le fou dame. Très solide, souvent jouée par des joueurs qui veulent des positions saines sans trop de complications. Prisée par les joueurs positionnels.</p>
     <p><strong>Idéale pour :</strong> Débutants qui veulent une défense fiable et simple à apprendre.</p>
   </div>
@@ -190,5 +262,17 @@ footer a{color:var(--muted)}
   <a href="/">CoupDéchec</a> · Ouvertures aux échecs · Guide débutant
 </footer>
 
+<script>
+document.querySelectorAll('.var-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var row=this.closest('.var-btns');
+    var detail=this.nextElementSibling;
+    var wasActive=this.classList.contains('active');
+    row.querySelectorAll('.var-btn').forEach(function(b){b.classList.remove('active');});
+    row.querySelectorAll('.var-moves').forEach(function(d){d.classList.remove('show');});
+    if(!wasActive){this.classList.add('active');if(detail)detail.classList.add('show');}
+  });
+});
+</script>
 </body>
 </html>

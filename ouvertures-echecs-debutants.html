@@ -91,6 +91,25 @@ footer{text-align:center;padding:20px;color:var(--muted);font-size:.75rem;border
 footer a{color:var(--muted)}
 
 @media(max-width:600px){h1{font-size:1.5rem}h2{font-size:1.15rem}}
+
+/* ── Variantes ── */
+.var-section{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.var-label{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.var-btns{display:flex;flex-wrap:wrap;gap:5px}
+.var-btn{
+  padding:4px 11px;border:1px solid rgba(240,192,64,.45);border-radius:5px;
+  background:var(--surface);color:var(--gold);
+  font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:background .12s,border-color .12s;
+}
+.var-btn:hover,.var-btn.active{background:rgba(240,192,64,.12);border-color:var(--gold)}
+.var-moves{
+  display:none;width:100%;margin-top:5px;
+  padding:6px 10px;border-radius:5px;
+  background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.18);
+  font-family:monospace;font-size:.74rem;color:var(--gold);line-height:1.5;
+}
+.var-moves.show{display:block}
 </style>
 </head>
 <body>
@@ -152,6 +171,15 @@ footer a{color:var(--muted)}
       <li>Potentiel offensif : ⭐⭐⭐⭐</li>
       <li>Utilisée par Magnus Carlsen et Fabiano Caruana</li>
     </ul>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Giuoco Piano</button>
+        <div class="var-moves">3...Bc5 4.c3 Nf6 5.d4</div>
+        <button class="var-btn">Evans Gambit</button>
+        <div class="var-moves">3...Bc5 4.b4 Bxb4 5.c3</div>
+      </div>
+    </div>
   </div>
 
   <div class="opening-card">
@@ -176,6 +204,17 @@ footer a{color:var(--muted)}
       <li>Profondeur stratégique : ⭐⭐⭐⭐⭐</li>
       <li>Fischer, Karpov et Kasparov en étaient de grands spécialistes</li>
     </ul>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Berlin</button>
+        <div class="var-moves">3...Nf6 4.O-O Nxe4 5.d4</div>
+        <button class="var-btn">Morphy</button>
+        <div class="var-moves">3...a6 4.Ba4 Nf6 5.O-O</div>
+        <button class="var-btn">Marshall</button>
+        <div class="var-moves">3...a6 4.Ba4 Nf6 8...d5</div>
+      </div>
+    </div>
   </div>
 
   <h2>Meilleures ouvertures avec les Noirs</h2>
@@ -185,6 +224,17 @@ footer a{color:var(--muted)}
     <h3>La Défense Française (1.e4 e6)</h3>
     <p>Contre 1.e4, la Défense Française est une réponse solide et facile à apprendre. Les Noirs construisent une forteresse et cherchent un contre-jeu actif sur le flanc dame. L'inconvénient : le fou c8 peut être difficile à activer.</p>
     <p><strong>Plan typique :</strong> Jouer d5, puis lancer une attaque sur le flanc dame avec c5 ou f6 selon la variante.</p>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Winawer</button>
+        <div class="var-moves">3...Bb4 4.e5 c5 5.a3</div>
+        <button class="var-btn">Classique</button>
+        <div class="var-moves">3...Nf6 4.Bg5 Be7 5.e5</div>
+        <button class="var-btn">Avance</button>
+        <div class="var-moves">3.e5 c5 4.c3 Nc6 5.Nf3</div>
+      </div>
+    </div>
   </div>
 
   <div class="opening-card">
@@ -196,6 +246,17 @@ footer a{color:var(--muted)}
       <li>Recommandée dès 1200 ELO</li>
       <li>Kasparov, Fischer et Tal l'ont portée à son apogée</li>
     </ul>
+    <div class="var-section">
+      <div class="var-label">Variantes</div>
+      <div class="var-btns">
+        <button class="var-btn">Najdorf</button>
+        <div class="var-moves">5...a6 6.Bg5 e6 7.f4</div>
+        <button class="var-btn">Dragon</button>
+        <div class="var-moves">5...g6 6.Be3 Bg7 7.f3</div>
+        <button class="var-btn">Scheveningen</button>
+        <div class="var-moves">5...e6 6.g4 a6 7.g5</div>
+      </div>
+    </div>
   </div>
 
   <div class="opening-card">
@@ -259,5 +320,17 @@ footer a{color:var(--muted)}
   <p>© 2026 <a href="https://coupdechec.vercel.app/">CoupDEchec</a> · Analyse de position aux échecs · Powered by Stockfish</p>
 </footer>
 
+<script>
+document.querySelectorAll('.var-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var row=this.closest('.var-btns');
+    var detail=this.nextElementSibling;
+    var wasActive=this.classList.contains('active');
+    row.querySelectorAll('.var-btn').forEach(function(b){b.classList.remove('active');});
+    row.querySelectorAll('.var-moves').forEach(function(d){d.classList.remove('show');});
+    if(!wasActive){this.classList.add('active');if(detail)detail.classList.add('show');}
+  });
+});
+</script>
 </body>
 </html>
