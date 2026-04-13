@@ -24,7 +24,15 @@
       "Bash(npm install:*)",
       "Bash(cp node_modules/stockfish/src/stockfish.js ./stockfish.js)",
       "Bash(du -sh \"C:\\\\Users\\\\Farida\\\\Desktop\\\\coupdechec-extension\\\\node_modules\\\\stockfish\\\\bin\"/*)",
-      "Bash(git -C \"C:\\\\Users\\\\Farida\\\\Desktop\\\\coupdechec\" checkout -- index.html)"
+      "Bash(git -C \"C:\\\\Users\\\\Farida\\\\Desktop\\\\coupdechec\" checkout -- index.html)",
+      "Bash(grep -E \"\\\\.html$\")",
+      "Bash(cwebp -version)",
+      "Bash(magick -version)",
+      "Bash(python3 -c \"from PIL import Image; print\\('pillow ok'\\)\")",
+      "Bash(python -c \"from PIL import Image; print\\('pillow ok'\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }
