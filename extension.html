@@ -3,215 +3,377 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Extension Chrome · CoupDEchec</title>
-<meta name="description" content="Télécharge l'extension Chrome CoupDEchec et reçois le meilleur coup Stockfish directement sur chess.com, en temps réel."/>
+<title>Extension Chrome — CoupDEchec</title>
+<meta name="description" content="Analysez vos parties chess.com en temps réel avec Stockfish, adapté à votre niveau ELO. Gratuit, sans inscription."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://coupdechec.vercel.app/extension"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"/>
+<link rel="apple-touch-icon" href="/favicon-192.png"/>
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#F5C518"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0f0f1a;--surface:#16162a;--card:#1e1e35;--border:#2a2a48;
   --gold:#f0c040;--gold2:#c8a020;--text:#dde0f0;--muted:#7070a0;
-  --green:#2ecc71;
+  --green:#2ecc71;--red:#e74c3c;
 }
+*{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;min-height:100vh;display:flex;flex-direction:column}
 
-/* ── NAV ── */
-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 40px;border-bottom:1px solid var(--border);
-  position:sticky;top:0;background:rgba(15,15,26,.95);
-  backdrop-filter:blur(12px);z-index:100;
-}
-.nav-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:var(--text);text-decoration:none}
-.nav-logo em{color:var(--gold);font-style:normal}
-.nav-back{display:flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:.82rem;transition:color .15s}
-.nav-back:hover{color:var(--text)}
-.nav-back svg{width:14px;height:14px}
+/* ── HEADER (identique à index.html) ── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.logo-sub{color:var(--muted);font-size:.8rem;margin-top:1px}
+.ext-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border:2px solid var(--gold);border-radius:8px;color:var(--gold);font-size:.8rem;font-weight:700;text-decoration:none;transition:.15s;white-space:nowrap;letter-spacing:.2px}
+.ext-btn:hover{background:var(--gold);color:#111}
+.ext-btn.active{background:var(--gold);color:#111}
+@media(max-width:600px){header{flex-direction:column;align-items:flex-start;gap:10px}.ext-btn{width:100%;justify-content:center}}
 
 /* ── HERO ── */
 .hero{
-  text-align:center;padding:80px 24px 60px;
-  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(240,192,64,.07) 0%,transparent 70%);
+  text-align:center;padding:80px 24px 64px;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240,192,64,.08) 0%, transparent 70%);
 }
 .hero-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:5px 14px;border-radius:999px;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:5px 16px;border-radius:999px;
   border:1px solid var(--border);background:var(--surface);
   font-size:.72rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;
-  margin-bottom:24px;
+  margin-bottom:28px;
 }
-.hero-badge span{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 .hero h1{
-  font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:800;
-  line-height:1.1;margin-bottom:20px;max-width:720px;margin-left:auto;margin-right:auto;
+  font-family:'Syne',sans-serif;font-size:clamp(1.9rem,5vw,3.2rem);font-weight:800;
+  line-height:1.15;margin-bottom:18px;max-width:760px;margin-left:auto;margin-right:auto;
 }
 .hero h1 em{color:var(--gold);font-style:normal}
-.hero p{font-size:1.05rem;color:var(--muted);max-width:480px;margin:0 auto 36px}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.6}
 
-/* download btn */
+/* Download button */
 .dl-btn{
   display:inline-flex;align-items:center;gap:10px;
-  padding:16px 36px;border-radius:10px;
+  padding:16px 38px;border-radius:11px;
   background:var(--gold);color:#111;
   font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;
   text-decoration:none;letter-spacing:.2px;
   transition:background .15s,transform .1s;
-  box-shadow:0 0 32px rgba(240,192,64,.25);
+  box-shadow:0 0 36px rgba(240,192,64,.28);
 }
 .dl-btn:hover{background:var(--gold2);transform:translateY(-1px)}
 .dl-btn:active{transform:translateY(0)}
-.dl-btn svg{width:20px;height:20px;flex-shrink:0}
 .dl-note{margin-top:10px;font-size:.72rem;color:var(--muted)}
 
-/* ── STEPS ── */
-.steps-section{padding:70px 24px;max-width:960px;margin:0 auto;width:100%}
-.section-label{
-  font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);
-  font-weight:700;text-align:center;margin-bottom:10px;
-}
-.section-title{
-  font-family:'Syne',sans-serif;font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;
-  text-align:center;margin-bottom:50px;
-}
+/* ── CONTENT WRAPPER ── */
+.page{max-width:960px;margin:0 auto;width:100%;padding:0 24px}
 
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-@media(max-width:700px){.steps{grid-template-columns:1fr}}
+/* ── SECTION LABEL ── */
+.section-label{font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:700;text-align:center;margin-bottom:10px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(1.3rem,3vw,1.85rem);font-weight:800;text-align:center;margin-bottom:44px}
 
+/* ── FEATURES ── */
+.features{padding:70px 0 56px}
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media(max-width:640px){.features-grid{grid-template-columns:1fr}}
+.feature-card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:26px 24px;display:flex;gap:18px;align-items:flex-start;
+  transition:border-color .2s;
+}
+.feature-card:hover{border-color:rgba(240,192,64,.4)}
+.feature-icon{
+  width:52px;height:52px;border-radius:12px;flex-shrink:0;
+  background:var(--surface);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+}
+.feature-body h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;margin-bottom:6px;color:var(--text)}
+.feature-body p{font-size:.82rem;color:var(--muted);line-height:1.55}
+
+/* ── INSTALL GUIDE ── */
+.install{padding:0 0 70px}
+.steps-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media(max-width:640px){.steps-grid{grid-template-columns:1fr}}
 .step{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:14px;padding:28px 24px 24px;
-  display:flex;flex-direction:column;align-items:center;gap:16px;
-  text-align:center;position:relative;
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:26px 22px;display:flex;flex-direction:column;gap:14px;
+  position:relative;
 }
 .step-num{
-  width:36px;height:36px;border-radius:50%;
+  width:34px;height:34px;border-radius:50%;
   background:rgba(240,192,64,.12);border:2px solid var(--gold);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;color:var(--gold);
+  font-family:'Syne',sans-serif;font-size:.88rem;font-weight:800;color:var(--gold);
   flex-shrink:0;
 }
-.step-icon{
-  width:72px;height:72px;border-radius:12px;
-  background:var(--surface);display:flex;align-items:center;justify-content:center;
-  font-size:2.2rem;
-}
-.step h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:var(--text)}
-.step p{font-size:.82rem;color:var(--muted);line-height:1.5}
-.step code{
+.step-icon{font-size:1.8rem}
+.step h3{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:800;color:var(--text)}
+.step p{font-size:.82rem;color:var(--muted);line-height:1.55}
+.step code,.step kbd{
   background:var(--surface);border:1px solid var(--border);
-  border-radius:5px;padding:1px 6px;font-family:monospace;font-size:.78rem;
-  color:var(--gold);
+  border-radius:5px;padding:1px 6px;font-family:monospace;font-size:.78rem;color:var(--gold);
 }
+.step-header{display:flex;align-items:center;gap:14px}
 
-/* connector arrows between steps on desktop */
-.steps{position:relative}
-
-/* ── COMPAT NOTE ── */
-.compat{
-  background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.2);
-  border-radius:12px;padding:18px 22px;max-width:620px;margin:0 auto 0;
-  display:flex;gap:12px;align-items:flex-start;font-size:.82rem;color:var(--muted);
+/* ── COMPAT SECTION ── */
+.compat-section{padding:0 0 70px}
+.compat-box{
+  background:rgba(240,192,64,.04);border:1px solid rgba(240,192,64,.18);
+  border-radius:12px;padding:22px 26px;
+  display:flex;gap:14px;align-items:flex-start;
+  font-size:.85rem;color:var(--muted);line-height:1.55;
 }
-.compat svg{flex-shrink:0;margin-top:1px;color:var(--gold)}
+.compat-box+.compat-box{margin-top:12px}
+.compat-box svg{flex-shrink:0;margin-top:1px;color:var(--gold)}
+.compat-box strong{color:var(--text)}
+
+/* ── ELO PREVIEW ── */
+.elo-section{padding:0 0 70px}
+.elo-table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.elo-table th{background:var(--surface);padding:10px 16px;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700}
+.elo-table td{padding:11px 16px;font-size:.85rem;border-top:1px solid var(--border)}
+.elo-table tr:hover td{background:rgba(240,192,64,.04)}
+.elo-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+.elo-badge.b1{background:#1a1a2e;border:1px solid #5050a0;color:#9090d0}
+.elo-badge.b2{background:#1a2a1a;border:1px solid #408040;color:#70c070}
+.elo-badge.b3{background:#2a2a10;border:1px solid #a0a020;color:#d0d050}
+.elo-badge.b4{background:#2a1a0a;border:1px solid #c08020;color:#f0c040}
+.elo-badge.b5{background:#2a0a0a;border:1px solid #c03020;color:#f06050}
 
 /* ── FOOTER ── */
-footer{margin-top:auto;text-align:center;padding:30px;font-size:.75rem;color:var(--muted);border-top:1px solid var(--border)}
-footer a{color:var(--muted);text-decoration:none}
-footer a:hover{color:var(--text)}
+footer{margin-top:auto;text-align:center;padding:12px;font-size:.72rem;color:var(--muted);border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="/">Coup<em>Déchec</em></a>
-  <a class="nav-back" href="/">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-    Retour au site
-  </a>
-</nav>
+<!-- HEADER -->
+<header>
+  <div>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270 40" width="270" height="40" aria-label="CoupDEchec" overflow="visible">
+        <g fill="#f0c040">
+          <circle cx="18" cy="8" r="6.5"/>
+          <rect x="15.5" y="13.5" width="5" height="4" rx="1"/>
+          <path d="M11.5 17.5 C10.5 21 11.5 25 15.5 26.5 L20.5 26.5 C24.5 25 25.5 21 24.5 17.5 Z"/>
+          <rect x="10" y="27" width="16" height="4.5" rx="2"/>
+          <rect x="7.5" y="31" width="21" height="5" rx="2.5" fill="#c8a020"/>
+        </g>
+        <text x="38" y="29" font-family="Syne, 'Segoe UI', system-ui, sans-serif" font-weight="800" font-size="28" letter-spacing="0.3">
+          <tspan fill="#dde0f0">Coup</tspan><tspan fill="#f0c040">D</tspan><tspan fill="#dde0f0">Echec</tspan>
+        </text>
+      </svg>
+    </a>
+    <div class="logo-sub">Extension Chrome · Stockfish en temps réel</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <a class="ext-btn" href="/">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Analyser
+    </a>
+    <a class="ext-btn" href="/position-du-jour">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Puzzle du jour
+    </a>
+    <a class="ext-btn active" href="/extension">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Extension Chrome
+    </a>
+  </div>
+</header>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-badge">
-    <span></span>
-    Extension Chrome · Manifest V3
+    <span class="hero-badge-dot"></span>
+    Extension Chrome · Manifest V3 · Gratuit
   </div>
-
-  <h1>Je te joue chaque coup<br/>sur chess.com <em>en temps réel</em></h1>
-  <p>Stockfish tourne en local dans ton navigateur. Aucune donnée ne quitte ta machine.</p>
-
+  <h1>CoupDEchec — <em>Extension Chrome</em></h1>
+  <p class="hero-sub">
+    Analysez vos parties chess.com en temps réel avec Stockfish,
+    adapté à votre niveau ELO. Aucune donnée ne quitte votre machine.
+  </p>
   <a class="dl-btn" href="/coupdechec-extension.zip" download>
-    <svg fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0 0l-4-4m4 4l4-4"/>
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0 0l-4-4m4 4l4-4"/>
     </svg>
     Télécharger l'extension (.zip)
   </a>
-  <p class="dl-note">Version 1.2 · Chrome 88+ · ~1 MB</p>
+  <p class="dl-note">Version 1.2 · Chrome 88+ · ~1 MB · Stockfish local</p>
 </section>
 
-<!-- STEPS -->
-<section class="steps-section">
-  <p class="section-label">Installation</p>
-  <h2 class="section-title">4 étapes, 2 minutes</h2>
+<!-- FEATURES -->
+<section class="features">
+  <div class="page">
+    <p class="section-label">Fonctionnalités</p>
+    <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+    <div class="features-grid">
 
-  <div class="steps" style="grid-template-columns:repeat(2,1fr)">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-body">
+          <h3>Analyse en temps réel</h3>
+          <p>Stockfish analyse chaque position automatiquement pendant votre partie. La flèche du meilleur coup s'affiche en quelques millisecondes, sans intervention de votre part.</p>
+        </div>
+      </div>
 
-    <!-- Étape 1 -->
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-icon">📦</div>
-      <h3>Télécharge et décompresse le ZIP</h3>
-      <p>Clique sur le bouton ci-dessus, enregistre le <code>.zip</code>, puis <strong style="color:var(--text)">extrait le dossier</strong> (clic droit → Extraire tout). Garde ce dossier quelque part de fixe.</p>
-    </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-body">
+          <h3>Adapté à votre ELO</h3>
+          <p>L'extension lit votre ELO directement sur chess.com et adapte la profondeur d'analyse. Débutant à 800 ELO ou maître à 2000, Stockfish joue à votre niveau pour des coups que vous pouvez comprendre et rejouer.</p>
+        </div>
+      </div>
 
-    <!-- Étape 2 -->
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-icon">🔧</div>
-      <h3>Active le mode développeur</h3>
-      <p>Dans Chrome, ouvre <code>chrome://extensions</code> et active l'interrupteur <strong style="color:var(--text)">"Mode développeur"</strong> en haut à droite de la page.</p>
-    </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏹</div>
+        <div class="feature-body">
+          <h3>Flèche visuelle sur l'échiquier</h3>
+          <p>Le meilleur coup s'affiche directement sur l'échiquier chess.com sous forme de flèche dorée. Pas besoin de lire une notation — vous voyez le coup à jouer immédiatement.</p>
+        </div>
+      </div>
 
-    <!-- Étape 3 -->
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-icon">📂</div>
-      <h3>Charge le dossier extrait</h3>
-      <p>Clique sur <strong style="color:var(--text)">"Charger l'extension non empaquetée"</strong> et sélectionne le <strong style="color:var(--text)">dossier extrait</strong> à l'étape 1. L'extension n'affiche pas d'icône dans la barre — c'est normal.</p>
-    </div>
+      <div class="feature-card">
+        <div class="feature-icon">🆓</div>
+        <div class="feature-body">
+          <h3>100% gratuit &amp; local</h3>
+          <p>Aucune inscription, aucun abonnement, aucune donnée envoyée. Stockfish tourne entièrement dans votre navigateur. Pas de serveur, pas de cloud — votre vie privée est protégée.</p>
+        </div>
+      </div>
 
-    <!-- Étape 4 -->
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-icon">⌨️</div>
-      <h3>Active l'analyse sur chess.com</h3>
-      <p>Va sur <code>chess.com</code>, lance une partie ou une analyse, puis appuie sur <code>Ctrl + Shift + X</code> pour activer. Un bouton <strong style="color:var(--gold)">♟ Analyse</strong> apparaît en bas à droite. Rappuie pour désactiver.</p>
-    </div>
-
-  </div>
-
-  <!-- note compat -->
-  <div style="margin-top:36px;display:flex;flex-direction:column;gap:12px;max-width:620px;margin-left:auto;margin-right:auto">
-    <div class="compat">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
-      <span>Compatible <strong style="color:var(--text)">Google Chrome</strong> et <strong style="color:var(--text)">Microsoft Edge</strong> 88+. Fonctionne uniquement sur <strong style="color:var(--text)">chess.com</strong>. Stockfish tourne entièrement en local — aucune donnée envoyée.</span>
-    </div>
-    <div class="compat">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-      <span>Pas d'icône dans la barre Chrome — <strong style="color:var(--text)">c'est volontaire</strong>. L'extension se contrôle uniquement via le raccourci <code style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--gold)">Ctrl+Shift+X</code> sur chess.com.</span>
     </div>
   </div>
 </section>
 
-<footer>
-  <a href="/">CoupDéchec</a> · Outil d'analyse aux échecs · Stockfish local
-</footer>
+<!-- ADAPTATION ELO -->
+<section class="elo-section">
+  <div class="page">
+    <p class="section-label">Adaptation automatique</p>
+    <h2 class="section-title">Stockfish calibré sur votre niveau</h2>
+    <table class="elo-table">
+      <thead>
+        <tr>
+          <th>Niveau ELO</th>
+          <th>Profondeur</th>
+          <th>Skill Level Stockfish</th>
+          <th>Profil</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="elo-badge b1">&lt; 800</span></td>
+          <td>depth 5</td>
+          <td>Skill Level 3</td>
+          <td>Débutant — coups simples et directs</td>
+        </tr>
+        <tr>
+          <td><span class="elo-badge b2">800 – 1200</span></td>
+          <td>depth 8</td>
+          <td>Skill Level 6</td>
+          <td>Amateur — tactique de base, évite les coups faibles</td>
+        </tr>
+        <tr>
+          <td><span class="elo-badge b3">1200 – 1600</span></td>
+          <td>depth 12</td>
+          <td>Skill Level 10</td>
+          <td>Intermédiaire — combinaisons courtes, stratégie solide</td>
+        </tr>
+        <tr>
+          <td><span class="elo-badge b4">1600 – 2000</span></td>
+          <td>depth 16</td>
+          <td>Skill Level 15</td>
+          <td>Avancé — calcul profond, positionnement précis</td>
+        </tr>
+        <tr>
+          <td><span class="elo-badge b5">2000 +</span></td>
+          <td>depth 20</td>
+          <td>Skill Level 20</td>
+          <td>Expert / Stockfish max — analyse complète</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px;font-size:.78rem;color:var(--muted);text-align:center">
+      Si l'ELO n'est pas détecté automatiquement, un slider manuel apparaît dans le panneau de l'extension.
+    </p>
+  </div>
+</section>
+
+<!-- INSTALL GUIDE -->
+<section class="install">
+  <div class="page">
+    <p class="section-label">Installation</p>
+    <h2 class="section-title">4 étapes, 2 minutes</h2>
+    <div class="steps-grid">
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <span class="step-icon">📦</span>
+        </div>
+        <h3>Télécharger le dossier</h3>
+        <p>Cliquez sur le bouton de téléchargement ci-dessus pour obtenir le fichier <code>.zip</code>. Enregistrez-le, puis <strong style="color:var(--text)">extrayez le dossier</strong> (clic droit → Extraire tout). Conservez ce dossier dans un endroit fixe sur votre machine.</p>
+        <p>Le code source est également disponible sur
+          <a href="https://github.com/vfvvegegegeebeb/coupdechec" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none">GitHub ↗</a>.
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <span class="step-icon">🔧</span>
+        </div>
+        <h3>Ouvrir chrome://extensions</h3>
+        <p>Dans Chrome (ou Edge, Brave, Opera), tapez <code>chrome://extensions</code> dans la barre d'adresse et appuyez sur Entrée.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">3</div>
+          <span class="step-icon">🛠️</span>
+        </div>
+        <h3>Activer le Mode développeur</h3>
+        <p>En haut à droite de la page Extensions, activez l'interrupteur <strong style="color:var(--text)">"Mode développeur"</strong>. Trois nouveaux boutons apparaissent en haut à gauche.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">4</div>
+          <span class="step-icon">📂</span>
+        </div>
+        <h3>Charger l'extension</h3>
+        <p>Cliquez sur <strong style="color:var(--text)">"Charger l'extension non empaquetée"</strong> et sélectionnez le dossier extrait à l'étape 1. L'extension s'installe immédiatement.</p>
+        <p style="margin-top:8px">Sur chess.com, activez l'analyse via <kbd>Ctrl+Shift+X</kbd> — le bouton <strong style="color:var(--gold)">♟ Analyse</strong> apparaît en bas à droite.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMPAT -->
+<section class="compat-section">
+  <div class="page">
+    <div class="compat-box">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span>
+        Fonctionne sur <strong>Chrome</strong>, <strong>Edge</strong>, <strong>Brave</strong> et <strong>Opera</strong> (Chromium 88+).
+        Sur Android : utilisez <strong>Kiwi Browser</strong> qui supporte les extensions Chrome.
+        Uniquement sur <strong>chess.com</strong>.
+      </span>
+    </div>
+    <div class="compat-box">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      <span>
+        L'extension <strong>n'a pas d'icône</strong> dans la barre Chrome — c'est intentionnel.
+        Elle se contrôle via le raccourci <kbd style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1px 7px;color:var(--gold);font-family:monospace">Ctrl+Shift+X</kbd> sur une page chess.com.
+        Stockfish tourne entièrement en local — <strong>aucune donnée envoyée</strong>.
+      </span>
+    </div>
+  </div>
+</section>
+
+<footer>CoupDEchec · Extension Chrome · Stockfish local · <a href="/" style="color:var(--muted);text-decoration:none">coupdechec.vercel.app</a></footer>
 
 </body>
 </html>
