@@ -797,9 +797,15 @@ function initEngine(){
 
 function sfAnalyze(fen,movetime){
   return new Promise(function(resolve){
-    sfResolve=resolve;
+    var done=false;
+    var _t=setTimeout(function(){
+      if(!done){done=true;sfResolve=null;sfLastScore=null;resolve({score:0,bestmove:null});}
+    },movetime+5000);
+    sfResolve=function(result){
+      if(!done){done=true;clearTimeout(_t);resolve(result);}
+    };
     sfLastScore=null;
-    engine.postMessage('setoption name Skill Level value 20');
+    engine.postMessage('stop');
     engine.postMessage('position fen '+fen);
     engine.postMessage('go movetime '+movetime);
   });
@@ -833,7 +839,7 @@ async function startAnalysis(){
   document.getElementById('progress-info').textContent='0 / '+gPositions.length+' positions';
   document.getElementById('progress-fill').style.width='0%';
 
-  var MOVETIME=120; /* ms per position */
+  var MOVETIME=400; /* ms per position */
   for(var i=0;i<gPositions.length;i++){
     /* Update progress */
     var pct=Math.round(i/gPositions.length*100);
