@@ -10,6 +10,7 @@
     { "source": "/finales-echecs",               "destination": "/finales-echecs.html" },
     { "source": "/finales-echecs-guide",         "destination": "/finales-echecs-guide.html" },
     { "source": "/position-du-jour",             "destination": "/position-du-jour.html" },
+    { "source": "/analyse-partie",              "destination": "/analyse-partie.html" },
     { "source": "/ouvertures",                   "destination": "/ouvertures.html" },
     { "source": "/ouvertures/:slug",             "destination": "/ouverture.html" }
   ]
