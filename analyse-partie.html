@@ -427,7 +427,11 @@ function pgnApplyMove(brd,castle,turn,san){
     }else if(disambig.length===2&&sq!==disambig)continue;
     if(canPieceReach(brd,pieceCode,sq,to,turn)){from=sq;break;}
   }
-  if(!from)return null;
+  if(!from){
+    console.log("pgnApplyMove debug: coup=", san, "turn=", turn, "pt=", pt, "to=", to, "disambig=", disambig);
+    Object.entries(brd).forEach(function(e){if(e[1]===turn+'P')console.log("Pion trouvé:",e[0],e[1]);});
+    return null;
+  }
   if(pt==='P'&&from[0]!==to[0]&&!brd[to])delete nb[to[0]+from[1]];
   nb[to]=promo?(turn+promo):pieceCode;
   delete nb[from];
