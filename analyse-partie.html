@@ -383,7 +383,7 @@ function cleanPgn(text){
   // Supprimer les métadonnées entre crochets (gère multilignes avec [\s\S])
   text=text.replace(/\[.*?\]/g,'');
   // Supprimer TOUS les commentaires entre accolades (texte libre, apostrophes, espaces…)
-  text=text.replace(/\{[^}]*\}/g,'');
+  text=text.replace(/\{[\s\S]*?\}/g,' ');
   // Supprimer les annotations $1 $2 etc.
   text=text.replace(/\$\d+/g,'');
   // Supprimer les résultats

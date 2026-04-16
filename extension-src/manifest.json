@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Helper",
+  "version": "1.2",
+
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.chess.com/*"],
+
+  "content_scripts": [{
+    "matches": ["https://www.chess.com/*"],
+    "js": ["content.js"],
+    "run_at": "document_start"
+  }],
+
+  "background": {
+    "service_worker": "background.js"
+  }
+}
