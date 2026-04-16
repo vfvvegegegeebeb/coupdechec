@@ -379,41 +379,21 @@ function canPieceReach(brd,pc,from,to,turn){
   return false;
 }
 
-function parsePgnText(text){
-  // Normaliser fins de ligne
-  text=text.replace(/\r\n?/g,'\n');
-
-  // Étape 1 : supprimer toutes les lignes de métadonnées commençant par [
-  // (ex: [Event "..."] [Site "..."] [White "..."] etc.)
-  text=text.split('\n').filter(function(line){
-    return line.trim().charAt(0)!=='[';
-  }).join('\n');
-
-  // Étape 2 : supprimer les commentaires { ... } — itératif pour les imbriqués
-  var prev;
-  do{prev=text;text=text.replace(/\{[^{}]*\}/g,' ');}while(text!==prev);
-  text=text.replace(/[{}]/g,' ');
-
-  // Étape 3 : supprimer les annotations NAG $1 $2 $3…
-  text=text.replace(/\$\d+/g,' ');
-
-  // Étape 4 : supprimer les résultats de partie
-  text=text.replace(/1-0|0-1|1\/2-1\/2|\*/g,' ');
-
-  // Étape 5 : supprimer les numéros de coups "1." "6..." "12..." etc., puis "..." seuls
-  text=text.replace(/\d+\s*\.{1,3}/g,' ');
-  text=text.replace(/\.{2,}/g,' ');
-
-  // Étape 6 : garder uniquement les tokens qui ressemblent à des coups SAN
-  // Accepte : pions (e4, d6), pièces (Nf3, Bc4), captures (cxd4), roques (O-O),
-  //           promotions (e8=Q), échecs (Nf3+), mat (Qh7#)
-  var SAN_RE=/^[a-hNBRQKO][a-h1-8xNBRQK\-O+#=]{0,5}[+#]?$/;
-  var tokens=text.trim().split(/\s+/).filter(function(m){
-    return m&&SAN_RE.test(m);
-  });
-
-  console.log('[CoupDEchec] PGN — '+tokens.length+' coups détectés : '+tokens.slice(0,12).join(' ')+(tokens.length>12?'…':''));
-  return tokens;
+function cleanPgn(text){
+  // Supprimer les métadonnées entre crochets (gère multilignes avec [\s\S])
+  text=text.replace(/\[.*?\]/g,'');
+  // Supprimer TOUS les commentaires entre accolades (texte libre, apostrophes, espaces…)
+  text=text.replace(/\{[^}]*\}/g,'');
+  // Supprimer les annotations $1 $2 etc.
+  text=text.replace(/\$\d+/g,'');
+  // Supprimer les résultats
+  text=text.replace(/1-0|0-1|1\/2-1\/2|\*/g,'');
+  // Supprimer les numéros de coups noirs "6..." puis blancs "1."
+  text=text.replace(/\d+\.\.\./g,'');
+  text=text.replace(/\d+\./g,'');
+  // Nettoyer les espaces multiples
+  text=text.replace(/\s+/g,' ').trim();
+  return text;
 }
 
 function pgnApplyMove(brd,castle,turn,san){
@@ -501,7 +481,11 @@ function uciToDisplay(board,uci){
    PGN → POSITIONS
 ══════════════════════════════════════════════ */
 function parsePgn(text){
-  var sans=parsePgnText(text);
+  var cleaned=cleanPgn(text);
+  console.log('Après nettoyage:',cleaned.substring(0,200));
+  var SAN_RE=/^[a-hNBRQKO][a-h1-8xNBRQK\-O+#=]{0,5}[+#]?$/;
+  var sans=cleaned.split(' ').filter(function(m){return m&&SAN_RE.test(m);});
+  console.log('Coups trouvés:',sans.length);
   if(!sans.length)return null;
   var positions=[],moves=[];
   var cur={board:startPos(),castle:{wK:true,wQ:true,bK:true,bQ:true},turn:'w'};
