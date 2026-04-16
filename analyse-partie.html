@@ -483,9 +483,9 @@ function uciToDisplay(board,uci){
 function parsePgn(text){
   var cleaned=cleanPgn(text);
   console.log('Après nettoyage:',cleaned.substring(0,200));
-  var SAN_RE=/^[a-hNBRQKO][a-h1-8xNBRQK\-O+#=]{0,5}[+#]?$/;
-  var sans=cleaned.split(' ').filter(function(m){return m&&SAN_RE.test(m);});
-  console.log('Coups trouvés:',sans.length);
+  var tokens=cleaned.split(' ').filter(function(t){return t.length>0;});
+  var sans=tokens.filter(function(t){return /^[a-hNBRQKO]/.test(t)&&t.length<=7;});
+  console.log('Coups trouvés:',sans.length,sans);
   if(!sans.length)return null;
   var positions=[],moves=[];
   var cur={board:startPos(),castle:{wK:true,wQ:true,bK:true,bQ:true},turn:'w'};
