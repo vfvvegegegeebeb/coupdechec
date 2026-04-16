@@ -380,10 +380,8 @@ function canPieceReach(brd,pc,from,to,turn){
 }
 
 function cleanPgn(text){
-  // Supprimer les métadonnées entre crochets (gère multilignes avec [\s\S])
-  text=text.replace(/\[.*?\]/g,'');
-  // Supprimer TOUS les commentaires entre accolades (texte libre, apostrophes, espaces…)
-  text=text.replace(/\{[\s\S]*?\}/g,' ');
+  text = text.replace(/\{[\s\S]*?\}/g, ' ');   // commentaires multilignes
+  text = text.replace(/\[[\s\S]*?\]/g, ' ');   // métadonnées multilignes
   // Supprimer les annotations $1 $2 etc.
   text=text.replace(/\$\d+/g,'');
   // Supprimer les résultats
@@ -484,7 +482,9 @@ function parsePgn(text){
   var cleaned=cleanPgn(text);
   console.log('Après nettoyage:',cleaned.substring(0,200));
   var tokens=cleaned.split(' ').filter(function(t){return t.length>0;});
+  console.log("TOKENS BRUTS:", tokens.slice(0,20));
   var sans=tokens.filter(function(t){return /^[a-hNBRQKO]/.test(t)&&t.length<=7;});
+  console.log("SANS FILTRÉS:", sans.slice(0,20));
   console.log('Coups trouvés:',sans.length,sans);
   if(!sans.length)return null;
   var positions=[],moves=[];
