@@ -368,7 +368,7 @@ function canPieceReach(brd,pc,from,to,turn){
     case 'P':{
       var dir=turn==='w'?1:-1;
       if(df===0){if(target)return false;if(dr===dir)return true;if(dr===2*dir&&ri0===(turn==='w'?2:7)&&!brd[from[0]+(ri0+dir)])return true;}
-      else if(Math.abs(df)===1&&dr===dir)return true;
+      else if(Math.abs(df)===1&&dr===dir&&target)return true;
       return false;}
     case 'N':return(Math.abs(df)===1&&Math.abs(dr)===2)||(Math.abs(df)===2&&Math.abs(dr)===1);
     case 'B':return Math.abs(df)===Math.abs(dr)&&df!==0&&isPathClear(brd,from,to);
@@ -383,6 +383,7 @@ function cleanPgn(text){
   text = text.replace(/\r/g, '');               // supprimer \r Windows
   text = text.replace(/\{[\s\S]*?\}/g, ' ');   // commentaires multilignes
   text = text.replace(/\[[\s\S]*?\]/g, ' ');   // métadonnées multilignes
+  var prev; do{prev=text;text=text.replace(/\([^()]*\)/g,' ');}while(text!==prev); // variantes imbriquées
   // Supprimer les annotations $1 $2 etc.
   text=text.replace(/\$\d+/g,'');
   // Supprimer les résultats
