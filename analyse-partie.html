@@ -380,6 +380,7 @@ function canPieceReach(brd,pc,from,to,turn){
 }
 
 function cleanPgn(text){
+  text = text.replace(/\r/g, '');               // supprimer \r Windows
   text = text.replace(/\{[\s\S]*?\}/g, ' ');   // commentaires multilignes
   text = text.replace(/\[[\s\S]*?\]/g, ' ');   // métadonnées multilignes
   // Supprimer les annotations $1 $2 etc.
