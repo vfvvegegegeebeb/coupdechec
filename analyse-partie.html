@@ -491,6 +491,9 @@ function parsePgn(text){
   console.log("TOKENS BRUTS:", tokens.slice(0,20));
   var sans=tokens.filter(function(t){return /^[a-hNBRQKO]/.test(t)&&t.length<=7;});
   console.log("SANS FILTRÉS:", sans.slice(0,20));
+  console.log("TOTAL SANS:", sans.length);
+  console.log("SANS[0-10]:", sans.slice(0,10));
+  console.log("SANS[10-20]:", sans.slice(10,20));
   console.log('Coups trouvés:',sans.length,sans);
   if(!sans.length)return null;
   var positions=[],moves=[];
